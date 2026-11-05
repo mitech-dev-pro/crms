@@ -50,6 +50,7 @@ describe("approval routes", () => {
 const facts = (over: Partial<ChangeFacts> = {}): ChangeFacts => ({
   status: "PendingApproval",
   requesterId: "ama",
+  requester: { role: "requester" },
   implementerId: "kojo",
   plannedDate: new Date("2026-11-20"),
   steps: buildSteps(["lineManager", "deptHead", "changeManager"]).map((s, i) => ({ ...s, id: `s${i}` })),
@@ -118,6 +119,36 @@ describe("who may do what", () => {
     expect(allowedActions(facts({ status: "InProgress" }), kojo).markImplemented).toBe(false);
     expect(allowedActions(facts({ status: "InProgress", tasks: [{ done: true }, { done: true }] }), kojo).markImplemented).toBe(true);
     expect(allowedActions(facts({ status: "InProgress", tasks: [] }), kojo).markImplemented).toBe(false);
+  });
+
+  describe("super admin break-glass override", () => {
+    // Yaw (Change Manager) raised a change whose only stage is Change Manager.
+    const blocked = facts({
+      requesterId: "yaw",
+      requester: { role: "changeManager" },
+      steps: [{ id: "s0", order: 0, role: "changeManager", status: "pending" }],
+    });
+    const superAdmin = { id: "sa", role: "superAdmin" } as const;
+
+    it("is allowed only when the requester holds the pending stage's role", () => {
+      expect(allowedActions(blocked, superAdmin).override).toBe(true);
+      expect(allowedActions(facts(), superAdmin).override).toBe(false); // normal change: no conflict
+    });
+
+    it("is never allowed on the super admin's own change", () => {
+      expect(allowedActions({ ...blocked, requesterId: "sa" }, superAdmin).override).toBe(false);
+    });
+
+    it("is never allowed once the change has left approval", () => {
+      expect(allowedActions({ ...blocked, status: "Scheduled" }, superAdmin).override).toBe(false);
+    });
+
+    it("is for super admins only, and a deputy uses the normal decision instead", () => {
+      const deputy = { id: "deputy", role: "changeManager" } as const;
+      expect(allowedActions(blocked, deputy).override).toBe(false);
+      expect(allowedActions(blocked, deputy).decide).toBe(true);
+      expect(allowedActions(blocked, { id: "selorm", role: "admin" }).override).toBe(false);
+    });
   });
 
   it("only the requester can edit, and only a draft or returned change", () => {

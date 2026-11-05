@@ -16,6 +16,7 @@ async function signIn(handle: string): Promise<Agent> {
 }
 
 let ama: Agent, kwame: Agent, efua: Agent, yaw: Agent, kojo: Agent, akosua: Agent, nana: Agent, martin: Agent;
+let deputy: Agent, superAdmin: Agent;
 let amaId: string, kojoId: string;
 let dept: Record<string, string>, type: Record<string, string>;
 
@@ -23,6 +24,8 @@ beforeAll(async () => {
   const handles = ["ama.mensah", "kwame.boateng", "efua.asante", "yaw.owusu", "kojo.frimpong", "akosua.darko", "nana.agyeman", "martin.amudzi"] as const;
   const agents = await Promise.all(handles.map(signIn));
   [ama, kwame, efua, yaw, kojo, akosua, nana, martin] = agents as [Agent, Agent, Agent, Agent, Agent, Agent, Agent, Agent];
+  deputy = await signIn("deputy.change.manager");
+  superAdmin = await signIn("super.admin");
   amaId = (await ama.get("/api/auth/me")).body.id;
   const meta = (await ama.get("/api/meta").expect(200)).body;
   dept = Object.fromEntries(meta.departments.map((d: { name: string; id: string }) => [d.name, d.id]));
@@ -132,6 +135,45 @@ describe("segregation of duties", () => {
 
     const res = await decide(yaw, c.ref, "approve").expect(403);
     expect(res.body.error.message).toBe("You cannot approve a change you raised");
+  });
+});
+
+describe("when the requester holds the only stage role", () => {
+  // Yaw (Change Manager) raises an IT Low change; IT's Low route is Change Manager only.
+  const yawsItLowChange = async () =>
+    (await yaw.post("/api/changes").send(changeBody({ departmentId: dept["IT"], impact: 1, likelihood: 1 })).expect(201)).body;
+
+  it("the normal fix: a deputy Change Manager approves it", async () => {
+    const c = await yawsItLowChange();
+    const view = (await deputy.get(`/api/changes/${c.ref}`).expect(200)).body;
+    expect(view.actions.decide).toBe(true);
+
+    const approved = (await decide(deputy, c.ref, "approve").expect(200)).body;
+    expect(approved.status).toBe("Scheduled");
+    expect(approved.steps[0].decidedBy.name).toBe("Deputy Change Manager");
+    expect(approved.steps[0].overridden).toBe(false);
+  });
+
+  it("break-glass: a super admin can override, but only with a reason, and it is flagged", async () => {
+    const c = await yawsItLowChange();
+    const view = (await superAdmin.get(`/api/changes/${c.ref}`).expect(200)).body;
+    expect(view.actions.override).toBe(true);
+    expect(view.actions.decide).toBe(false);
+
+    const noReason = await decide(superAdmin, c.ref, "approve").expect(400);
+    expect(noReason.body.error.fields.comment).toBe("A reason is required for an override");
+
+    const done = (await decide(superAdmin, c.ref, "approve", "Deputy on leave; certificate expires tonight").expect(200)).body;
+    expect(done.status).toBe("Scheduled");
+    expect(done.steps[0]).toMatchObject({ status: "approved", overridden: true, comment: "Deputy on leave; certificate expires tonight" });
+    expect(done.steps[0].decidedBy.name).toBe("Super Admin");
+    expect(done.activity.map((a: { action: string }) => a.action)).toContain("Approved (override) at Change Manager stage");
+  });
+
+  it("a super admin cannot override a normal change that someone else can approve", async () => {
+    const c = (await ama.post("/api/changes").send(changeBody()).expect(201)).body;
+    const res = await decide(superAdmin, c.ref, "approve", "Speeding it up").expect(403);
+    expect(res.body.error.message).toMatch(/only override a stage the requester is blocked from/);
   });
 });
 

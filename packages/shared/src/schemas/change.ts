@@ -85,6 +85,14 @@ export const routePreviewQuerySchema = z.object({
   plannedDate: z.iso.date().optional(),
 });
 
+/** A super admin override must always say why, whatever the decision. */
+export const overrideReasonSchema = z.object({
+  comment: z
+    .string({ error: "A reason is required for an override" })
+    .trim()
+    .min(1, "A reason is required for an override"),
+});
+
 /** PATCH /api/changes/:ref/tasks/:taskId */
 export const taskUpdateSchema = z.object({ done: z.boolean() });
 

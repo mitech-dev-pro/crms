@@ -1,5 +1,5 @@
 import {
-  CHANGE_STATUSES, CHANGE_STATUS_LABELS, ROLE_LABELS, calcRisk, changeCreateSchema, tierFor,
+  CHANGE_STATUSES, CHANGE_STATUS_LABELS, ROLE_LABELS, calcRisk, changeCreateSchema, overrideReasonSchema, tierFor,
   type ChangeDraftInput, type ChangeListQuery, type ChangeStatus, type ChangeUpdateInput,
   type DecisionInput, type Level, type PirInput, type Role,
 } from "@crms/shared";
@@ -237,11 +237,16 @@ export async function decideChange(u: Actor, ref: string, input: DecisionInput) 
   await prisma.$transaction(async (tx) => {
     const c = await loadForAction(tx, ref, u);
     const acts = allowedActions(c, u);
-    if (!acts.decide) {
+    const viaOverride = !acts.decide && acts.override;
+    if (!acts.decide && !acts.override) {
       if (c.status !== "PendingApproval") throw conflict("This change is not awaiting approval");
       if (acts.sodBlocked) throw forbidden("You cannot approve a change you raised");
+      if (u.role === "superAdmin") {
+        throw forbidden("A super admin can only override a stage the requester is blocked from approving, and never on their own change");
+      }
       throw forbidden(`This change is waiting at the ${ROLE_LABELS[pendingStep(c.steps)!.role]} stage`);
     }
+    if (viaOverride) overrideReasonSchema.parse({ comment: input.comment }); // 400 if no reason
 
     const { current, updates, status } = applyDecision(c, input.kind);
     const now = new Date();
@@ -251,7 +256,7 @@ export async function decideChange(u: Actor, ref: string, input: DecisionInput) 
         // the same moment can't both decide it.
         const res = await tx.approvalStep.updateMany({
           where: { id: current.id, status: "pending" },
-          data: { status: upd.status, decidedById: u.id, decidedAt: now, comment: input.comment || null },
+          data: { status: upd.status, decidedById: u.id, decidedAt: now, comment: input.comment || null, overridden: viaOverride },
         });
         if (res.count !== 1) throw conflict("This stage was just decided by someone else. Reload and try again.");
       } else {
@@ -261,9 +266,11 @@ export async function decideChange(u: Actor, ref: string, input: DecisionInput) 
     await tx.change.update({ where: { id: c.id }, data: { status } });
 
     const verb = { approve: "Approved", reject: "Rejected", return: "Returned for rework" }[input.kind];
+    // Overrides get their own wording so they stand out when the audit trail is reviewed.
     await writeAudit({
-      action: `${verb} at ${ROLE_LABELS[current.role]} stage`, category: "decision", user: u, ref, ip: u.ip,
-      meta: input.comment ? { comment: input.comment } : undefined,
+      action: `${verb}${viaOverride ? " (override)" : ""} at ${ROLE_LABELS[current.role]} stage`,
+      category: "decision", user: u, ref, ip: u.ip,
+      meta: viaOverride ? { override: true, reason: input.comment } : input.comment ? { comment: input.comment } : undefined,
     }, tx);
   });
   return getChange(u, ref);

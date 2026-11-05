@@ -531,7 +531,15 @@ Each phase ends in something you can run. Agents: **finish a phase, show it work
     - New changes get the prototype's 4 default checklist items.
     - Refs are `CHG-<year>-NNNN`, retried on a unique-index collision.
   - **Deferred to Phase 6:** CSV export and attachment upload (`multer`).
-  - **Open question:** if the requester is the only holder of a stage role (e.g. the Change Manager raising an IT Low change, whose route is Change Manager only), nobody can approve it. Decide who steps in: another Change Manager, a deputy, or a superAdmin override.
+  - **Resolved (2026-11-05): who approves when the requester holds the only stage role?** The project owner chose both options below. Tests: 36 passing.
+    - **Normal path: a deputy.** Any second user with the same role approves. A seeded **Deputy Change Manager** (`deputy.change.manager@milife.com.gh`, IT) covers the Change Manager case.
+    - **Break-glass: the super admin.**
+      - **When:** only when the requester holds the pending stage's role (`actions.override`), and never on the super admin's own change.
+      - **Reason required:** a comment is mandatory, even to approve.
+      - **Recorded:** the step gets `overridden = true` (migration `approval_step_override`), and the audit action is `"<Verb> (override) at <Stage> stage"` with `meta.reason`.
+      - **Anything else:** any other super admin decision attempt returns 403.
+      - Seeded **Super Admin** (`super.admin@milife.com.gh`, IT). Both new users have placeholder names and were appended last, so existing `USR-` codes are unchanged.
+    - **Phase 7:** notify the Change Manager and Risk & Compliance whenever an override is used.
 
 ### Phase 5: Frontend wired to the API
 1. Design tokens + Manrope + dark mode toggle in `globals.css` / root layout.
@@ -567,4 +575,4 @@ Rate-limit login, attachments storage (local → S3/Blob later), email notificat
 5. Email/Teams notifications in v1?
 6. Hosting target (on-prem vs cloud) and MySQL version available.
 7. Change reference numbering: `CHG-<year>-<4 digits>`, resetting each year?
-8. **`superAdmin` role:** what can it do beyond `admin`? Can it approve changes, override segregation of duties, or manage other admins? It currently sees every screen and is in no approval route. Should a superAdmin user be seeded?
+8. **`superAdmin` role:** partly decided. It sees every screen and has the break-glass approval override (Phase 4 notes). Still open: may it manage other admins and change roles? If it can grant itself access *and* approve, consider requiring a second person for role changes.

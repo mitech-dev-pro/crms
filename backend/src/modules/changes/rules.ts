@@ -8,6 +8,7 @@ export type StepFacts = { id: string; order: number; role: Role; status: StepSta
 export type ChangeFacts = {
   status: ChangeStatus;
   requesterId: string;
+  requester: { role: Role };
   implementerId: string | null;
   plannedDate: Date | null;
   steps: StepFacts[];
@@ -37,6 +38,9 @@ export function allowedActions(c: ChangeFacts, u: Actor) {
   const atMyStage = c.status === "PendingApproval" && pending?.role === u.role;
   const isImplementer = isImplementerOf(c, u);
   const allTasksDone = c.tasks.length > 0 && c.tasks.every((t) => t.done);
+  // The requester holds the role of the stage they are waiting at, so segregation
+  // of duties stops them, and possibly nobody else holds that role.
+  const stageConflict = c.status === "PendingApproval" && !!pending && c.requester.role === pending.role;
 
   return {
     edit: isRequester && editable.includes(c.status),
@@ -45,6 +49,12 @@ export function allowedActions(c: ChangeFacts, u: Actor) {
     decide: atMyStage && !isRequester,
     /** True when it is your stage but you raised the change (segregation of duties). */
     sodBlocked: atMyStage && isRequester,
+    /**
+     * Break-glass: a super admin may decide a stage the requester is blocked from,
+     * with a mandatory reason. Never on a change they raised themselves.
+     * Normal path for this case: a deputy holding the same role approves it.
+     */
+    override: u.role === "superAdmin" && stageConflict && !isRequester,
     start: isImplementer && startable.includes(c.status),
     updateTasks: isImplementer && c.status === "InProgress",
     markImplemented: isImplementer && c.status === "InProgress" && allTasksDone,

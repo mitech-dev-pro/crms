@@ -52,7 +52,7 @@ async function main() {
   const passwordHash = await bcrypt.hash(DEMO_PASSWORD, 10);
   const people = [
     ...PERSONAS.map((p) => ({ ...p, status: "Active" as const })),
-    ...OTHER_USERS.map((u) => ({ ...u, title: undefined })),
+    ...OTHER_USERS,
   ];
   await prisma.user.createMany({
     data: people.map((p, i) => ({

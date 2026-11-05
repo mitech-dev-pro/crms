@@ -22,7 +22,7 @@ export const personaFor = (role: Role) => PERSONAS.find((p) => p.role === role)!
 
 type Status = "Active" | "Invited" | "Disabled";
 
-export const OTHER_USERS: { name: string; role: Role; dept: string; status: Status }[] = [
+export const OTHER_USERS: { name: string; role: Role; dept: string; status: Status; title?: string }[] = [
   { name: "Christiana Kyei", role: "deptHead", dept: "Underwriting", status: "Active" },
   { name: "Martin Amudzi", role: "deptHead", dept: "Finance", status: "Active" },
   { name: "Safoa Awuku-Asabre", role: "deptHead", dept: "HR", status: "Active" },
@@ -47,6 +47,10 @@ export const OTHER_USERS: { name: string; role: Role; dept: string; status: Stat
     const status: Status = i === 6 || i === 15 ? "Invited" : i === 11 ? "Disabled" : "Active";
     return { name, role, dept, status };
   }),
+  // Not in the prototype. Placeholder names — rename to real staff when known.
+  // Appended last so existing user codes (USR-0201…) don't shift.
+  { name: "Deputy Change Manager", role: "changeManager", dept: "IT", status: "Active", title: "Deputy Change & Release Manager" },
+  { name: "Super Admin", role: "superAdmin", dept: "IT", status: "Active", title: "Super Administrator" },
 ];
 
 /** [code, name, head, line manager] */

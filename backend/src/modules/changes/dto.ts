@@ -19,7 +19,7 @@ export const listInclude = {
 export const detailInclude = {
   type: { select: { id: true, label: true } },
   department: { select: { id: true, name: true } },
-  requester: person,
+  requester: { select: { id: true, name: true, role: true } }, // role: needed for the override rule
   implementer: person,
   steps: { orderBy: { order: "asc" }, include: { decidedBy: person } },
   tasks: { orderBy: { order: "asc" }, include: { doneBy: person } },
@@ -60,7 +60,7 @@ export function toDetail(c: DetailRow, user: Actor) {
     currentStage: stageInfo(c.steps),
     steps: c.steps.map((s) => ({
       id: s.id, order: s.order, role: s.role, roleLabel: ROLE_LABELS[s.role], status: s.status,
-      decidedBy: s.decidedBy, decidedAt: s.decidedAt, comment: s.comment,
+      decidedBy: s.decidedBy, decidedAt: s.decidedAt, comment: s.comment, overridden: s.overridden,
     })),
     tasks: c.tasks.map((t) => ({ id: t.id, order: t.order, label: t.label, done: t.done, doneAt: t.doneAt, doneBy: t.doneBy })),
     attachments: c.attachments.map((a) => ({ id: a.id, fileName: a.fileName, sizeBytes: a.sizeBytes, uploadedAt: a.uploadedAt })),

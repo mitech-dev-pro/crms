@@ -185,6 +185,8 @@ model ApprovalStep {
   decidedBy   User?      @relation(fields: [decidedById], references: [id], onDelete: SetNull)
   decidedAt   DateTime?
   comment     String?    @db.Text
+  /// True when a super admin decided this stage as a break-glass override.
+  overridden  Boolean    @default(false)
 
   @@unique([changeId, order])
   @@index([role, status])
