@@ -30,13 +30,14 @@ const statusLabel = (s: ChangeStatus) => CHANGE_STATUS_LABELS[s].toLowerCase();
  * Requesters see only their own changes. Everyone else sees all changes
  * except other people's drafts, which stay private until submitted.
  */
-function visibleTo(u: Actor): Prisma.ChangeWhereInput {
+export function visibleTo(u: Actor): Prisma.ChangeWhereInput {
   return u.role === "requester" ? { requesterId: u.id } : { OR: [{ status: { not: "Draft" } }, { requesterId: u.id }] };
 }
 
 // ------------------------------------------------------------------ reads
 
-export async function listChanges(u: Actor, q: ChangeListQuery) {
+/** The list's filters and sort as Prisma arguments. Shared by the list and the CSV export. */
+function listArgs(u: Actor, q: Omit<ChangeListQuery, "page" | "pageSize">) {
   const filters: Prisma.ChangeWhereInput = {
     AND: [
       visibleTo(u),
@@ -56,7 +57,11 @@ export async function listChanges(u: Actor, q: ChangeListQuery) {
     risk: [{ tier: "desc" as const }, { plannedDate: "asc" as const }], // enum order: Emergency, High, Medium, Low
     ref: [{ ref: "desc" as const }],
   }[q.sort];
+  return { filters, where, orderBy };
+}
 
+export async function listChanges(u: Actor, q: ChangeListQuery) {
+  const { filters, where, orderBy } = listArgs(u, q);
   const [rows, total, byStatus] = await Promise.all([
     prisma.change.findMany({ where, orderBy, skip: (q.page - 1) * q.pageSize, take: q.pageSize, include: listInclude }),
     prisma.change.count({ where }),
@@ -68,6 +73,25 @@ export async function listChanges(u: Actor, q: ChangeListQuery) {
   for (const g of byStatus) counts[g.status] = g._count._all;
 
   return { items: rows.map(toListItem), total, page: q.page, pageSize: q.pageSize, counts };
+}
+
+const EXPORT_LIMIT = 5000;
+
+/** Everything matching the list filters (up to 5,000 rows) as CSV rows. The export is audited. */
+export async function exportChanges(u: Actor, q: Omit<ChangeListQuery, "page" | "pageSize">) {
+  const { where, orderBy } = listArgs(u, q);
+  const rows = await prisma.change.findMany({ where, orderBy, take: EXPORT_LIMIT, include: listInclude });
+  await writeAudit({ action: "Exported change requests (CSV)", category: "export", user: u, ip: u.ip, meta: { rows: rows.length, filters: q } });
+
+  const header = ["Reference", "Title", "Status", "Risk tier", "Risk score", "Type", "Department", "Requester", "Implementer", "Planned date", "Window", "Current stage", "Created"];
+  return [
+    header,
+    ...rows.map(toListItem).map((c) => [
+      c.ref, c.title, CHANGE_STATUS_LABELS[c.status], c.tier, c.score, c.type.label, c.department.name,
+      c.requester.name, c.implementer?.name ?? "", c.plannedDate ?? "", c.window ?? "",
+      c.currentStage ? `${c.currentStage.label} (${c.currentStage.index}/${c.currentStage.total})` : "", c.createdAt.slice(0, 10),
+    ]),
+  ];
 }
 
 export async function getChange(u: Actor, ref: string, db: Tx | typeof prisma = prisma) {

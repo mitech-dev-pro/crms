@@ -4,12 +4,13 @@ import { CHANGE_STATUS_LABELS, RISK_TIERS, type ChangeListQuery, type ChangeStat
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import ChangeTable from "@/components/changes/ChangeTable";
-import { ButtonLink } from "@/components/ui/Button";
+import { Download } from "lucide-react";
+import { ButtonLink, buttonClass } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Input, Select } from "@/components/ui/Form";
 import { Pagination } from "@/components/ui/Pagination";
 import { ErrorState, Spinner } from "@/components/ui/States";
-import { useChanges, useMe, useMeta } from "@/lib/queries";
+import { exportUrl, useChanges, useMe, useMeta } from "@/lib/queries";
 
 // Status chips, in the prototype's order.
 const CHIPS: ("All" | ChangeStatus)[] = ["All", "PendingApproval", "ReturnedForRework", "Scheduled", "InProgress", "Implemented", "Closed", "Rejected", "Draft"];
@@ -70,7 +71,13 @@ export default function ChangeListView() {
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-muted">{me?.role === "requester" ? "Your change requests" : "All change requests you can see"}</p>
-        {me?.permissions.includes("new") && <ButtonLink href="/changes/new">New request</ButtonLink>}
+        <div className="flex gap-2">
+          {/* Exports exactly what the filters show (all pages). */}
+          <a href={exportUrl("/changes/export.csv", { ...query, page: undefined, pageSize: undefined })} className={buttonClass("secondary")} download>
+            <Download size={15} /> Export CSV
+          </a>
+          {me?.permissions.includes("new") && <ButtonLink href="/changes/new">New request</ButtonLink>}
+        </div>
       </div>
 
       <div className="flex flex-wrap gap-2" role="group" aria-label="Filter by status">

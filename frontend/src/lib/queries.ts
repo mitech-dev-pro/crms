@@ -3,8 +3,9 @@
 // Every API call the UI makes, as TanStack Query hooks.
 // Queries read and cache; mutations change data and then refresh the affected queries.
 import type {
-  ChangeDetail, ChangeDraftInput, ChangeListQuery, ChangeListResponse, ChangeUpdateInput, DecisionInput,
-  InboxResponse, LoginInput, MetaResponse, PirInput, RoutePreview, SessionUser,
+  AuditListResponse, AuditQuery, CalendarResponse, ChangeDetail, ChangeDraftInput, ChangeListQuery, ChangeListResponse,
+  ChangeUpdateInput, DecisionInput, FreezeDto, FreezeInput, InboxResponse, LoginInput, MetaResponse, PirInput,
+  ReportPeriod, ReportsResponse, RoutePreview, SessionUser, WorkflowsResponse,
 } from "@crms/shared";
 import { useMutation, useQuery, useQueryClient, keepPreviousData } from "@tanstack/react-query";
 import { api } from "./api";
@@ -48,6 +49,38 @@ export const useRoutePreview = (q: RoutePreviewQuery | null) =>
     enabled: !!q?.departmentId,
     placeholderData: keepPreviousData,
   });
+
+export const useCalendar = (from: string, to: string) =>
+  useQuery({ queryKey: ["calendar", from, to], queryFn: () => api<CalendarResponse>("/calendar", { query: { from, to } }), placeholderData: keepPreviousData });
+
+export const useFreezes = () => useQuery({ queryKey: ["freezes"], queryFn: () => api<{ items: FreezeDto[] }>("/freezes") });
+
+export const useWorkflows = () => useQuery({ queryKey: ["workflows"], queryFn: () => api<WorkflowsResponse>("/workflows") });
+
+export const useReports = (period: ReportPeriod) =>
+  useQuery({ queryKey: ["reports", period], queryFn: () => api<ReportsResponse>("/reports", { query: { period } }), placeholderData: keepPreviousData });
+
+export const useAudit = (q: Partial<AuditQuery>) =>
+  useQuery({ queryKey: ["audit", q], queryFn: () => api<AuditListResponse>("/audit", { query: q }), placeholderData: keepPreviousData });
+
+/** Freezes change routing, so refresh anything that shows routes or dates too. */
+function useFreezeMutation<V, R>(fn: (v: V) => Promise<R>) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: fn,
+    onSuccess: () => {
+      for (const key of [["freezes"], ["calendar"], keys.meta, ["route-preview"]]) qc.invalidateQueries({ queryKey: key });
+    },
+  });
+}
+export const useCreateFreeze = () => useFreezeMutation((v: FreezeInput) => api<FreezeDto>("/freezes", { method: "POST", body: v }));
+export const useDeleteFreeze = () => useFreezeMutation((id: string) => api<void>(`/freezes/${id}`, { method: "DELETE" }));
+
+/** Download URL for a CSV export with the given filters (the browser sends the session cookie). */
+export const exportUrl = (path: string, query: Record<string, unknown> = {}) => {
+  const qs = new URLSearchParams(Object.entries(query).filter(([, v]) => v !== undefined && v !== "").map(([k, v]) => [k, String(v)])).toString();
+  return `/api${path}${qs ? `?${qs}` : ""}`;
+};
 
 // ------------------------------------------------------------------ auth
 

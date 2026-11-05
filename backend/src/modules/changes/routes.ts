@@ -3,6 +3,7 @@ import {
   pirSchema, routePreviewQuerySchema, submitSchema, taskUpdateSchema,
 } from "@crms/shared";
 import { Router, type Request } from "express";
+import { datedName, sendCsv } from "../../lib/csv";
 import { requireAuth, requirePerm } from "../../middleware/auth";
 import * as changes from "./service";
 
@@ -16,6 +17,12 @@ const ref = (req: Request) => String(req.params.ref);
 
 changesRouter.get("/", requirePerm("changes"), async (req, res) => {
   res.json(await changes.listChanges(actor(req), changeListQuerySchema.parse(req.query)));
+});
+
+// Same filters as the list, as a CSV download. Before "/:ref" like route-preview.
+changesRouter.get("/export.csv", requirePerm("changes"), async (req, res) => {
+  const { page: _p, pageSize: _s, ...filters } = changeListQuerySchema.parse(req.query);
+  sendCsv(res, datedName("changes"), await changes.exportChanges(actor(req), filters));
 });
 
 // Must come before "/:ref", or Express would treat "route-preview" as a ref.

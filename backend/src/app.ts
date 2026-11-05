@@ -10,6 +10,8 @@ import { authRouter } from "./modules/auth/routes";
 import { changesRouter } from "./modules/changes/routes";
 import { healthRouter } from "./modules/health/routes";
 import { metaRouter } from "./modules/meta/routes";
+import { planningRouter } from "./modules/planning/routes";
+import { reportsRouter } from "./modules/reports/routes";
 
 /**
  * Builds the Express app without starting it, so tests can import it
@@ -36,6 +38,8 @@ export function createApp() {
   app.use("/api/audit", auditRouter);
   app.use("/api/changes", changesRouter);
   app.use("/api/approvals", approvalsRouter);
+  app.use("/api/reports", reportsRouter);
+  app.use("/api", planningRouter); // /api/calendar, /api/freezes, /api/workflows
 
   // These two must come last.
   app.use(notFoundHandler);

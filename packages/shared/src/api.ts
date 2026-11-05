@@ -102,6 +102,34 @@ export type RoutePreview = {
   freeze: { name: string; from: string; to: string } | null;
 };
 
+export type FreezeDto = { id: string; name: string; from: string; to: string };
+
+export type CalendarResponse = { items: ChangeListItem[]; freezes: FreezeDto[] };
+
+/** Effective routes: the company default plus each department's overrides. */
+export type WorkflowsResponse = {
+  departments: { id: string; code: string; name: string; active: boolean }[];
+  default: Record<RiskTier, Role[]>;
+  overrides: Record<string, Partial<Record<RiskTier, Role[]>>>; // keyed by department id
+};
+
+export type ReportsResponse = {
+  period: { key: "quarter" | "year" | "all"; label: string; from: string | null };
+  kpis: {
+    raised: number;
+    approvalRate: number | null; // approved ÷ (approved + rejected), 0–1
+    avgApprovalDays: number | null; // submit → last approval
+    successRate: number | null; // successful PIRs ÷ all PIRs, 0–1
+    emergencies: number;
+    rejected: number;
+  };
+  byDepartment: { name: string; count: number }[];
+  byTier: Record<RiskTier, number>;
+  byStatus: Record<ChangeStatus, number>;
+  monthly: { month: string; label: string; raised: number; successful: number; failed: number }[];
+  decisionTimeByRole: { role: Role; label: string; avgHours: number; decisions: number }[];
+};
+
 export type AuditListResponse = {
   items: { id: string; at: string; userName: string; role: Role | null; action: string; category: AuditCategory; ref: string | null; ip: string | null }[];
   total: number;
