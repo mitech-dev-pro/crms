@@ -2,14 +2,14 @@
 
 import { IMPACT_LABELS, LIKELIHOOD_LABELS, PIR_OUTCOMES, PIR_OUTCOME_LABELS, pirSchema, ROLE_LABELS, type ChangeDetail, type PirInput } from "@crms/shared";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Paperclip } from "lucide-react";
+import Attachments from "./Attachments";
 import type { ReactNode } from "react";
 import { useForm } from "react-hook-form";
 import { Pill } from "@/components/ui/Badges";
 import { Button } from "@/components/ui/Button";
 import { Field, Select, Textarea } from "@/components/ui/Form";
 import { EmptyState } from "@/components/ui/States";
-import { fileSize, formatDateTime } from "@/lib/format";
+import { formatDateTime } from "@/lib/format";
 import { useMarkImplemented, useReview, useToggleTask } from "@/lib/queries";
 import { StepPill } from "./ChangeDetailView";
 
@@ -33,18 +33,7 @@ export function OverviewTab({ c }: { c: ChangeDetail }) {
       <Section title="Test plan">{c.testPlan || "—"}</Section>
       <Section title="Rollback plan">{c.rollbackPlan || "—"}</Section>
       <Section title="Attachments">
-        {c.attachments.length ? (
-          <ul className="space-y-1">
-            {c.attachments.map((a) => (
-              <li key={a.id} className="flex items-center gap-2">
-                <Paperclip size={14} className="text-muted" /> <span className="font-semibold">{a.fileName}</span>
-                <span className="text-xs text-muted">{fileSize(a.sizeBytes)}</span>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          "None"
-        )}
+        <Attachments c={c} />
       </Section>
     </>
   );

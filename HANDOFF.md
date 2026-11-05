@@ -589,6 +589,39 @@ Each phase ends in something you can run. Agents: **finish a phase, show it work
 
 ### Phase 6: Secondary screens
 Calendar (month grid + freezes), Process flows, Reports, Audit trail (+ export), Administration (departments, users + CSV import, change types, workflow editor, permissions matrix), notifications, mobile approvals layout.
+- ✅ **Done (2026-11-05)**, in three commits. `npm test` in `backend/`: **65 tests, all passing**.
+  - **6a, read-only screens:**
+    - `GET /api/calendar?from&to` returns visible changes in the range (no drafts or rejected) plus overlapping freezes.
+    - `GET|POST|DELETE /api/freezes` (managed by `FREEZE_MANAGERS` = Change Manager and super admin; audited).
+    - `GET /api/workflows` returns the default route plus department overrides.
+    - `GET /api/reports?period=quarter|year|all` gives KPIs, splits by department, tier and status, 6-month outcomes, and the average wait per stage. The maths is in a pure `buildReport()` with unit tests.
+    - **CSV exports** for changes, the audit trail, reports and users (`lib/csv.ts`). They use the same filters as the screens, cap the row count, add a UTF-8 BOM, and guard against formula injection by prefixing `= + - @` cells with `'`. **Every export is audited.**
+    - Screens: calendar (month grid, freeze hatching, freeze panel, legend), process flows (lifecycle plus live routes per department), reports (accessible bar charts with "Show data" tables), and the audit trail.
+  - **6b, administration** (`/api/admin/*`, System Admin and Super Admin):
+    - Departments and change types: add, edit, deactivate. Inactive ones drop out of `/api/meta`, so forms stop offering them.
+    - Users: list with status counts, invite (status Invited), change role, department or status, export, and **CSV import** with a dry run (row-by-row errors, then only valid rows are created).
+    - `PUT /api/admin/workflows`: an empty list resets a department to the default; the default can't be emptied; only approver roles are allowed.
+    - **Account guards:**
+      - Nobody can change their own account.
+      - Only a super admin can grant, remove or touch the admin roles (`canAssignRole`).
+      - Invited users are activated via **Reset password**: a one-time 12-character password returned once with `Cache-Control: no-store`. Only the bcrypt hash is stored, and the password is never logged.
+      - Disabling a user ends their session on their next request.
+    - UI: the prototype's five tabs, including a read-only permissions matrix and a workflow editor (reorder, add, remove, customise, reset).
+  - **6c, attachments and notifications:**
+    - `POST /api/changes/:ref/attachments` (multipart field `files`), `GET …/attachments/:id`, `DELETE …/attachments/:id`.
+    - **Limits:** 10 MB per file, 5 files per upload, 10 per change, and only an allowlist of types (`shared/attachments.ts`), checked by extension *and* content type.
+    - **Storage:** files go under server-generated names `<changeId>/<uuid>.<ext>` in `UPLOAD_DIR` (default `backend/uploads`, git-ignored). The user's file name is never used as a path, and the path guard refuses anything outside the folder.
+    - **Downloads** are always `application/octet-stream` + `attachment`, so a file is never opened in the browser.
+    - **Who:** the requester adds files while the change is a draft, returned or pending; removes them only while it's a draft or returned (`actions.attach` / `actions.removeAttachment`). Downloads follow the change's visibility rule.
+    - The wizard's Describe step collects files and uploads them after save or submit; if that fails, the change page opens with a notice.
+    - **Notification bell:** inbox for approvers, returned requests for requesters, scheduled work for implementers, reviews due for the Change Manager. Refreshes every 60 s. Needed a new `requesterId` list filter.
+    - The mobile approvals layout is covered by the responsive design (drawer nav, stacked rows, decision panel).
+  - **Test isolation:** tests write uploads to `backend/.test-uploads`, emptied on every run. The admin and attachment tests only modify records they create.
+  - **Known gaps, for Phase 7:**
+    - Temporary passwords don't force a change at first sign-in.
+    - Attachments are on local disk (move to object storage for production) with no virus scanning.
+    - Notifications are in-app only (no email).
+    - Seeded attachments have no file behind them (downloads return 404 `FILE_MISSING`).
 
 ### Phase 7: Hardening
 Rate-limit login, attachments storage (local → S3/Blob later), email notifications on stage change, pagination indexes, E2E test (Playwright), deployment notes.
@@ -611,4 +644,7 @@ Rate-limit login, attachments storage (local → S3/Blob later), email notificat
 5. Email/Teams notifications in v1?
 6. Hosting target (on-prem vs cloud) and MySQL version available.
 7. Change reference numbering: `CHG-<year>-<4 digits>`, resetting each year?
-8. **`superAdmin` role:** partly decided. It sees every screen and has the break-glass approval override (Phase 4 notes). Still open: may it manage other admins and change roles? If it can grant itself access *and* approve, consider requiring a second person for role changes.
+8. **`superAdmin` role:** mostly decided and built.
+   - It sees every screen and has the break-glass approval override (Phase 4).
+   - Only it can grant, remove or manage the admin roles, and nobody can change their own account (Phase 6b).
+   - Still open: should granting admin roles need a *second* super admin's approval?

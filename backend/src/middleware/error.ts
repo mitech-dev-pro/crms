@@ -1,4 +1,5 @@
 import type { ErrorRequestHandler, RequestHandler } from "express";
+import { MulterError } from "multer";
 import { ZodError } from "zod";
 import { isProd } from "../config/env";
 import { AppError } from "../lib/errors";
@@ -25,6 +26,14 @@ export const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
 
   if (err instanceof AppError) {
     res.status(err.status).json({ error: { code: err.code, message: err.message } });
+    return;
+  }
+
+  // Upload limits (multer): too big → 413, too many files or a bad form → 400.
+  if (err instanceof MulterError) {
+    const tooBig = err.code === "LIMIT_FILE_SIZE";
+    const message = tooBig ? "A file is larger than 10 MB" : err.code === "LIMIT_FILE_COUNT" || err.code === "LIMIT_UNEXPECTED_FILE" ? "Too many files in one upload (at most 5)" : `Upload rejected (${err.code})`;
+    res.status(tooBig ? 413 : 400).json({ error: { code: err.code, message } });
     return;
   }
 

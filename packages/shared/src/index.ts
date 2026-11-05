@@ -6,4 +6,5 @@ export * from "./schemas/auth";
 export * from "./schemas/audit";
 export * from "./schemas/planning";
 export * from "./schemas/admin";
+export * from "./attachments";
 export type * from "./api";

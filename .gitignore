@@ -17,6 +17,7 @@ backend/src/generated/
 
 # uploaded attachments (Phase 4+)
 backend/uploads/
+backend/.test-uploads/
 
 # logs / OS
 npm-debug.log*

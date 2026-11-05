@@ -46,6 +46,8 @@ export type ChangeActions = {
   updateTasks: boolean;
   markImplemented: boolean;
   review: boolean;
+  attach: boolean;
+  removeAttachment: boolean;
 };
 
 export type ApprovalStepDto = {

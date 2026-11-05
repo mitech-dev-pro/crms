@@ -1,12 +1,15 @@
 "use client";
 
-import { IMPACT_LABELS, LIKELIHOOD_LABELS, calcRisk, type MetaResponse } from "@crms/shared";
-import { AlertTriangle } from "lucide-react";
-import type { ReactNode } from "react";
+import {
+  ATTACHMENT_ACCEPT, IMPACT_LABELS, LIKELIHOOD_LABELS, MAX_ATTACHMENTS_PER_CHANGE, MAX_FILES_PER_UPLOAD, attachmentProblem, calcRisk,
+  type MetaResponse,
+} from "@crms/shared";
+import { AlertTriangle, Paperclip, Upload, X } from "lucide-react";
+import { useState, type ReactNode } from "react";
 import { Controller, useFormContext, useWatch } from "react-hook-form";
 import { Pill } from "@/components/ui/Badges";
 import { Checkbox, Field, Input, OptionCard, Select, Textarea } from "@/components/ui/Form";
-import { formatDate } from "@/lib/format";
+import { fileSize, formatDate } from "@/lib/format";
 import { useRoutePreview } from "@/lib/queries";
 import type { WizardValues } from "./ChangeRequestWizard";
 
@@ -53,8 +56,17 @@ export function ClassifyStep({ meta }: { meta: MetaResponse }) {
 
 // ------------------------------------------------------------------ 2. Describe
 
-export function DescribeStep() {
+export function DescribeStep({ files, onFiles, existingCount }: { files: File[]; onFiles: (f: File[]) => void; existingCount: number }) {
   const { register, control, formState: { errors } } = useFormContext<WizardValues>();
+  const [fileIssue, setFileIssue] = useState<string | null>(null);
+  const room = Math.min(MAX_FILES_PER_UPLOAD, MAX_ATTACHMENTS_PER_CHANGE - existingCount) - files.length;
+  const addFiles = (list: FileList | null) => {
+    const picked = [...(list ?? [])];
+    const issues = picked.map((f) => attachmentProblem(f.name, f.type, f.size)).filter(Boolean);
+    if (picked.length > room) issues.push(`You can add ${Math.max(room, 0)} more file(s) in the wizard`);
+    setFileIssue(issues.length ? issues.join("; ") : null);
+    if (!issues.length) onFiles([...files, ...picked]);
+  };
   return (
     <>
       <StepTitle title="Describe the change">What is changing, and why.</StepTitle>
@@ -83,6 +95,31 @@ export function DescribeStep() {
             )}
           />
         </Field>
+        <div>
+          <p className="mb-1.5 text-sm font-bold text-ink">Evidence &amp; attachments</p>
+          {files.length > 0 && (
+            <ul className="mb-2 space-y-1">
+              {files.map((f, i) => (
+                <li key={`${f.name}-${i}`} className="flex items-center gap-2 text-sm">
+                  <Paperclip size={14} className="text-muted" />
+                  <span className="truncate font-semibold text-ink">{f.name}</span>
+                  <span className="text-xs text-muted">{fileSize(f.size)}</span>
+                  <button type="button" aria-label={`Remove ${f.name}`} onClick={() => onFiles(files.filter((_, j) => j !== i))} className="rounded p-0.5 text-muted hover:text-danger">
+                    <X size={14} />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+          {room > 0 && (
+            <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-dashed border-line-strong px-3 py-1.5 text-sm font-bold text-ink-2 hover:bg-surface-2">
+              <Upload size={14} /> Add files
+              <input type="file" multiple accept={ATTACHMENT_ACCEPT} className="sr-only" onChange={(e) => { addFiles(e.target.files); e.target.value = ""; }} />
+            </label>
+          )}
+          <p className="mt-1 text-xs text-muted">Runbooks, test results, sign-offs. PDF, Office, images, CSV or text, up to 10 MB each. Uploaded when you save or submit.</p>
+          {fileIssue && <p className="mt-1 text-xs font-semibold text-danger">{fileIssue}</p>}
+        </div>
       </div>
     </>
   );

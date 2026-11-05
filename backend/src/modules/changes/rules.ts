@@ -59,6 +59,10 @@ export function allowedActions(c: ChangeFacts, u: Actor) {
     updateTasks: isImplementer && c.status === "InProgress",
     markImplemented: isImplementer && c.status === "InProgress" && allTasksDone,
     review: u.role === "changeManager" && c.status === "Implemented",
+    /** The requester can add evidence until approval is complete… */
+    attach: isRequester && [...editable, "PendingApproval"].includes(c.status),
+    /** …but only remove files while the request is still theirs to edit. */
+    removeAttachment: isRequester && editable.includes(c.status),
   };
 }
 export type AllowedActions = ReturnType<typeof allowedActions>;

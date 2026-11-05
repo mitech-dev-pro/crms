@@ -1,5 +1,5 @@
 import {
-  CHANGE_STATUSES, CHANGE_STATUS_LABELS, ROLE_LABELS, calcRisk, changeCreateSchema, overrideReasonSchema, tierFor,
+  CHANGE_STATUSES, CHANGE_STATUS_LABELS, MAX_ATTACHMENTS_PER_CHANGE, ROLE_LABELS, attachmentProblem, calcRisk, changeCreateSchema, overrideReasonSchema, tierFor,
   type ChangeDetail, type ChangeDraftInput, type ChangeListQuery, type ChangeStatus, type ChangeUpdateInput,
   type DecisionInput, type Level, type PirInput, type Role,
 } from "@crms/shared";
@@ -8,6 +8,7 @@ import { prisma } from "../../lib/db";
 import { AppError, forbidden, notFound } from "../../lib/errors";
 import { writeAudit } from "../../services/audit";
 import { isoDate, routeFor } from "../../services/routing";
+import { deleteUpload, readUpload, saveUpload } from "../../lib/uploads";
 import { detailInclude, listInclude, toDetail, toListItem } from "./dto";
 import { allowedActions, applyDecision, buildSteps, isImplementerOf, pendingStep } from "./rules";
 
@@ -45,6 +46,7 @@ function listArgs(u: Actor, q: Omit<ChangeListQuery, "page" | "pageSize">) {
         ...(q.departmentId && { departmentId: q.departmentId }),
         ...(q.typeId && { typeId: q.typeId }),
         ...(q.implementerId && { implementerId: q.implementerId }),
+        ...(q.requesterId && { requesterId: q.requesterId }),
         ...(q.tier && { tier: q.tier }),
         ...(q.q && { OR: [{ ref: { contains: q.q } }, { title: { contains: q.q } }] }),
       },
@@ -356,3 +358,63 @@ export async function reviewChange(u: Actor, ref: string, pir: PirInput) {
   });
   return getChange(u, ref);
 }
+
+// ------------------------------------------------------------------ attachments
+
+export type UploadedFile = { originalname: string; mimetype: string; size: number; buffer: Buffer };
+
+/** Checks every file first, writes them to disk, then records them (and the audit entry) together. */
+export async function addAttachments(u: Actor, ref: string, files: UploadedFile[]) {
+  if (!files.length) throw new AppError(400, "NO_FILES", "Choose at least one file");
+  const c = await prisma.change.findFirst({ where: { AND: [{ ref }, visibleTo(u)] }, include: detailInclude });
+  if (!c) throw notFound("Change request");
+  if (!allowedActions(c, u).attach) {
+    refuse(c.requesterId === u.id, `Files can't be added once a change is ${statusLabel(c.status)}`, "Only the requester can add files to this change");
+  }
+  const problems = files.map((f) => attachmentProblem(f.originalname, f.mimetype, f.size)).filter(Boolean);
+  if (problems.length) throw new AppError(400, "BAD_FILE", problems.join("; "));
+  if (c.attachments.length + files.length > MAX_ATTACHMENTS_PER_CHANGE) {
+    throw new AppError(409, "TOO_MANY_FILES", `A change can have at most ${MAX_ATTACHMENTS_PER_CHANGE} files (it has ${c.attachments.length})`);
+  }
+
+  const saved: { key: string; f: UploadedFile }[] = [];
+  try {
+    for (const f of files) saved.push({ key: await saveUpload(c.id, f.originalname, f.buffer), f });
+    await prisma.$transaction(async (tx) => {
+      await tx.attachment.createMany({
+        data: saved.map(({ key, f }) => ({ changeId: c.id, fileName: cleanName(f.originalname), sizeBytes: f.size, storageKey: key })),
+      });
+      await writeAudit({ action: `Attached ${saved.length === 1 ? `file: ${cleanName(files[0]!.originalname)}` : `${saved.length} files`}`, category: "change", user: u, ref, ip: u.ip, meta: { files: saved.map((s) => cleanName(s.f.originalname)) } }, tx);
+    });
+  } catch (e) {
+    await Promise.all(saved.map((s) => deleteUpload(s.key))); // don't leave orphaned files behind
+    throw e;
+  }
+  return getChange(u, ref);
+}
+
+export async function removeAttachment(u: Actor, ref: string, attachmentId: string) {
+  const c = await prisma.change.findFirst({ where: { AND: [{ ref }, visibleTo(u)] }, include: detailInclude });
+  if (!c) throw notFound("Change request");
+  const a = c.attachments.find((x) => x.id === attachmentId);
+  if (!a) throw notFound("Attachment");
+  if (!allowedActions(c, u).removeAttachment) {
+    refuse(c.requesterId === u.id, "Files can only be removed while the request is a draft or returned for rework", "Only the requester can remove files");
+  }
+  await prisma.$transaction(async (tx) => {
+    await tx.attachment.delete({ where: { id: a.id } });
+    await writeAudit({ action: `Removed attachment: ${a.fileName}`, category: "change", user: u, ref, ip: u.ip }, tx);
+  });
+  await deleteUpload(a.storageKey);
+  return getChange(u, ref);
+}
+
+/** The file for download — anyone who may see the change may download its files. */
+export async function getAttachment(u: Actor, ref: string, attachmentId: string) {
+  const a = await prisma.attachment.findFirst({ where: { id: attachmentId, change: { AND: [{ ref }, visibleTo(u)] } } });
+  if (!a) throw notFound("Attachment");
+  return { fileName: a.fileName, data: await readUpload(a.storageKey) };
+}
+
+/** Display name: no folders, no control characters, at most 150 characters. */
+const cleanName = (name: string) => (name.split(/[\/]/).pop() ?? "file").replace(/[\u0000-\u001f]/g, "").slice(-150) || "file";

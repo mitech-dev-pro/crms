@@ -73,6 +73,7 @@ export const changeListQuerySchema = z.object({
   departmentId: z.string().optional(),
   typeId: z.string().optional(),
   implementerId: z.string().optional(),
+  requesterId: z.string().optional(),
   tier: z.enum(RISK_TIERS).optional(),
   sort: z.enum(["planned", "newest", "risk", "ref"]).default("planned"),
 });

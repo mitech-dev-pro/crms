@@ -8,7 +8,7 @@ import type {
   ReportPeriod, ReportsResponse, RoutePreview, SessionUser, WorkflowsResponse,
 } from "@crms/shared";
 import { useMutation, useQuery, useQueryClient, keepPreviousData } from "@tanstack/react-query";
-import { api } from "./api";
+import { api, apiUpload } from "./api";
 
 // Query keys: the cache's "addresses". Invalidating a prefix refetches everything under it.
 export const keys = {
@@ -147,3 +147,50 @@ export const useMarkImplemented = (ref: string) =>
 
 export const useReview = (ref: string) =>
   useChangeMutation((v: PirInput) => api<ChangeDetail>(`/changes/${ref}/pir`, { method: "POST", body: v }));
+
+export const useUploadAttachments = (ref: string) =>
+  useChangeMutation((files: File[]) => apiUpload<ChangeDetail>(`/changes/${ref}/attachments`, files));
+
+export const useRemoveAttachment = (ref: string) =>
+  useChangeMutation((id: string) => api<ChangeDetail>(`/changes/${ref}/attachments/${id}`, { method: "DELETE" }));
+
+/** Download link for an attachment (the browser sends the session cookie). */
+export const attachmentUrl = (ref: string, id: string) => `/api/changes/${ref}/attachments/${id}`;
+
+// ------------------------------------------------------------------ notifications
+
+export type Notice = { ref: string; title: string; reason: string };
+
+/**
+ * What needs this user's attention, by role, refreshed every minute:
+ * approvers → their inbox; requesters → changes returned to them;
+ * implementers → scheduled work; Change Manager → reviews due.
+ */
+export function useNotifications(me: SessionUser | undefined) {
+  const every = { refetchInterval: 60_000 };
+  const can = (s: string) => !!me?.permissions.includes(s as never);
+  const inbox = useQuery({ queryKey: keys.inbox, queryFn: () => api<InboxResponse>("/approvals/inbox"), enabled: can("approvals"), ...every });
+  const returned = useQuery({
+    queryKey: keys.changeList({ requesterId: me?.id, status: "ReturnedForRework" }),
+    queryFn: () => api<ChangeListResponse>("/changes", { query: { requesterId: me!.id, status: "ReturnedForRework", pageSize: 20 } }),
+    enabled: !!me && can("changes"), ...every,
+  });
+  const toStart = useQuery({
+    queryKey: keys.changeList({ implementerId: me?.id, status: "Scheduled" }),
+    queryFn: () => api<ChangeListResponse>("/changes", { query: { implementerId: me!.id, status: "Scheduled", pageSize: 20 } }),
+    enabled: me?.role === "implementer", ...every,
+  });
+  const toReview = useQuery({
+    queryKey: keys.changeList({ status: "Implemented" }),
+    queryFn: () => api<ChangeListResponse>("/changes", { query: { status: "Implemented", pageSize: 20 } }),
+    enabled: me?.role === "changeManager", ...every,
+  });
+
+  const items: Notice[] = [
+    ...(inbox.data?.items ?? []).map((c) => ({ ref: c.ref, title: c.title, reason: `Awaiting your decision · ${c.currentStage?.label ?? ""} stage` })),
+    ...(returned.data?.items ?? []).map((c) => ({ ref: c.ref, title: c.title, reason: "Returned to you for rework" })),
+    ...(toStart.data?.items ?? []).map((c) => ({ ref: c.ref, title: c.title, reason: `Ready to implement · planned ${c.plannedDate ?? "—"}` })),
+    ...(toReview.data?.items ?? []).map((c) => ({ ref: c.ref, title: c.title, reason: "Implemented · post-implementation review due" })),
+  ];
+  return { items, loading: inbox.isLoading || returned.isLoading };
+}

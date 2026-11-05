@@ -3,6 +3,7 @@
 import type { ChangeDetail, ChangeStatus } from "@crms/shared";
 import { Check } from "lucide-react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { Mono, Pill, RiskBadge, StatusBadge } from "@/components/ui/Badges";
 import { Card, CardHeader, Facts } from "@/components/ui/Card";
@@ -25,6 +26,7 @@ type Tab = (typeof TABS)[number][0];
 export default function ChangeDetailView({ changeRef }: { changeRef: string }) {
   const { data: c, isPending, isError, error } = useChange(changeRef);
   const [tab, setTab] = useState<Tab>("overview");
+  const uploadFailed = useSearchParams().get("upload") === "failed"; // set by the wizard
 
   if (isPending) return <Spinner />;
   if (isError) return <ErrorState error={error} />;
@@ -43,6 +45,11 @@ export default function ChangeDetailView({ changeRef }: { changeRef: string }) {
         <h2 className="mt-1 text-2xl font-extrabold text-ink">{c.title}</h2>
       </div>
 
+      {uploadFailed && (
+        <p role="alert" className="rounded-xl px-4 py-3 text-sm font-semibold" style={{ background: "var(--amber-bg)", color: "var(--amber-fg)" }}>
+          The request was saved, but some files couldn&apos;t be uploaded. Add them again from Attachments on the Overview tab.
+        </p>
+      )}
       <LifecycleBar status={c.status} />
       <ActionPanel change={c} onShowTab={setTab} />
 

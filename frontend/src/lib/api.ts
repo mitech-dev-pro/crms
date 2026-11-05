@@ -30,6 +30,18 @@ export async function api<T>(path: string, { method = "GET", body, query }: Opti
     body: body !== undefined ? JSON.stringify(body) : undefined,
   });
 
+  return handle<T>(res, path);
+}
+
+/** Uploads files as multipart/form-data (field "files"). The browser sets the boundary header itself. */
+export async function apiUpload<T>(path: string, files: File[]): Promise<T> {
+  const form = new FormData();
+  for (const f of files) form.append("files", f);
+  const res = await fetch(`/api${path}`, { method: "POST", credentials: "include", body: form });
+  return handle<T>(res, path);
+}
+
+async function handle<T>(res: Response, path: string): Promise<T> {
   if (res.status === 204) return undefined as T;
   const data = await res.json().catch(() => ({}));
 

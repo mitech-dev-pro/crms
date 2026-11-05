@@ -12,8 +12,9 @@ import { FormProvider, useForm, type Resolver } from "react-hook-form";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { ErrorState, Forbidden, Spinner } from "@/components/ui/States";
-import { ApiError } from "@/lib/api";
-import { useChange, useCreateChange, useMe, useMeta, useSubmitChange, useUpdateChange } from "@/lib/queries";
+import { useQueryClient } from "@tanstack/react-query";
+import { ApiError, apiUpload } from "@/lib/api";
+import { keys, useChange, useCreateChange, useMe, useMeta, useSubmitChange, useUpdateChange } from "@/lib/queries";
 import { ClassifyStep, DescribeStep, PlanStep, ReviewStep, RiskStep } from "./Steps";
 
 const STEPS = ["Classify", "Describe", "Risk & impact", "Plan", "Review"] as const;
@@ -81,8 +82,29 @@ function WizardForm({ me, meta, existing }: { me: SessionUser; meta: MetaRespons
   const create = useCreateChange();
   const update = useUpdateChange(editRef ?? "");
   const submitExisting = useSubmitChange(editRef ?? "");
-  const busy = create.isPending || update.isPending || submitExisting.isPending;
+  const [uploading, setUploading] = useState(false);
+  const busy = create.isPending || update.isPending || submitExisting.isPending || uploading;
   const [serverError, setServerError] = useState<string | null>(null);
+  const qc = useQueryClient();
+  // Files picked on the Describe step. They're uploaded once the change exists.
+  const [files, setFiles] = useState<File[]>([]);
+
+  /** Uploads the picked files to a saved change, then opens it. A failed upload still opens it, with a notice. */
+  const uploadThenOpen = async (ref: string) => {
+    let failed = false;
+    if (files.length) {
+      setUploading(true);
+      try {
+        await apiUpload(`/changes/${ref}/attachments`, files);
+      } catch {
+        failed = true;
+      } finally {
+        setUploading(false);
+        await qc.invalidateQueries({ queryKey: keys.change(ref) }); // show the new files on the detail page
+      }
+    }
+    router.push(`/changes/${ref}${failed ? "?upload=failed" : ""}`);
+  };
 
   const goTo = (i: number) => {
     setStep(i);
@@ -112,10 +134,10 @@ function WizardForm({ me, meta, existing }: { me: SessionUser; meta: MetaRespons
         if (editRef) {
           await update.mutateAsync(draftPayload(values as WizardValues));
           await submitExisting.mutateAsync();
-          router.push(`/changes/${editRef}`);
+          await uploadThenOpen(editRef);
         } else {
           const created = await create.mutateAsync({ ...values, submit: true });
-          router.push(`/changes/${created.ref}`);
+          await uploadThenOpen(created.ref);
         }
       } catch (e) {
         handleServerError(e);
@@ -133,7 +155,7 @@ function WizardForm({ me, meta, existing }: { me: SessionUser; meta: MetaRespons
     try {
       const payload = draftPayload(form.getValues());
       const saved = editRef ? await update.mutateAsync(payload) : await create.mutateAsync(payload);
-      router.push(`/changes/${saved.ref}`);
+      await uploadThenOpen(saved.ref);
     } catch (e) {
       handleServerError(e);
     }
@@ -170,7 +192,7 @@ function WizardForm({ me, meta, existing }: { me: SessionUser; meta: MetaRespons
 
         <Card className="p-5 sm:p-6">
           {step === 0 && <ClassifyStep meta={meta} />}
-          {step === 1 && <DescribeStep />}
+          {step === 1 && <DescribeStep files={files} onFiles={setFiles} existingCount={existing?.attachments.length ?? 0} />}
           {step === 2 && <RiskStep />}
           {step === 3 && <PlanStep meta={meta} />}
           {step === 4 && <ReviewStep meta={meta} />}

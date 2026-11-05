@@ -1,9 +1,10 @@
 import {
-  changeCreateSchema, changeDraftSchema, changeListQuerySchema, changeUpdateSchema, decisionSchema,
+  MAX_ATTACHMENT_BYTES, MAX_FILES_PER_UPLOAD, changeCreateSchema, changeDraftSchema, changeListQuerySchema, changeUpdateSchema, decisionSchema,
   pirSchema, routePreviewQuerySchema, submitSchema, taskUpdateSchema,
 } from "@crms/shared";
 import { Router, type Request } from "express";
 import { datedName, sendCsv } from "../../lib/csv";
+import { contentDisposition, uploadMiddleware } from "../../lib/uploads";
 import { requireAuth, requirePerm } from "../../middleware/auth";
 import * as changes from "./service";
 
@@ -72,4 +73,24 @@ changesRouter.post("/:ref/implemented", requirePerm("changes"), async (req, res)
 
 changesRouter.post("/:ref/pir", requirePerm("changes"), async (req, res) => {
   res.json(await changes.reviewChange(actor(req), ref(req), pirSchema.parse(req.body)));
+});
+
+// Attachments ----------------------------------------------------------------
+
+// POST /api/changes/:ref/attachments — multipart/form-data, field "files" (up to 5 per request).
+changesRouter.post("/:ref/attachments", requirePerm("changes"), uploadMiddleware(MAX_FILES_PER_UPLOAD, MAX_ATTACHMENT_BYTES), async (req, res) => {
+  res.status(201).json(await changes.addAttachments(actor(req), ref(req), (req.files as changes.UploadedFile[] | undefined) ?? []));
+});
+
+// GET /api/changes/:ref/attachments/:id — always downloaded, never rendered in the browser.
+changesRouter.get("/:ref/attachments/:id", requirePerm("changes"), async (req, res) => {
+  const file = await changes.getAttachment(actor(req), ref(req), String(req.params.id));
+  res.setHeader("Content-Type", "application/octet-stream");
+  res.setHeader("Content-Disposition", contentDisposition(file.fileName));
+  res.setHeader("Cache-Control", "private, no-store");
+  res.send(file.data);
+});
+
+changesRouter.delete("/:ref/attachments/:id", requirePerm("changes"), async (req, res) => {
+  res.json(await changes.removeAttachment(actor(req), ref(req), String(req.params.id)));
 });

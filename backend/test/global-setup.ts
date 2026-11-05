@@ -1,4 +1,5 @@
 import { execSync } from "node:child_process";
+import { rmSync } from "node:fs";
 import { testDatabaseUrl } from "./test-db";
 
 // Runs once before all test files: bring the test database's tables up to date
@@ -11,4 +12,5 @@ export function setup() {
   console.log(`\n[test] preparing ${new URL(url).pathname.slice(1)}…`);
   execSync("npx prisma migrate deploy", { env, stdio: "inherit" }); // creates the database if it is missing
   execSync("npx tsx prisma/seed.ts", { env, stdio: "inherit" });
+  rmSync(".test-uploads", { recursive: true, force: true }); // uploaded files from the previous run
 }

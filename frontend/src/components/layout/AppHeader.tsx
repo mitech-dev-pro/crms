@@ -4,6 +4,7 @@ import { Menu, Search } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { useMe } from "@/lib/queries";
+import NotificationBell from "./NotificationBell";
 import ThemeToggle from "./ThemeToggle";
 
 const TITLES: [prefix: string, title: string][] = [
@@ -50,6 +51,7 @@ export default function AppHeader({ onMenu }: { onMenu: () => void }) {
           />
         </form>
       )}
+      <NotificationBell />
       <ThemeToggle />
     </header>
   );
