@@ -12,7 +12,7 @@ export class ApiError extends Error {
   }
 }
 
-type Options = { method?: "GET" | "POST" | "PATCH" | "DELETE"; body?: unknown; query?: Record<string, unknown> };
+type Options = { method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE"; body?: unknown; query?: Record<string, unknown> };
 
 /**
  * Calls the Express API through Next's /api rewrite.

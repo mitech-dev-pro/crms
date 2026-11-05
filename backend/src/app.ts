@@ -4,6 +4,7 @@ import express from "express";
 import helmet from "helmet";
 import { env } from "./config/env";
 import { errorHandler, notFoundHandler } from "./middleware/error";
+import { adminRouter } from "./modules/admin/routes";
 import { approvalsRouter } from "./modules/approvals/routes";
 import { auditRouter } from "./modules/audit/routes";
 import { authRouter } from "./modules/auth/routes";
@@ -39,6 +40,7 @@ export function createApp() {
   app.use("/api/changes", changesRouter);
   app.use("/api/approvals", approvalsRouter);
   app.use("/api/reports", reportsRouter);
+  app.use("/api/admin", adminRouter);
   app.use("/api", planningRouter); // /api/calendar, /api/freezes, /api/workflows
 
   // These two must come last.

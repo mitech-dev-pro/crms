@@ -130,6 +130,29 @@ export type ReportsResponse = {
   decisionTimeByRole: { role: Role; label: string; avgHours: number; decisions: number }[];
 };
 
+export type AdminDepartment = {
+  id: string; code: string; name: string; active: boolean;
+  head: Ref | null; lineManager: Ref | null; userCount: number; hasCustomRoute: boolean;
+};
+
+export type AdminChangeType = { id: string; label: string; description: string; active: boolean; changeCount: number };
+
+export type AdminUser = {
+  id: string; code: string; name: string; email: string; title: string | null; role: Role;
+  status: "Active" | "Invited" | "Disabled"; department: Ref; lastLoginAt: string | null;
+};
+
+export type AdminUserListResponse = {
+  items: AdminUser[]; total: number; page: number; pageSize: number;
+  counts: Record<"Active" | "Invited" | "Disabled", number>;
+};
+
+export type UserImportResult = {
+  dryRun: boolean;
+  created: number;
+  results: { row: number; email: string; ok: boolean; errors: string[] }[];
+};
+
 export type AuditListResponse = {
   items: { id: string; at: string; userName: string; role: Role | null; action: string; category: AuditCategory; ref: string | null; ip: string | null }[];
   total: number;
