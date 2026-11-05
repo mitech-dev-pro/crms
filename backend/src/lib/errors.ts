@@ -15,5 +15,6 @@ export class AppError extends Error {
   }
 }
 
-export const notFound = (what = "Resource") => new AppError(404, "NOT_FOUND", `${what} not found`);
+export const unauthenticated = (message = "Please sign in") => new AppError(401, "UNAUTHENTICATED", message);
+export const notFound =(what = "Resource") => new AppError(404, "NOT_FOUND", `${what} not found`);
 export const forbidden = (message = "You do not have access to this") => new AppError(403, "FORBIDDEN", message);

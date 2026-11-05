@@ -4,7 +4,10 @@ import express from "express";
 import helmet from "helmet";
 import { env } from "./config/env";
 import { errorHandler, notFoundHandler } from "./middleware/error";
+import { auditRouter } from "./modules/audit/routes";
+import { authRouter } from "./modules/auth/routes";
 import { healthRouter } from "./modules/health/routes";
+import { metaRouter } from "./modules/meta/routes";
 
 /**
  * Builds the Express app without starting it, so tests can import it
@@ -21,6 +24,9 @@ export function createApp() {
 
   // Feature routers. Each module owns its own paths under /api.
   app.use("/api/health", healthRouter);
+  app.use("/api/auth", authRouter);
+  app.use("/api/meta", metaRouter);
+  app.use("/api/audit", auditRouter);
 
   // These two must come last.
   app.use(notFoundHandler);

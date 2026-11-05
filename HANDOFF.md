@@ -493,6 +493,13 @@ Each phase ends in something you can run. Agents: **finish a phase, show it work
 ### Phase 3: Auth and permissions
 - Login, logout and me. JWT cookie. `auth` + `requirePerm` middleware. `PERMS` map lives in `shared`. Audit on sign-in.
 - **Done when:** logging in as each seeded role returns the right user, and a forbidden route returns 403.
+- ✅ **Done (2026-11-05).** Demo login: any seeded email (e.g. `yaw.owusu@milife.com.gh`), password `demo-password`.
+  - **Session:** HS256 JWT made with `jose`, stored in the `crms_session` cookie (httpOnly, SameSite=Lax, Secure in prod; lasts `SESSION_HOURS`, default 8). The token holds only the user id. `requireAuth` re-reads the user from the database on every request, so a disabled user or a role change takes effect immediately. New env vars: `JWT_SECRET` (min 32 chars; a random one is in local `.env`) and `SESSION_HOURS`.
+  - **Routes:** `POST /api/auth/login`, `POST /api/auth/logout`, `GET /api/auth/me` (returns `SessionUser` with `permissions`), `GET /api/meta` (departments, types, implementers, freezes), `GET /api/audit` (paginated, filter by `q`/`role`/`category`; `audit` permission).
+  - **Login hardening:** one generic message for wrong password, unknown email, invited or disabled user. bcrypt runs against a dummy hash for unknown emails, so response timing doesn't reveal which emails exist. Every failed attempt is audited with the real reason in `meta`.
+  - **Files:** `lib/session.ts`, `middleware/auth.ts` (`requireAuth`, `requirePerm(screen)`), `services/audit.ts` (`writeAudit(entry, tx?)`), `types/express.d.ts` (`req.user`), `modules/{auth,meta,audit}`. Shared: `schemas/auth.ts` (`loginSchema`, `SessionUser`) and `schemas/audit.ts` (`auditQuerySchema`, `AUDIT_CATEGORIES`).
+  - **Pattern change:** no `validate` middleware. Handlers call `schema.parse(req.body / req.query)` directly; Express 5's `req.query` is read-only, and a ZodError already becomes a 400 in the error handler.
+  - **Known limits, for Phase 7:** logout clears the cookie, but a copied token stays valid until it expires. Fix with a `sessionVersion` column on User, bumped on logout or disable. No login rate limit yet.
 
 ### Phase 4: Core change API
 - Changes list/detail/create/update/submit, the routing service (dept override → default → freeze `exec`), decisions (SoD, stage-bound), start, tasks, implemented, PIR, inbox, audit writes.
