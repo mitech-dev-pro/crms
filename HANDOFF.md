@@ -477,6 +477,7 @@ Each phase ends in something you can run. Agents: **finish a phase, show it work
 ### Phase 1: Backend skeleton
 - `backend/` with Express 5, TS, `tsx watch` for dev, `cors` (credentials, `CORS_ORIGIN=http://localhost:3000`), `helmet`, `cookie-parser`, the error handler, and `GET /api/health`.
 - **Done when:** `npm run dev -w backend` serves `{ ok: true }` on :4000.
+- ✅ **Done (2026-11-05).** Run with `npm run dev:backend` from the root. Files: `config/env.ts` (Zod-validated env; bad values exit at startup), `lib/errors.ts` (`AppError`, `notFound`, `forbidden`), `middleware/error.ts` (one error shape `{ error: { code, message, fields? } }`; handles ZodError → 400, AppError, bad JSON, and → 500), `modules/health/routes.ts`, `app.ts` (`createApp()`, no listen, so tests can import it), `index.ts`. Express 5 forwards async errors itself, so no `asyncHandler` wrapper. The API runs on `tsx` in dev and prod for now. Add a bundled build (tsup) in Phase 7 if needed. Not done yet: the `validate` middleware moves to Phase 4, where the first routes need it.
 
 ### Phase 2: Database
 - Local MySQL 8 (Docker `docker-compose.yml` or a local install). Database `crms`.

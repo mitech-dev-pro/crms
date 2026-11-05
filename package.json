@@ -3,10 +3,12 @@
   "private": true,
   "workspaces": [
     "frontend",
+    "backend",
     "packages/*"
   ],
   "scripts": {
     "dev:frontend": "npm run dev -w frontend",
+    "dev:backend": "npm run dev -w @crms/backend",
     "typecheck:shared": "npm run typecheck -w @crms/shared"
   }
 }
