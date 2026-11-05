@@ -4,8 +4,10 @@ import express from "express";
 import helmet from "helmet";
 import { env } from "./config/env";
 import { errorHandler, notFoundHandler } from "./middleware/error";
+import { approvalsRouter } from "./modules/approvals/routes";
 import { auditRouter } from "./modules/audit/routes";
 import { authRouter } from "./modules/auth/routes";
+import { changesRouter } from "./modules/changes/routes";
 import { healthRouter } from "./modules/health/routes";
 import { metaRouter } from "./modules/meta/routes";
 
@@ -27,6 +29,8 @@ export function createApp() {
   app.use("/api/auth", authRouter);
   app.use("/api/meta", metaRouter);
   app.use("/api/audit", auditRouter);
+  app.use("/api/changes", changesRouter);
+  app.use("/api/approvals", approvalsRouter);
 
   // These two must come last.
   app.use(notFoundHandler);

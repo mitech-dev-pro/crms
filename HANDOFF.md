@@ -505,6 +505,33 @@ Each phase ends in something you can run. Agents: **finish a phase, show it work
 - Changes list/detail/create/update/submit, the routing service (dept override → default → freeze `exec`), decisions (SoD, stage-bound), start, tasks, implemented, PIR, inbox, audit writes.
 - **Unit tests** (Vitest) for `routing.ts`, `calcRisk` and the decision rules. **These are the heart of the app.**
 - **Done when:** the scenario "Requester submits Medium → LM approves → DH approves → CM approves → Scheduled → implementer starts → ticks all tasks → Implemented → CM PIR → Closed" passes as an integration test, and the requester can't approve their own change.
+- ✅ **Done (2026-11-05).** `npm test` in `backend/` runs **29 tests, all passing**: 15 unit tests (`test/rules.test.ts`) and 14 integration tests (`test/changes.flow.test.ts`, Supertest through the real app).
+  - **Test database:** `<your db>_test`, i.e. `changehub_test`. Vitest's `globalSetup` creates and migrates it, then seeds it fresh on every run. The guard refuses any database name not ending in `_test`.
+  - **Layers:**
+    - `modules/changes/rules.ts`: pure functions. `allowedActions`, `applyDecision`, `buildSteps`, `isImplementerOf`.
+    - `services/routing.ts`: `routeFor` loads workflows and freezes from the database, then calls shared `buildRoute`. Order: department override → database default → shared default.
+    - `modules/changes/service.ts`: transactions plus audit.
+    - `dto.ts`: response shapes. The detail response includes an `actions` object for the UI.
+    - `routes.ts`: thin HTTP layer.
+  - **Endpoints:**
+    - Changes: `GET /api/changes` (filters, sort, pagination, per-status `counts` for the chips), `GET /api/changes/route-preview`, `GET /api/changes/:ref` (detail + `activity`), `POST /api/changes` (draft, or `submit: true`), `PATCH /api/changes/:ref`, `POST /:ref/submit`, `/:ref/decision`, `/:ref/start`, `PATCH /:ref/tasks/:taskId`, `POST /:ref/implemented`, `/:ref/pir`.
+    - Approvals: `GET /api/approvals/inbox`.
+  - **Rules enforced on the server:**
+    - Tier and route are always computed by the server; a `tier` sent by the client is ignored.
+    - A change can only be decided at the current stage, and never by its requester (segregation of duties).
+    - Reject and return need a comment.
+    - The pending step is claimed with a conditional update, so two simultaneous decisions can't both succeed; the second gets a 409.
+    - Requesters see only their own changes, and drafts are visible only to their author (404 for everyone else).
+    - Only the assigned implementer or the Change Manager can start a change or tick its checklist, and every item must be done before it's marked implemented.
+    - Only the Change Manager does the PIR, which closes the change.
+    - 403 means wrong person; 409 means right person, wrong state.
+  - **Choices made:**
+    - Drafts need only type and department. Submitting validates the stored change against the full `changeCreateSchema`.
+    - Steps are created only on submit, and a resubmission rebuilds them; the earlier decisions stay in the audit trail.
+    - New changes get the prototype's 4 default checklist items.
+    - Refs are `CHG-<year>-NNNN`, retried on a unique-index collision.
+  - **Deferred to Phase 6:** CSV export and attachment upload (`multer`).
+  - **Open question:** if the requester is the only holder of a stage role (e.g. the Change Manager raising an IT Low change, whose route is Change Manager only), nobody can approve it. Decide who steps in: another Change Manager, a deputy, or a superAdmin override.
 
 ### Phase 5: Frontend wired to the API
 1. Design tokens + Manrope + dark mode toggle in `globals.css` / root layout.

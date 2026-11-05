@@ -12,5 +12,5 @@
     "skipLibCheck": true,
     "noUncheckedIndexedAccess": true
   },
-  "include": ["src"]
+  "include": ["src", "test", "prisma", "vitest.config.ts", "prisma.config.ts"]
 }

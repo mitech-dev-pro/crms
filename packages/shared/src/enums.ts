@@ -56,7 +56,16 @@ export const CHANGE_STATUS_LABELS: Record<ChangeStatus, string> = {
   Rejected: "Rejected",
 };
 
-export const STEP_STATUSES = ["waiting", "pending", "approved", "rejected", "returned", "skipped"] as const;
+export const PIR_OUTCOMES = ["Successful", "SuccessfulWithIssues", "Failed", "RolledBack"] as const;
+export type PirOutcome = (typeof PIR_OUTCOMES)[number];
+export const PIR_OUTCOME_LABELS: Record<PirOutcome, string> = {
+  Successful: "Successful",
+  SuccessfulWithIssues: "Successful with issues",
+  Failed: "Failed",
+  RolledBack: "Rolled back",
+};
+
+export const STEP_STATUSES =["waiting", "pending", "approved", "rejected", "returned", "skipped"] as const;
 export type StepStatus = (typeof STEP_STATUSES)[number];
 
 // Screens a role may open. The sidebar uses this to hide links and the API
