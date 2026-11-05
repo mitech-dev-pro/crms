@@ -1,0 +1,24 @@
+# dependencies (root and every workspace)
+node_modules/
+
+# env files — never commit secrets
+.env
+.env.*
+!.env.example
+
+# build output
+dist/
+.next/
+out/
+*.tsbuildinfo
+
+# prisma generated client (Phase 2)
+backend/src/generated/
+
+# uploaded attachments (Phase 4+)
+backend/uploads/
+
+# logs / OS
+npm-debug.log*
+.DS_Store
+Thumbs.db

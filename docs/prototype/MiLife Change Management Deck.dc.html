@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>body{margin:0;background:#0D1322}a{color:#0B7F82}a:hover{color:#1D2A4D}</style>
+</helmet>
+<x-import component-from-global-scope="deck-stage" from="./deck-stage.js" width="1920" height="1080" hint-size="100%,100%">
+
+<section data-label="Title" data-speaker-notes="Introduce the change management prototype: one place for every MiLife department to raise, approve and track changes." style="background:#1D2A4D;color:#fff;font-family:'Manrope',sans-serif;display:flex;flex-direction:column;justify-content:space-between;padding:100px">
+  <img src="assets/milife-wordmark-dark.png" alt="miLife Insurance" style="height:96px;align-self:flex-start">
+  <div style="display:flex;flex-direction:column;gap:28px;max-width:1300px">
+    <div style="font-size:28px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#5FD6D8">Prototype overview</div>
+    <div style="font-size:112px;line-height:1.02;font-weight:800;letter-spacing:-.02em">Change Management</div>
+    <div style="font-size:38px;line-height:1.4;color:#C9D1E3">Raising, approving and tracking change across every MiLife department</div>
+  </div>
+  <div style="font-size:26px;color:#8E9AB8">October 2026</div>
+</section>
+
+<section data-label="Purpose" data-speaker-notes="Today changes are approved differently in each department. The prototype puts them on one route with consistent controls." style="background:#F4F6F9;color:#18213A;font-family:'Manrope',sans-serif;padding:100px;display:flex;flex-direction:column;gap:64px">
+  <div style="display:flex;flex-direction:column;gap:16px">
+    <div style="font-size:26px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#0B7F82">Purpose</div>
+    <div style="font-size:64px;font-weight:800;line-height:1.1">One process for every kind of change</div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:40px;flex:1">
+    <div style="background:#fff;border-radius:20px;padding:48px;display:flex;flex-direction:column;gap:24px">
+      <div style="font-size:72px;font-weight:800;color:#0B7F82">7</div>
+      <div style="font-size:36px;font-weight:800">Change types</div>
+      <div style="font-size:28px;line-height:1.45;color:#3B4459">IT, process and policy, product, organisational, facilities, vendor and emergency changes</div>
+    </div>
+    <div style="background:#fff;border-radius:20px;padding:48px;display:flex;flex-direction:column;gap:24px">
+      <div style="font-size:72px;font-weight:800;color:#0B7F82">4</div>
+      <div style="font-size:36px;font-weight:800">Risk-based routes</div>
+      <div style="font-size:28px;line-height:1.45;color:#3B4459">Impact and likelihood set the risk tier, which decides who must approve</div>
+    </div>
+    <div style="background:#fff;border-radius:20px;padding:48px;display:flex;flex-direction:column;gap:24px">
+      <div style="font-size:72px;font-weight:800;color:#0B7F82">1</div>
+      <div style="font-size:36px;font-weight:800">Audit trail</div>
+      <div style="font-size:28px;line-height:1.45;color:#3B4459">Every sign-in, decision, configuration change and export is recorded</div>
+    </div>
+  </div>
+</section>
+
+<section data-label="Roles" data-speaker-notes="Each role sees only what it needs. The role switcher in the prototype lets you see every view." style="background:#fff;color:#18213A;font-family:'Manrope',sans-serif;padding:100px;display:flex;flex-direction:column;gap:56px">
+  <div style="display:flex;flex-direction:column;gap:16px">
+    <div style="font-size:26px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#0B7F82">Users</div>
+    <div style="font-size:64px;font-weight:800;line-height:1.1">Nine roles, each with its own view</div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px">
+    <div style="border:2px solid #E3E8EF;border-radius:16px;padding:28px 32px;display:flex;flex-direction:column;gap:8px"><div style="font-size:32px;font-weight:800">Requester</div><div style="font-size:26px;color:#5B6478">Any staff member raising a change</div></div>
+    <div style="border:2px solid #E3E8EF;border-radius:16px;padding:28px 32px;display:flex;flex-direction:column;gap:8px"><div style="font-size:32px;font-weight:800">Line Manager</div><div style="font-size:26px;color:#5B6478">First approval stage</div></div>
+    <div style="border:2px solid #E3E8EF;border-radius:16px;padding:28px 32px;display:flex;flex-direction:column;gap:8px"><div style="font-size:32px;font-weight:800">Department Head</div><div style="font-size:26px;color:#5B6478">Owns changes in the department</div></div>
+    <div style="border:2px solid #E3E8EF;border-radius:16px;padding:28px 32px;display:flex;flex-direction:column;gap:8px"><div style="font-size:32px;font-weight:800">Change Manager</div><div style="font-size:26px;color:#5B6478">Schedules, oversees and closes</div></div>
+    <div style="border:2px solid #E3E8EF;border-radius:16px;padding:28px 32px;display:flex;flex-direction:column;gap:8px"><div style="font-size:32px;font-weight:800">CAB Member</div><div style="font-size:26px;color:#5B6478">Reviews medium and high risk</div></div>
+    <div style="border:2px solid #E3E8EF;border-radius:16px;padding:28px 32px;display:flex;flex-direction:column;gap:8px"><div style="font-size:32px;font-weight:800">Risk &amp; Compliance</div><div style="font-size:26px;color:#5B6478">Regulatory and data checks</div></div>
+    <div style="border:2px solid #E3E8EF;border-radius:16px;padding:28px 32px;display:flex;flex-direction:column;gap:8px"><div style="font-size:32px;font-weight:800">Implementer</div><div style="font-size:26px;color:#5B6478">Carries out the approved change</div></div>
+    <div style="border:2px solid #E3E8EF;border-radius:16px;padding:28px 32px;display:flex;flex-direction:column;gap:8px"><div style="font-size:32px;font-weight:800">Executive</div><div style="font-size:26px;color:#5B6478">Overrides during freeze windows</div></div>
+    <div style="border:2px solid #E3E8EF;border-radius:16px;padding:28px 32px;display:flex;flex-direction:column;gap:8px"><div style="font-size:32px;font-weight:800">System Admin</div><div style="font-size:26px;color:#5B6478">Manages users, departments, routes</div></div>
+  </div>
+</section>
+
+<section data-label="Raising a change" data-speaker-notes="Five steps. The risk step calculates the tier automatically and shows which approval route will apply before the request is submitted." style="background:#F4F6F9;color:#18213A;font-family:'Manrope',sans-serif;padding:100px;display:grid;grid-template-columns:600px 1fr;gap:72px;align-items:center">
+  <div style="display:flex;flex-direction:column;gap:48px">
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div style="font-size:26px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#0B7F82">Requesting</div>
+      <div style="font-size:64px;font-weight:800;line-height:1.1">Raising a change request</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:22px">
+      <div style="display:flex;gap:20px;align-items:center"><span style="width:52px;height:52px;border-radius:50%;background:#1D2A4D;color:#fff;font-size:26px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">1</span><span style="font-size:32px;font-weight:600">Classify type and department</span></div>
+      <div style="display:flex;gap:20px;align-items:center"><span style="width:52px;height:52px;border-radius:50%;background:#1D2A4D;color:#fff;font-size:26px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">2</span><span style="font-size:32px;font-weight:600">Describe and attach evidence</span></div>
+      <div style="display:flex;gap:20px;align-items:center"><span style="width:52px;height:52px;border-radius:50%;background:#0B7F82;color:#fff;font-size:26px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">3</span><span style="font-size:32px;font-weight:800">Assess impact and likelihood</span></div>
+      <div style="display:flex;gap:20px;align-items:center"><span style="width:52px;height:52px;border-radius:50%;background:#1D2A4D;color:#fff;font-size:26px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">4</span><span style="font-size:32px;font-weight:600">Plan date, rollback and testing</span></div>
+      <div style="display:flex;gap:20px;align-items:center"><span style="width:52px;height:52px;border-radius:50%;background:#1D2A4D;color:#fff;font-size:26px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">5</span><span style="font-size:32px;font-weight:600">Review route and submit</span></div>
+    </div>
+  </div>
+  <img src="assets/deck/wizard.png" alt="New request wizard, risk step" style="width:100%;border-radius:16px;box-shadow:0 24px 60px rgba(29,42,77,.18);display:block">
+</section>
+
+<section data-label="Approval routes" data-speaker-notes="These are the default routes. Administrators can override them per department; Underwriting and Finance add an Executive stage for high-risk changes." style="background:#fff;color:#18213A;font-family:'Manrope',sans-serif;padding:100px;display:flex;flex-direction:column;gap:56px">
+  <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:40px">
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div style="font-size:26px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#0B7F82">Approving</div>
+      <div style="font-size:64px;font-weight:800;line-height:1.1">Approval routes by risk tier</div>
+    </div>
+    <div style="font-size:28px;color:#5B6478;max-width:620px;line-height:1.4;text-align:right">Default routes. Each department can be given its own.</div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:28px;flex:1">
+    <div style="border-radius:20px;overflow:hidden;border:2px solid #E3E8EF;display:flex;flex-direction:column">
+      <div style="background:#E3F6F1;padding:28px 32px;display:flex;flex-direction:column;gap:4px"><span style="font-size:40px;font-weight:800;color:#0F7B5F">Low</span><span style="font-size:24px;font-weight:700;color:#0F7B5F">Score 1–2</span></div>
+      <div style="padding:32px;display:flex;flex-direction:column;gap:20px;font-size:30px;font-weight:600"><span>1 · Line Manager</span></div>
+    </div>
+    <div style="border-radius:20px;overflow:hidden;border:2px solid #E3E8EF;display:flex;flex-direction:column">
+      <div style="background:#FFF1D6;padding:28px 32px;display:flex;flex-direction:column;gap:4px"><span style="font-size:40px;font-weight:800;color:#8A5200">Medium</span><span style="font-size:24px;font-weight:700;color:#8A5200">Score 3–4</span></div>
+      <div style="padding:32px;display:flex;flex-direction:column;gap:20px;font-size:30px;font-weight:600"><span>1 · Line Manager</span><span>2 · Department Head</span><span>3 · Change Manager</span></div>
+    </div>
+    <div style="border-radius:20px;overflow:hidden;border:2px solid #E3E8EF;display:flex;flex-direction:column">
+      <div style="background:#FDECEC;padding:28px 32px;display:flex;flex-direction:column;gap:4px"><span style="font-size:40px;font-weight:800;color:#B42318">High</span><span style="font-size:24px;font-weight:700;color:#B42318">Score 6–9</span></div>
+      <div style="padding:32px;display:flex;flex-direction:column;gap:20px;font-size:30px;font-weight:600"><span>1 · Line Manager</span><span>2 · Department Head</span><span>3 · Risk &amp; Compliance</span><span>4 · CAB</span><span>5 · Change Manager</span></div>
+    </div>
+    <div style="border-radius:20px;overflow:hidden;border:2px solid #E3E8EF;display:flex;flex-direction:column">
+      <div style="background:#FCE8F3;padding:28px 32px;display:flex;flex-direction:column;gap:4px"><span style="font-size:40px;font-weight:800;color:#9E1C64">Emergency</span><span style="font-size:24px;font-weight:700;color:#9E1C64">Service down or security</span></div>
+      <div style="padding:32px;display:flex;flex-direction:column;gap:20px;font-size:30px;font-weight:600"><span>1 · Change Manager</span><span>2 · Emergency CAB</span><span style="font-size:26px;font-weight:500;color:#5B6478;line-height:1.4">Post-implementation review required within 5 days</span></div>
+    </div>
+  </div>
+</section>
+
+<section data-label="Reviewing" data-speaker-notes="Approvers only see the decision panel when the request is at their stage. Rejecting or requesting rework requires a comment." style="background:#F4F6F9;color:#18213A;font-family:'Manrope',sans-serif;padding:100px;display:grid;grid-template-columns:1fr 560px;gap:72px;align-items:center">
+  <img src="assets/deck/detail.png" alt="Change detail with decision panel" style="width:100%;border-radius:16px;box-shadow:0 24px 60px rgba(29,42,77,.18);display:block">
+  <div style="display:flex;flex-direction:column;gap:48px">
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div style="font-size:26px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#0B7F82">Approving</div>
+      <div style="font-size:64px;font-weight:800;line-height:1.1">Reviewing a request</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:32px">
+      <div style="display:flex;flex-direction:column;gap:8px"><span style="font-size:32px;font-weight:800">Progress at a glance</span><span style="font-size:28px;line-height:1.45;color:#3B4459">Lifecycle bar from draft to closed</span></div>
+      <div style="display:flex;flex-direction:column;gap:8px"><span style="font-size:32px;font-weight:800">Decision at your stage only</span><span style="font-size:28px;line-height:1.45;color:#3B4459">Approve, request rework or reject</span></div>
+      <div style="display:flex;flex-direction:column;gap:8px"><span style="font-size:32px;font-weight:800">Everything in one record</span><span style="font-size:28px;line-height:1.45;color:#3B4459">Risk, timeline, checklist, review and activity</span></div>
+    </div>
+  </div>
+</section>
+
+<section data-label="Calendar" data-speaker-notes="Freeze windows are shaded. Scheduling inside one automatically adds an Executive override stage." style="background:#fff;color:#18213A;font-family:'Manrope',sans-serif;padding:100px;display:grid;grid-template-columns:560px 1fr;gap:72px;align-items:center">
+  <div style="display:flex;flex-direction:column;gap:48px">
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div style="font-size:26px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#0B7F82">Scheduling</div>
+      <div style="font-size:64px;font-weight:800;line-height:1.1">Planning around freeze windows</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:28px">
+      <div style="font-size:30px;line-height:1.45;color:#3B4459">Month-end close and year-end freezes are shown on the change calendar.</div>
+      <div style="font-size:30px;line-height:1.45;color:#3B4459">Requests dated inside a freeze get an Executive override stage added to their route.</div>
+    </div>
+  </div>
+  <img src="assets/deck/calendar.png" alt="Change calendar with freeze window" style="width:100%;border-radius:16px;box-shadow:0 24px 60px rgba(29,42,77,.18);display:block">
+</section>
+
+<section data-label="Authorization" data-speaker-notes="Four principles apply throughout. If a role tries to open a screen it doesn't have, it gets a clear access message and can request access." style="background:#1D2A4D;color:#fff;font-family:'Manrope',sans-serif;padding:100px;display:grid;grid-template-columns:1fr 720px;gap:72px;align-items:center">
+  <div style="display:flex;flex-direction:column;gap:56px">
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div style="font-size:26px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#5FD6D8">Control</div>
+      <div style="font-size:64px;font-weight:800;line-height:1.1">Authorization principles</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:40px 48px">
+      <div style="display:flex;flex-direction:column;gap:10px"><span style="font-size:34px;font-weight:800">Least privilege</span><span style="font-size:26px;line-height:1.45;color:#C9D1E3">Each role sees only the screens and records it needs</span></div>
+      <div style="display:flex;flex-direction:column;gap:10px"><span style="font-size:34px;font-weight:800">Segregation of duties</span><span style="font-size:26px;line-height:1.45;color:#C9D1E3">No one approves a change they raised</span></div>
+      <div style="display:flex;flex-direction:column;gap:10px"><span style="font-size:34px;font-weight:800">Stage-bound approval</span><span style="font-size:26px;line-height:1.45;color:#C9D1E3">Approvers act only when it is their turn</span></div>
+      <div style="display:flex;flex-direction:column;gap:10px"><span style="font-size:34px;font-weight:800">Complete audit trail</span><span style="font-size:26px;line-height:1.45;color:#C9D1E3">User, time and source recorded for every action</span></div>
+    </div>
+  </div>
+  <img src="assets/deck/403.png" alt="Access restricted screen" style="width:100%;border-radius:16px;box-shadow:0 24px 60px rgba(0,0,0,.35);display:block">
+</section>
+
+<section data-label="Administration" data-speaker-notes="Admins manage departments, users, change types and approval routes. Users can be imported from a CSV file and lists exported." style="background:#F4F6F9;color:#18213A;font-family:'Manrope',sans-serif;padding:100px;display:flex;flex-direction:column;gap:56px">
+  <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:40px">
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div style="font-size:26px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#0B7F82">Administration</div>
+      <div style="font-size:64px;font-weight:800;line-height:1.1">Setting up departments, users and routes</div>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:48px">
+    <div style="display:flex;flex-direction:column;gap:24px">
+      <img src="assets/deck/users.png" alt="Users and access" style="width:100%;border-radius:16px;box-shadow:0 24px 60px rgba(29,42,77,.15);display:block">
+      <div style="font-size:30px;font-weight:700">Add, import, disable and reassign users</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:24px">
+      <img src="assets/deck/workflows.png" alt="Approval workflow editor" style="width:100%;border-radius:16px;box-shadow:0 24px 60px rgba(29,42,77,.15);display:block">
+      <div style="font-size:30px;font-weight:700">Edit approval stages per department and tier</div>
+    </div>
+  </div>
+</section>
+
+<section data-label="Mobile and dark mode" data-speaker-notes="Approvers can decide from their phone. Dark mode is available throughout." style="background:#0D1322;color:#fff;font-family:'Manrope',sans-serif;padding:100px;display:grid;grid-template-columns:auto 1fr;gap:80px;align-items:center">
+  <img src="assets/deck/mobile.png" alt="Mobile approvals" style="height:820px;display:block">
+  <div style="display:flex;flex-direction:column;gap:48px">
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div style="font-size:26px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#5FD6D8">Access</div>
+      <div style="font-size:64px;font-weight:800;line-height:1.1">Mobile approvals and dark mode</div>
+    </div>
+    <img src="assets/deck/dark.png" alt="Dashboard in dark mode" style="width:100%;border-radius:16px;box-shadow:0 24px 60px rgba(0,0,0,.4);border:1px solid #2A3654;display:block">
+  </div>
+</section>
+
+<section data-label="Next steps" data-speaker-notes="Suggested next steps for discussion — to confirm with stakeholders." style="background:#fff;color:#18213A;font-family:'Manrope',sans-serif;padding:100px;display:flex;flex-direction:column;gap:64px">
+  <div style="display:flex;flex-direction:column;gap:16px">
+    <div style="font-size:26px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#0B7F82">Next steps</div>
+    <div style="font-size:64px;font-weight:800;line-height:1.1">Proposed next steps</div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:32px">
+    <div style="border-top:6px solid #17B3B5;padding-top:32px;display:flex;flex-direction:column;gap:16px"><span style="font-size:28px;font-weight:800;color:#0B7F82">01</span><span style="font-size:34px;font-weight:800;line-height:1.2">Validate routes</span><span style="font-size:27px;line-height:1.45;color:#3B4459">Confirm approval stages with each department head</span></div>
+    <div style="border-top:6px solid #17B3B5;padding-top:32px;display:flex;flex-direction:column;gap:16px"><span style="font-size:28px;font-weight:800;color:#0B7F82">02</span><span style="font-size:34px;font-weight:800;line-height:1.2">Usability testing</span><span style="font-size:27px;line-height:1.45;color:#3B4459">Walk requesters and approvers through the prototype</span></div>
+    <div style="border-top:6px solid #17B3B5;padding-top:32px;display:flex;flex-direction:column;gap:16px"><span style="font-size:28px;font-weight:800;color:#0B7F82">03</span><span style="font-size:34px;font-weight:800;line-height:1.2">Identity integration</span><span style="font-size:27px;line-height:1.45;color:#3B4459">Plan sign-on and multi-factor authentication for build</span></div>
+    <div style="border-top:6px solid #17B3B5;padding-top:32px;display:flex;flex-direction:column;gap:16px"><span style="font-size:28px;font-weight:800;color:#0B7F82">04</span><span style="font-size:34px;font-weight:800;line-height:1.2">Pilot</span><span style="font-size:27px;line-height:1.45;color:#3B4459">Start with IT and Claims before company-wide rollout</span></div>
+  </div>
+</section>
+
+</x-import>
+</x-dc>
+</body>
+</html>

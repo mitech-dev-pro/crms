@@ -1,0 +1,1220 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--cfff:#fff;--ceef2f6:#EEF2F6;--cf4f6f9:#F4F6F9;--cf7f9fb:#F7F9FB;--cfafbfc:#FAFBFC;--cf1f4f8:#F1F4F8;--ceef1f5:#EEF1F5;--ce3e8ef:#E3E8EF;--cd5dbe5:#D5DBE5;--cc5ccd8:#C5CCD8;--c18213a:#18213A;--c3b4459:#3B4459;--c5b6478:#5B6478;--c8a93a6:#8A93A6;--c4a5568:#4A5568;--ca0a9ba:#A0A9BA;--c1d2a4d:#1D2A4D;--c2a3a66:#2A3A66;--c0b7f82:#0B7F82;--c0b6f72:#0B6F72;--c17b3b5:#17B3B5;--ce6f7f8:#E6F7F8;--cf0fbfb:#F0FBFB;--ce0f5f6:#E0F5F6;--ce3f6f1:#E3F6F1;--c0f7b5f:#0F7B5F;--cb5e6d6:#B5E6D6;--cfff1d6:#FFF1D6;--c8a5200:#8A5200;--cb36b00:#B36B00;--cd98a00:#D98A00;--cfff6e8:#FFF6E8;--cfdefd8:#FDEFD8;--cf3d9a8:#F3D9A8;--cfff9ef:#FFF9EF;--c6b4200:#6B4200;--c9a5b00:#9A5B00;--cfdecec:#FDECEC;--cb42318:#B42318;--cf1b5b0:#F1B5B0;--c7a1c14:#7A1C14;--ce5484d:#E5484D;--cfce8f3:#FCE8F3;--c9e1c64:#9E1C64;--ce6eeff:#E6EEFF;--c1f4fb8:#1F4FB8;--cbbd0ff:#BBD0FF;--ca6e3e5:#A6E3E5;--cffdc9e:#FFDC9E;--cf7d9a8:#F7D9A8}
+[data-theme="dark"]{--cfff:#172036;--ceef2f6:#0D1322;--cf4f6f9:#0D1322;--cf7f9fb:#1B2540;--cfafbfc:#141C30;--cf1f4f8:#222D4A;--ceef1f5:#253050;--ce3e8ef:#2A3654;--cd5dbe5:#36446A;--cc5ccd8:#43517A;--c18213a:#E8ECF5;--c3b4459:#C3CBDD;--c5b6478:#9AA4BC;--c8a93a6:#7C87A2;--c4a5568:#B5BED2;--ca0a9ba:#6E7A96;--c1d2a4d:#3A5BA8;--c2a3a66:#4A6CBC;--c0b7f82:#1A9C9F;--c0b6f72:#5FD6D8;--c17b3b5:#2BC4C6;--ce6f7f8:#12363F;--cf0fbfb:#133038;--ce0f5f6:#12363F;--ce3f6f1:#113A31;--c0f7b5f:#4FD1A5;--cb5e6d6:#1E5A4A;--cfff1d6:#3A2C0F;--c8a5200:#F2B85A;--cb36b00:#F2B85A;--cd98a00:#E89B1A;--cfff6e8:#2E2412;--cfdefd8:#35290F;--cf3d9a8:#5A4519;--cfff9ef:#2E2412;--c6b4200:#F2C77A;--c9a5b00:#B07015;--cfdecec:#3B1A1E;--cb42318:#FF7A70;--cf1b5b0:#6B2A2A;--c7a1c14:#FFB1AA;--ce5484d:#F0646A;--cfce8f3:#3A1730;--c9e1c64:#F28CC4;--ce6eeff:#17264D;--c1f4fb8:#8DB0FF;--cbbd0ff:#2C4A8F;--ca6e3e5:#1F6A6C;--cffdc9e:#7A5A1F;--cf7d9a8:#6B5220;color-scheme:dark}
+body{margin:0;background:#EEF2F6;-webkit-font-smoothing:antialiased}
+[data-theme="dark"] img[data-logo]{content:url(assets/milife-wordmark-dark.png)}
+[data-theme] *{transition:background-color .25s ease,border-color .25s ease,color .2s ease}
+@keyframes cmPulse{0%{box-shadow:0 0 0 0 rgba(217,138,0,.45)}70%{box-shadow:0 0 0 8px rgba(217,138,0,0)}100%{box-shadow:0 0 0 0 rgba(217,138,0,0)}}
+*{box-sizing:border-box}
+a{color:var(--c0b7f82);text-decoration:none}a:hover{color:var(--c1d2a4d);text-decoration:underline}
+input,textarea,select,button{font-family:inherit}
+@keyframes cmToast{from{transform:translate(-50%,12px);opacity:0}to{transform:translate(-50%,0);opacity:1}}
+</style>
+</helmet>
+<div data-theme="{{ theme }}" style="min-height:100vh;font-family:'Manrope',system-ui,sans-serif;color:var(--c18213a);background:var(--ceef2f6);font-size:14px">
+
+<div style="height:44px;background:#121A30;color:#C9D1E3;display:flex;align-items:center;gap:16px;padding:0 16px;font-size:12px;position:sticky;top:0;z-index:50">
+  <span style="font-weight:700;color:#fff;letter-spacing:.02em">Prototype</span>
+  <span style="opacity:.5">|</span>
+  <label style="display:flex;align-items:center;gap:8px">Viewing as
+    <select value="{{ role }}" data-val="{{ role }}" onChange="{{ onRole }}" style="background:#1D2A4D;color:#fff;border:1px solid #33416A;border-radius:6px;padding:5px 8px;font-size:12px">
+      <sc-for list="{{ roles }}" as="r"><option value="{{ r.key }}">{{ r.name }} — {{ r.person }}</option></sc-for>
+    </select>
+  </label>
+  <div style="display:flex;background:#1D2A4D;border-radius:6px;padding:2px;gap:2px">
+    <button onClick="{{ toDesktop }}" style="border:0;border-radius:5px;padding:5px 10px;font-size:12px;cursor:pointer;background:{{ devD.bg }};color:{{ devD.fg }}">Desktop</button>
+    <button onClick="{{ toMobile }}" style="border:0;border-radius:5px;padding:5px 10px;font-size:12px;cursor:pointer;background:{{ devM.bg }};color:{{ devM.fg }}">Mobile</button>
+  </div>
+  <div style="display:flex;background:#1D2A4D;border-radius:6px;padding:2px;gap:2px">
+    <button onClick="{{ toLight }}" style="border:0;border-radius:5px;padding:5px 10px;font-size:12px;cursor:pointer;background:{{ thL.bg }};color:{{ thL.fg }}">Light</button>
+    <button onClick="{{ toDark }}" style="border:0;border-radius:5px;padding:5px 10px;font-size:12px;cursor:pointer;background:{{ thD.bg }};color:{{ thD.fg }}">Dark</button>
+  </div>
+  <div style="flex:1"></div>
+  <sc-if value="{{ loggedIn }}"><button onClick="{{ signOut }}" style="background:transparent;border:1px solid #33416A;color:#C9D1E3;border-radius:6px;padding:5px 10px;font-size:12px;cursor:pointer">Sign out</button></sc-if>
+</div>
+
+<sc-if value="{{ notLogged }}" hint-placeholder-val="{{ false }}">
+<div style="min-height:calc(100vh - 44px);display:grid;grid-template-columns:repeat(auto-fit,minmax(380px,1fr));background:var(--cfff)">
+  <div style="background:var(--c1d2a4d);color:#fff;padding:56px;display:flex;flex-direction:column;justify-content:space-between;gap:40px">
+    <div style="background:var(--cfff);border-radius:12px;padding:10px 18px;align-self:flex-start;display:flex"><img src="assets/milife-wordmark-light.png" data-logo="1" alt="miLife Insurance" style="height:64px;display:block"></div>
+    <div style="max-width:460px">
+      <div style="font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:#5FD6D8;font-weight:700">Change Management</div>
+      <div style="font-size:40px;line-height:1.1;font-weight:800;margin-top:12px;text-wrap:pretty">Every change, reviewed by the right people.</div>
+      <div style="font-size:16px;line-height:1.6;color:#C9D1E3;margin-top:16px;text-wrap:pretty">Raise, assess, approve and track changes across all MiLife departments — with role-based access, configurable approval routes and a complete audit trail.</div>
+    </div>
+    <div style="font-size:12px;color:#8E9AB8">Authorised MiLife staff only. Access is role-based and all activity is logged.</div>
+  </div>
+  <div style="display:flex;align-items:center;justify-content:center;padding:40px">
+    <div style="width:100%;max-width:380px;display:flex;flex-direction:column;gap:16px">
+      <div style="font-size:24px;font-weight:800">Sign in</div>
+      <div style="color:var(--c5b6478);margin-top:-8px">Use your MiLife work account.</div>
+      <label style="display:flex;flex-direction:column;gap:6px;font-weight:600;font-size:13px">Work email<input value="{{ email }}" onChange="{{ onEmail }}" placeholder="name@milife.com.gh" style="height:44px;border:1px solid var(--cd5dbe5);border-radius:8px;padding:0 12px;font-size:14px"></label>
+      <label style="display:flex;flex-direction:column;gap:6px;font-weight:600;font-size:13px">Password<input type="password" value="{{ pwd }}" onChange="{{ onPwd }}" style="height:44px;border:1px solid var(--cd5dbe5);border-radius:8px;padding:0 12px;font-size:14px"></label>
+      <sc-if value="{{ hasLoginErr }}"><div style="color:var(--cb42318);font-size:13px">{{ loginErr }}</div></sc-if>
+      <button onClick="{{ doLogin }}" style="height:48px;border-radius:8px;border:0;background:var(--c1d2a4d);color:#fff;font-weight:700;font-size:15px;cursor:pointer" style-hover="background:var(--c2a3a66)">Sign in</button>
+      <a href="#" onClick="{{ forgot }}" style="font-size:13px;font-weight:600">Forgot password?</a>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ showDesktop }}" hint-placeholder-val="{{ true }}">
+<div style="display:flex;min-height:calc(100vh - 44px)">
+  <aside style="width:236px;flex-shrink:0;background:var(--cfff);border-right:1px solid var(--ce3e8ef);display:flex;flex-direction:column;position:sticky;top:44px;height:calc(100vh - 44px)">
+    <div style="padding:18px 18px 10px"><img src="assets/milife-wordmark-light.png" data-logo="1" alt="miLife Insurance" style="height:52px;display:block"></div>
+    <div style="padding:0 20px 14px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--c0b7f82);font-weight:700">Change Management</div>
+    <nav style="display:flex;flex-direction:column;gap:2px;padding:0 10px">
+      <sc-for list="{{ nav }}" as="n" hint-placeholder-count="6">
+        <button onClick="{{ n.go }}" style="display:flex;align-items:center;justify-content:space-between;text-align:left;border:0;border-radius:8px;padding:10px 12px;font-size:14px;cursor:pointer;background:{{ n.bg }};color:{{ n.fg }};font-weight:{{ n.fw }}" style-hover="background:var(--cf1f4f8)">
+          <span>{{ n.l }}</span>
+          <sc-if value="{{ n.hasBadge }}"><span style="background:var(--cd98a00);color:#fff;border-radius:10px;font-size:11px;font-weight:700;padding:1px 7px">{{ n.badge }}</span></sc-if>
+        </button>
+      </sc-for>
+    </nav>
+    <div style="flex:1"></div>
+    <div style="margin:12px;padding:12px;border:1px solid var(--ce3e8ef);border-radius:10px;display:flex;gap:10px;align-items:center">
+      <div style="width:36px;height:36px;border-radius:50%;background:var(--c1d2a4d);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0">{{ me.initials }}</div>
+      <div style="min-width:0">
+        <div style="font-weight:700;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ me.person }}</div>
+        <div style="font-size:12px;color:var(--c5b6478)">{{ me.name }} · {{ me.dept }}</div>
+        <div style="font-size:11px;color:var(--c0f7b5f);margin-top:2px">Signed in · session 28 min</div>
+      </div>
+    </div>
+  </aside>
+
+  <main style="flex:1;min-width:0;display:flex;flex-direction:column">
+    <header style="height:64px;background:var(--cfff);border-bottom:1px solid var(--ce3e8ef);display:flex;align-items:center;gap:16px;padding:0 28px">
+      <div style="font-size:18px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0">{{ pageTitle }}</div>
+      <div style="flex:1"></div>
+      <input placeholder="Search change ID or title" value="{{ q }}" onChange="{{ onQ }}" style="flex:0 1 260px;min-width:120px;height:38px;border:1px solid var(--cd5dbe5);border-radius:8px;padding:0 12px;font-size:13px;background:var(--cf7f9fb)">
+      <button onClick="{{ toggleTheme }}" title="Toggle light / dark" style="width:38px;height:38px;border:1px solid var(--cd5dbe5);border-radius:8px;background:var(--cfff);color:var(--c3b4459);cursor:pointer;display:flex;align-items:center;justify-content:center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="{{ themeIcon }}"></path></svg></button>
+      <div style="position:relative">
+        <button onClick="{{ toggleNotif }}" title="Notifications" style="width:38px;height:38px;border:1px solid var(--cd5dbe5);border-radius:8px;background:var(--cfff);color:var(--c3b4459);cursor:pointer;display:flex;align-items:center;justify-content:center;position:relative"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path></svg>
+          <sc-if value="{{ hasUnread }}"><span style="position:absolute;top:-6px;right:-6px;min-width:18px;height:18px;border-radius:9px;background:var(--ce5484d);color:#fff;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;padding:0 4px">{{ unread }}</span></sc-if>
+        </button>
+        <sc-if value="{{ notifOpen }}">
+          <div data-anim="pop" style="position:absolute;right:0;top:46px;width:360px;background:var(--cfff);border:1px solid var(--ce3e8ef);border-radius:12px;box-shadow:0 18px 40px rgba(13,19,34,.18);z-index:40;overflow:hidden">
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid var(--cf1f4f8)"><strong>Notifications</strong><a href="#" onClick="{{ markRead }}" style="font-size:12px;font-weight:700">Mark all read</a></div>
+            <sc-for list="{{ notifs }}" as="n"><div onClick="{{ n.open }}" style="display:flex;gap:10px;padding:12px 16px;border-bottom:1px solid var(--cf1f4f8);cursor:pointer;background:{{ n.bg }}" style-hover="background:var(--cf7f9fb)"><span style="width:8px;height:8px;border-radius:50%;background:{{ n.dot }};margin-top:6px;flex-shrink:0"></span><div style="min-width:0"><div style="font-size:13px;line-height:1.4">{{ n.text }}</div><div style="font-size:11px;color:var(--c8a93a6);margin-top:2px">{{ n.when }}</div></div></div></sc-for>
+            <sc-if value="{{ notifEmpty }}"><div style="padding:28px;text-align:center;color:var(--c5b6478);font-size:13px">No notifications.</div></sc-if>
+          </div>
+        </sc-if>
+      </div>
+      <sc-if value="{{ canNew }}"><button onClick="{{ goNew }}" style="white-space:nowrap;flex-shrink:0;height:38px;border:0;border-radius:8px;background:var(--c1d2a4d);color:#fff;font-weight:700;padding:0 16px;cursor:pointer" style-hover="background:var(--c2a3a66)">New request</button></sc-if>
+    </header>
+
+    <div data-anim="screen" style="padding:28px;display:flex;flex-direction:column;gap:20px;max-width:1360px;width:100%">
+
+    <sc-if value="{{ denied }}">
+      <div style="background:var(--cfff);border:1px solid var(--ce3e8ef);border-radius:12px;padding:48px;max-width:560px;display:flex;flex-direction:column;gap:12px">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--cb42318);font-weight:500">403 · Not authorised</div>
+        <div style="font-size:22px;font-weight:800">You don't have access to {{ deniedLabel }}</div>
+        <div style="color:var(--c5b6478);line-height:1.6">Your role <strong>{{ me.name }}</strong> does not include this permission. Access is granted through role assignment by a System Administrator and requires your line manager's approval.</div>
+        <div style="display:flex;gap:10px;margin-top:8px">
+          <button onClick="{{ requestAccess }}" style="height:40px;border:0;border-radius:8px;background:var(--c1d2a4d);color:#fff;font-weight:700;padding:0 16px;cursor:pointer">Request access</button>
+          <button onClick="{{ goDash }}" style="height:40px;border:1px solid var(--cd5dbe5);border-radius:8px;background:var(--cfff);font-weight:600;padding:0 16px;cursor:pointer">Back to dashboard</button>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ s.dashboard }}">
+      <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap">
+        <div><div style="font-size:24px;font-weight:800">Good morning, {{ me.first }}</div><div style="color:var(--c5b6478);margin-top:4px">Thursday, 22 October 2026 · {{ me.title }}</div></div>
+      </div>
+      <div style="background:var(--cfff6e8);border:1px solid var(--cf3d9a8);border-radius:10px;padding:12px 16px;display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+        <span style="background:var(--c9a5b00);color:#fff;font-size:11px;font-weight:700;border-radius:4px;padding:3px 7px;letter-spacing:.04em">FREEZE</span>
+        <span style="color:var(--c6b4200)"><strong>Month-end financial close</strong> change freeze starts 28 Oct and runs to 2 Nov. Only emergency changes with Executive override are permitted.</span>
+        <a href="#" onClick="{{ goCal }}" style="margin-left:auto;font-weight:700">View calendar</a>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px">
+        <sc-for list="{{ kpis }}" as="k" hint-placeholder-count="4">
+          <div data-stagger="1" style="background:var(--cfff);border:1px solid var(--ce3e8ef);border-radius:12px;padding:18px">
+            <div style="color:var(--c5b6478);font-size:13px;font-weight:600">{{ k.label }}</div>
+            <div style="font-size:30px;font-weight:800;margin-top:6px">{{ k.value }}</div>
+            <div style="color:var(--c8a93a6);font-size:12px;margin-top:2px">{{ k.sub }}</div>
+          </div>
+        </sc-for>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:20px">
+        <div style="background:var(--cfff);border:1px solid var(--ce3e8ef);border-radius:12px;overflow:hidden">
+          <div style="padding:16px 20px;border-bottom:1px solid var(--ceef1f5);display:flex;justify-content:space-between;align-items:center"><div style="font-weight:800">{{ actionTitle }}</div><span style="color:var(--c5b6478);font-size:13px">{{ actionCount }} items</span></div>
+          <sc-if value="{{ isAdmin }}">
+            <sc-for list="{{ recentAudit }}" as="a">
+              <div style="padding:12px 20px;border-bottom:1px solid var(--cf1f4f8);display:flex;gap:12px;font-size:13px"><span style="font-family:'JetBrains Mono',monospace;color:var(--c8a93a6);width:120px;flex-shrink:0">{{ a.ts }}</span><span><strong>{{ a.user }}</strong> {{ a.action }} <span style="color:var(--c5b6478)">{{ a.ref }}</span></span></div>
+            </sc-for>
+          </sc-if>
+          <sc-if value="{{ notAdmin }}">
+            <sc-for list="{{ actionList }}" as="c" hint-placeholder-count="4">
+              <div onClick="{{ c.open }}" style="padding:14px 20px;border-bottom:1px solid var(--cf1f4f8);display:grid;grid-template-columns:120px minmax(0,1fr) auto;gap:14px;align-items:center;cursor:pointer" style-hover="background:var(--cf7f9fb)">
+                <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--c5b6478)">{{ c.id }}</span>
+                <div style="min-width:0"><div style="font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ c.title }}</div><div style="color:var(--c5b6478);font-size:12px;margin-top:2px">{{ c.dept }} · {{ c.stage }}</div></div>
+                <span style="background:{{ c.sBg }};color:{{ c.sFg }};font-size:12px;font-weight:700;border-radius:20px;padding:3px 10px;white-space:nowrap">{{ c.status }}</span>
+              </div>
+            </sc-for>
+            <sc-if value="{{ actionEmpty }}"><div style="padding:36px 20px;text-align:center;color:var(--c5b6478)">Nothing needs your attention right now.</div></sc-if>
+          </sc-if>
+        </div>
+        <div style="background:var(--cfff);border:1px solid var(--ce3e8ef);border-radius:12px;overflow:hidden">
+          <div style="padding:16px 20px;border-bottom:1px solid var(--ceef1f5);font-weight:800">Upcoming changes</div>
+          <sc-for list="{{ upcoming }}" as="c" hint-placeholder-count="4">
+            <div onClick="{{ c.open }}" style="padding:12px 20px;border-bottom:1px solid var(--cf1f4f8);display:flex;gap:14px;align-items:center;cursor:pointer" style-hover="background:var(--cf7f9fb)">
+              <div style="width:46px;text-align:center;flex-shrink:0;border:1px solid var(--ce3e8ef);border-radius:8px;padding:4px 0"><div style="font-size:10px;font-weight:700;color:var(--c0b7f82);text-transform:uppercase">{{ c.mon }}</div><div style="font-size:18px;font-weight:800">{{ c.day }}</div></div>
+              <div style="min-width:0"><div style="font-weight:700;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ c.title }}</div><div style="color:var(--c5b6478);font-size:12px">{{ c.window }} · {{ c.implementer }}</div></div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ s.changes }}">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <button onClick="{{ exportChanges }}" style="order:99;margin-left:auto;height:34px;border:1px solid var(--cd5dbe5);border-radius:8px;background:var(--cfff);color:var(--c18213a);font-weight:700;padding:0 14px;cursor:pointer;font-size:13px">Export CSV</button>
+        <sc-for list="{{ filters }}" as="f"><button onClick="{{ f.pick }}" style="border:1px solid {{ f.bd }};background:{{ f.bg }};color:{{ f.fg }};border-radius:20px;padding:6px 14px;font-size:13px;font-weight:600;cursor:pointer">{{ f.l }} <span style="opacity:.7">{{ f.n }}</span></button></sc-for>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <select value="{{ cf.dept }}" data-val="{{ cf.dept }}" onChange="{{ cfOn.dept }}" style="height:34px;border:1px solid var(--cd5dbe5);border-radius:8px;padding:0 10px;font-size:13px;background:var(--cfff);color:var(--c18213a);min-width:160px"><sc-for list="{{ cfDeptOpts }}" as="o"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select>
+        <select value="{{ cf.risk }}" data-val="{{ cf.risk }}" onChange="{{ cfOn.risk }}" style="height:34px;border:1px solid var(--cd5dbe5);border-radius:8px;padding:0 10px;font-size:13px;background:var(--cfff);color:var(--c18213a);min-width:120px"><sc-for list="{{ cfRiskOpts }}" as="o"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select>
+        <select value="{{ cf.type }}" data-val="{{ cf.type }}" onChange="{{ cfOn.type }}" style="height:34px;border:1px solid var(--cd5dbe5);border-radius:8px;padding:0 10px;font-size:13px;background:var(--cfff);color:var(--c18213a);min-width:170px"><sc-for list="{{ cfTypeOpts }}" as="o"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select>
+        <span style="margin-left:auto;font-size:13px;color:var(--c5b6478)">Sort</span>
+        <select value="{{ cf.sort }}" data-val="{{ cf.sort }}" onChange="{{ cfOn.sort }}" style="height:34px;border:1px solid var(--cd5dbe5);border-radius:8px;padding:0 10px;font-size:13px;background:var(--cfff);color:var(--c18213a);min-width:170px"><sc-for list="{{ cfSortOpts }}" as="o"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select>
+        <sc-if value="{{ cfActive }}"><a href="#" onClick="{{ cfClear }}" style="font-size:13px;font-weight:700">Clear filters</a></sc-if>
+      </div>
+      <sc-if value="{{ isRequester }}"><div style="color:var(--c5b6478);font-size:13px">Showing change requests you raised. Other departments' changes are visible to approvers only.</div></sc-if>
+      <div style="background:var(--cfff);border:1px solid var(--ce3e8ef);border-radius:12px;overflow-x:auto">
+        <div style="display:grid;grid-template-columns:130px minmax(0,2.4fr) minmax(0,1fr) 90px 110px 150px;min-width:960px;gap:14px;padding:12px 20px;background:var(--cf7f9fb);border-bottom:1px solid var(--ce3e8ef);font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--c5b6478)">
+          <span>ID</span><span>Title</span><span>Department</span><span>Risk</span><span>Planned</span><span>Status</span>
+        </div>
+        <sc-for list="{{ rows }}" as="c" hint-placeholder-count="6">
+          <div onClick="{{ c.open }}" style="display:grid;grid-template-columns:130px minmax(0,2.4fr) minmax(0,1fr) 90px 110px 150px;min-width:960px;gap:14px;padding:14px 20px;border-bottom:1px solid var(--cf1f4f8);align-items:center;cursor:pointer" style-hover="background:var(--cf7f9fb)">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--c5b6478)">{{ c.id }}</span>
+            <div style="min-width:0"><div style="font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ c.title }}</div><div style="color:var(--c5b6478);font-size:12px;margin-top:2px">{{ c.type }} · {{ c.requester }}</div></div>
+            <span style="color:var(--c3b4459)">{{ c.dept }}</span>
+            <span style="color:{{ c.rFg }};font-weight:700;font-size:13px">{{ c.risk }}</span>
+            <span style="color:var(--c3b4459);font-size:13px">{{ c.dateF }}</span>
+            <span><span style="background:{{ c.sBg }};color:{{ c.sFg }};font-size:12px;font-weight:700;border-radius:20px;padding:3px 10px;white-space:nowrap">{{ c.status }}</span></span>
+          </div>
+        </sc-for>
+        <sc-if value="{{ rowsEmpty }}"><div style="padding:40px;text-align:center;color:var(--c5b6478)">No change requests match these filters.</div></sc-if>
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 20px;border-top:1px solid var(--ce3e8ef);font-size:13px;color:var(--c5b6478);background:var(--cfff)">
+          <span>{{ pgC.label }}</span>
+          <label style="display:flex;align-items:center;gap:6px;margin-left:auto">Rows per page <select value="{{ pgC.size }}" data-val="{{ pgC.size }}" onChange="{{ pgC.onSize }}" style="height:30px;border:1px solid var(--cd5dbe5);border-radius:6px;padding:0 6px;font-size:13px;background:var(--cfff);color:var(--c18213a)"><option value="5">5</option><option value="10">10</option><option value="25">25</option><option value="50">50</option></select></label>
+          <div style="display:flex;gap:4px;align-items:center">
+            <button onClick="{{ pgC.prev }}" title="Previous page" style="width:30px;height:30px;border:1px solid var(--cd5dbe5);border-radius:6px;background:var(--cfff);color:var(--c18213a);cursor:pointer;opacity:{{ pgC.prevOp }}">‹</button>
+            <sc-for list="{{ pgC.nums }}" as="n"><button onClick="{{ n.go }}" style="min-width:30px;height:30px;padding:0 6px;border:0;border-radius:6px;background:{{ n.bg }};color:{{ n.fg }};cursor:{{ n.cur }};font-weight:700;font-size:13px">{{ n.l }}</button></sc-for>
+            <button onClick="{{ pgC.next }}" title="Next page" style="width:30px;height:30px;border:1px solid var(--cd5dbe5);border-radius:6px;background:var(--cfff);color:var(--c18213a);cursor:pointer;opacity:{{ pgC.nextOp }}">›</button>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ s.approvals }}">
+      <div style="color:var(--c5b6478)">Requests currently waiting at your approval stage (<strong>{{ me.name }}</strong>). Decisions are recorded with your identity, timestamp and comment.</div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <sc-for list="{{ inbox }}" as="c" hint-placeholder-count="3">
+          <div data-stagger="1" style="background:var(--cfff);border:1px solid var(--ce3e8ef);border-radius:12px;padding:18px 20px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:16px;align-items:center">
+            <div style="min-width:0">
+              <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--c5b6478)">{{ c.id }}</span><span style="background:{{ c.rBg }};color:{{ c.rFg }};font-size:11px;font-weight:700;border-radius:4px;padding:2px 7px">{{ c.risk }} risk</span><span style="color:var(--c5b6478);font-size:12px">{{ c.type }} · {{ c.dept }}</span></div>
+              <div style="font-weight:800;font-size:16px;margin-top:6px">{{ c.title }}</div>
+              <div style="color:var(--c5b6478);font-size:13px;margin-top:4px">Requested by {{ c.requester }} · {{ c.createdF }} · Planned {{ c.dateF }} · Stage {{ c.stageIdx }} of {{ c.stageTotal }}</div>
+            </div>
+            <button onClick="{{ c.open }}" style="height:40px;border:0;border-radius:8px;background:var(--c1d2a4d);color:#fff;font-weight:700;padding:0 18px;cursor:pointer">Review</button>
+          </div>
+        </sc-for>
+        <sc-if value="{{ inboxEmpty }}"><div style="background:var(--cfff);border:1px dashed var(--cd5dbe5);border-radius:12px;padding:48px;text-align:center;color:var(--c5b6478)">You're all caught up. No requests are waiting at your stage.</div></sc-if>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ s.detail }}">
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <a href="#" onClick="{{ backList }}" style="font-size:13px;font-weight:600">← Change requests</a>
+        <div style="display:flex;gap:16px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap">
+          <div style="min-width:0;max-width:820px">
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+              <span style="font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--c5b6478)">{{ d.id }}</span>
+              <span style="background:{{ d.sBg }};color:{{ d.sFg }};font-size:12px;font-weight:700;border-radius:20px;padding:3px 10px">{{ d.status }}</span>
+              <span style="background:{{ d.rBg }};color:{{ d.rFg }};font-size:12px;font-weight:700;border-radius:20px;padding:3px 10px">{{ d.risk }} risk</span>
+              <span style="background:var(--ceef1f5);color:var(--c3b4459);font-size:12px;font-weight:600;border-radius:20px;padding:3px 10px">{{ d.type }}</span>
+              <span style="background:var(--ceef1f5);color:var(--c3b4459);font-size:12px;font-weight:600;border-radius:20px;padding:3px 10px">{{ d.tier }} route</span>
+            </div>
+            <div style="font-size:24px;font-weight:800;margin-top:8px;text-wrap:pretty">{{ d.title }}</div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button onClick="{{ exportChange }}" style="height:40px;border:1px solid var(--cd5dbe5);border-radius:8px;background:var(--cfff);font-weight:700;padding:0 14px;cursor:pointer;color:var(--c18213a)">Export</button>
+            <sc-if value="{{ d.canSubmit }}"><button onClick="{{ submitDraft }}" style="height:40px;border:0;border-radius:8px;background:var(--c1d2a4d);color:#fff;font-weight:700;padding:0 16px;cursor:pointer">Submit for approval</button></sc-if>
+            <sc-if value="{{ d.canStart }}"><button onClick="{{ startImpl }}" style="height:40px;border:0;border-radius:8px;background:var(--c0b7f82);color:#fff;font-weight:700;padding:0 16px;cursor:pointer">Start implementation</button></sc-if>
+          </div>
+        </div>
+      </div>
+
+      <div style="background:var(--cfff);border:1px solid var(--ce3e8ef);border-radius:12px;padding:14px 18px;display:flex;align-items:center;gap:0;overflow-x:auto">
+        <sc-for list="{{ d.life }}" as="l"><div style="display:flex;align-items:center;flex:1 0 auto">
+          <div style="display:flex;align-items:center;gap:8px;white-space:nowrap;flex-shrink:0"><span style="flex-shrink:0;width:22px;height:22px;border-radius:50%;background:{{ l.bg }};color:{{ l.fg }};border:2px solid {{ l.bd }};font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center">{{ l.mark }}</span><span style="font-size:12px;font-weight:{{ l.fw }};color:{{ l.tc }}">{{ l.l }}</span></div>
+          <div style="flex:1;height:2px;background:{{ l.line }};margin:0 10px;min-width:14px;opacity:{{ l.lineOp }}"></div>
+        </div></sc-for>
+      </div>
+      <sc-if value="{{ d.canAct }}">
+        <div style="background:var(--cfff);border:2px solid var(--c17b3b5);border-radius:12px;padding:18px 20px;display:flex;flex-direction:column;gap:12px">
+          <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"><div style="font-weight:800">Your decision is required · {{ d.curStage }}</div><div style="font-size:12px;color:var(--c5b6478)">Stage {{ d.stageIdx }} of {{ d.stageTotal }}</div></div>
+          <textarea value="{{ comment }}" onChange="{{ onComment }}" placeholder="Add a comment (required to reject or request rework)" style="min-height:72px;border:1px solid var(--cd5dbe5);border-radius:8px;padding:10px 12px;font-size:14px;resize:vertical"></textarea>
+          <sc-if value="{{ hasCommentErr }}"><div style="color:var(--cb42318);font-size:13px">{{ commentErr }}</div></sc-if>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <button onClick="{{ approve }}" style="height:40px;border:0;border-radius:8px;background:var(--c1d2a4d);color:#fff;font-weight:700;padding:0 20px;cursor:pointer">Approve</button>
+            <button onClick="{{ rework }}" style="height:40px;border:1px solid var(--cd5dbe5);border-radius:8px;background:var(--cfff);font-weight:700;padding:0 16px;cursor:pointer">Request rework</button>
+            <button onClick="{{ reject }}" style="height:40px;border:1px solid var(--cf1b5b0);border-radius:8px;background:var(--cfff);color:var(--cb42318);font-weight:700;padding:0 16px;cursor:pointer">Reject</button>
+          </div>
+        </div>
+      </sc-if>
+      <sc-if value="{{ d.sodBlock }}">
+        <div style="background:var(--cfdecec);border:1px solid var(--cf1b5b0);border-radius:10px;padding:12px 16px;color:var(--c7a1c14);font-size:13px"><strong>Segregation of duties:</strong> you raised this request, so you cannot approve it. It has been routed to another approver with the same role.</div>
+      </sc-if>
+      <sc-if value="{{ d.readOnly }}">
+        <div style="background:var(--cf1f4f8);border-radius:10px;padding:10px 16px;color:var(--c3b4459);font-size:13px">{{ d.readOnlyMsg }}</div>
+      </sc-if>
+
+      <div style="display:flex;flex-wrap:wrap;gap:20px;align-items:flex-start">
+        <div style="background:var(--cfff);border:1px solid var(--ce3e8ef);border-radius:12px;overflow:hidden;flex:1 1 560px;min-width:0">
+          <div style="display:flex;gap:4px;border-bottom:1px solid var(--ce3e8ef);padding:0 12px;overflow-x:auto">
+            <sc-for list="{{ tabs }}" as="t"><button onClick="{{ t.go }}" style="border:0;background:transparent;padding:14px 10px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;color:{{ t.fg }};border-bottom:2px solid {{ t.bd }}">{{ t.l }}</button></sc-for>
+          </div>
+          <div data-anim="tab" style="padding:22px;display:flex;flex-direction:column;gap:18px">
+            <sc-if value="{{ tab.overview }}">
+              <div><div style="font-size:12px;font-weight:700;color:var(--c5b6478);text-transform:uppercase;letter-spacing:.06em">Summary</div><div style="margin-top:6px;line-height:1.6">{{ d.summary }}</div></div>
+              <div><div style="font-size:12px;font-weight:700;color:var(--c5b6478);text-transform:uppercase;letter-spacing:.06em">Business justification</div><div style="margin-top:6px;line-height:1.6">{{ d.reason }}</div></div>
+              <div><div style="font-size:12px;font-weight:700;color:var(--c5b6478);text-transform:uppercase;letter-spacing:.06em">Systems & areas affected</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px"><sc-for list="{{ d.systems }}" as="x"><span style="border:1px solid var(--cd5dbe5);border-radius:6px;padding:4px 10px;font-size:13px">{{ x }}</span></sc-for></div></div>
+              <sc-if value="{{ d.hasFiles }}"><div><div style="font-size:12px;font-weight:700;color:var(--c5b6478);text-transform:uppercase;letter-spacing:.06em">Attachments</div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"><sc-for list="{{ d.files }}" as="f"><span style="display:flex;gap:8px;align-items:center;border:1px solid var(--cd5dbe5);border-radius:8px;padding:6px 10px;font-size:13px"><span style="font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;background:var(--ce6f7f8);color:var(--c0b6f72);border-radius:4px;padding:2px 5px">{{ f.ext }}</span>{{ f.name }}<span style="color:var(--c8a93a6);font-size:12px">{{ f.size }}</span></span></sc-for></div></div></sc-if>
+              <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px">
+                <div><div style="font-size:12px;font-weight:700;color:var(--c5b6478);text-transform:uppercase;letter-spacing:.06em">Test plan</div><div style="margin-top:6px;line-height:1.6">{{ d.test }}</div></div>
+                <div><div style="font-size:12px;font-weight:700;color:var(--c5b6478);text-transform:uppercase;letter-spacing:.06em">Rollback plan</div><div style="margin-top:6px;line-height:1.6">{{ d.rollback }}</div></div>
+              </div>
+            </sc-if>
+            <sc-if value="{{ tab.risk }}">
+              <div style="display:grid;display:flex;flex-wrap:wrap;gap:28px;align-items:start">
+                <div>
+                  <div style="display:grid;grid-template-columns:24px repeat(3,64px);gap:4px;font-size:11px;color:var(--c5b6478)">
+                    <sc-for list="{{ matrix }}" as="m"><div style="height:{{ m.h }};display:flex;align-items:center;justify-content:center;border-radius:6px;background:{{ m.bg }};color:{{ m.fg }};font-weight:700;outline:{{ m.ol }};outline-offset:-3px">{{ m.l }}</div></sc-for>
+                  </div>
+                  <div style="font-size:11px;color:var(--c5b6478);margin-top:6px;text-align:center;padding-left:28px">Impact →  ·  Likelihood ↑</div>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:10px">
+                  <div style="font-size:12px;font-weight:700;color:var(--c5b6478);text-transform:uppercase;letter-spacing:.06em">Assessment</div>
+                  <div style="font-size:28px;font-weight:800;color:{{ d.rFg }}">{{ d.risk }} · score {{ d.score }}/9</div>
+                  <sc-for list="{{ d.factors }}" as="f"><div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--cf1f4f8);padding:8px 0;font-size:13px"><span style="color:var(--c5b6478)">{{ f.l }}</span><strong>{{ f.v }}</strong></div></sc-for>
+                </div>
+              </div>
+            </sc-if>
+            <sc-if value="{{ tab.approvals }}">
+              <div style="display:flex;flex-direction:column">
+                <sc-for list="{{ d.steps }}" as="st">
+                  <div style="display:grid;grid-template-columns:28px minmax(0,1fr);gap:14px">
+                    <div style="display:flex;flex-direction:column;align-items:center"><div style="width:16px;height:16px;border-radius:50%;background:{{ st.dot }};margin-top:3px;box-shadow:0 0 0 4px {{ st.ring }};animation:{{ st.anim }}"></div><div style="flex:1;width:2px;background:var(--ce3e8ef);min-height:24px"></div></div>
+                    <div style="padding-bottom:20px">
+                      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><strong>{{ st.roleName }}</strong><span style="color:{{ st.dot }};font-size:12px;font-weight:700">{{ st.label }}</span></div>
+                      <div style="color:var(--c5b6478);font-size:13px;margin-top:2px">{{ st.person }} · {{ st.at }}</div>
+                      <sc-if value="{{ st.hasComment }}"><div style="margin-top:8px;background:var(--cf7f9fb);border-radius:8px;padding:10px 12px;font-size:13px;line-height:1.5">“{{ st.comment }}”</div></sc-if>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+            <sc-if value="{{ tab.impl }}">
+              <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px">
+                <div style="border:1px solid var(--ce3e8ef);border-radius:10px;padding:12px"><div style="font-size:12px;color:var(--c5b6478)">Planned date</div><div style="font-weight:800;margin-top:4px">{{ d.dateF }}</div></div>
+                <div style="border:1px solid var(--ce3e8ef);border-radius:10px;padding:12px"><div style="font-size:12px;color:var(--c5b6478)">Window</div><div style="font-weight:800;margin-top:4px">{{ d.window }}</div></div>
+                <div style="border:1px solid var(--ce3e8ef);border-radius:10px;padding:12px"><div style="font-size:12px;color:var(--c5b6478)">Implementer</div><div style="font-weight:800;margin-top:4px">{{ d.implementer }}</div></div>
+              </div>
+              <div style="font-size:12px;font-weight:700;color:var(--c5b6478);text-transform:uppercase;letter-spacing:.06em">Implementation checklist · {{ d.doneCount }}/{{ d.taskCount }}</div>
+              <div style="display:flex;flex-direction:column;gap:6px">
+                <sc-for list="{{ d.tasks }}" as="t">
+                  <label style="display:flex;gap:10px;align-items:center;border:1px solid var(--ce3e8ef);border-radius:8px;padding:10px 12px;cursor:{{ t.cur }};opacity:{{ t.op }}"><input type="checkbox" checked="{{ t.done }}" disabled="{{ t.locked }}" onChange="{{ t.toggle }}" style="width:16px;height:16px;accent-color:var(--c0b7f82)"><span>{{ t.t }}</span></label>
+                </sc-for>
+              </div>
+              <sc-if value="{{ d.implHint }}"><div style="color:var(--c5b6478);font-size:13px">{{ d.implHintMsg }}</div></sc-if>
+              <sc-if value="{{ d.canFinish }}"><div><button onClick="{{ finishImpl }}" style="height:40px;border:0;border-radius:8px;background:var(--c1d2a4d);color:#fff;font-weight:700;padding:0 18px;cursor:pointer">Mark as implemented</button></div></sc-if>
+            </sc-if>
+            <sc-if value="{{ tab.pir }}">
+              <sc-if value="{{ d.canPir }}">
+                <div style="font-weight:800">Post-implementation review</div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap"><sc-for list="{{ pirOpts }}" as="o"><button onClick="{{ o.pick }}" style="border:1px solid {{ o.bd }};background:{{ o.bg }};color:{{ o.fg }};border-radius:8px;padding:9px 14px;font-weight:700;cursor:pointer;font-size:13px">{{ o.l }}</button></sc-for></div>
+                <textarea value="{{ pir.notes }}" onChange="{{ onPirNotes }}" placeholder="Lessons learned, incidents raised, follow-up actions" style="min-height:90px;border:1px solid var(--cd5dbe5);border-radius:8px;padding:10px 12px;font-size:14px"></textarea>
+                <div><button onClick="{{ submitPir }}" style="height:40px;border:0;border-radius:8px;background:var(--c1d2a4d);color:#fff;font-weight:700;padding:0 18px;cursor:pointer">Submit review and close change</button></div>
+              </sc-if>
+              <sc-if value="{{ d.hasPir }}">
+                <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--cf1f4f8);padding:8px 0"><span style="color:var(--c5b6478)">Outcome</span><strong>{{ d.pirOutcome }}</strong></div>
+                <div style="line-height:1.6">{{ d.pirNotes }}</div>
+              </sc-if>
+              <sc-if value="{{ d.pirLocked }}"><div style="color:var(--c5b6478)">{{ d.pirMsg }}</div></sc-if>
+            </sc-if>
+            <sc-if value="{{ tab.activity }}">
+              <sc-for list="{{ d.activity }}" as="a"><div style="display:flex;gap:14px;font-size:13px;border-bottom:1px solid var(--cf1f4f8);padding:8px 0"><span style="font-family:'JetBrains Mono',monospace;color:var(--c8a93a6);width:130px;flex-shrink:0">{{ a.ts }}</span><span><strong>{{ a.user }}</strong> {{ a.action }}</span></div></sc-for>
+            </sc-if>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:14px;flex:1 1 280px;min-width:0">
+          <div style="background:var(--cfff);border:1px solid var(--ce3e8ef);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:10px">
+            <sc-for list="{{ d.facts }}" as="f"><div style="display:flex;justify-content:space-between;gap:12px;font-size:13px"><span style="color:var(--c5b6478)">{{ f.l }}</span><strong style="text-align:right">{{ f.v }}</strong></div></sc-for>
+          </div>
+          <div style="background:var(--cfff);border:1px solid var(--ce3e8ef);border-radius:12px;padding:18px">
+            <div style="font-weight:800;margin-bottom:12px">Approval route</div>
+            <sc-for list="{{ d.steps }}" as="st"><div style="display:flex;gap:10px;align-items:center;padding:6px 0"><div style="width:10px;height:10px;border-radius:50%;background:{{ st.dot }};flex-shrink:0"></div><span style="flex:1;font-size:13px">{{ st.roleName }}</span><span style="font-size:12px;color:{{ st.dot }};font-weight:700">{{ st.label }}</span></div></sc-for>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ s.new }}">
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <sc-for list="{{ wizSteps }}" as="w"><div style="display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:8px;background:{{ w.bg }};color:{{ w.fg }};font-weight:700;font-size:13px"><span style="width:22px;height:22px;border-radius:50%;border:1.5px solid currentColor;display:flex;align-items:center;justify-content:center;font-size:11px">{{ w.n }}</span>{{ w.l }}</div></sc-for>
+      </div>
+      <div style="background:var(--cfff);border:1px solid var(--ce3e8ef);border-radius:12px;padding:28px;display:flex;flex-direction:column;gap:20px;max-width:960px" data-anim="wiz">
+        <sc-if value="{{ wz.s1 }}">
+          <div style="font-size:18px;font-weight:800">What kind of change is this?</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px">
+            <sc-for list="{{ types }}" as="t"><button onClick="{{ t.pick }}" style="text-align:left;border:1.5px solid {{ t.bd }};background:{{ t.bg }};border-radius:10px;padding:14px;cursor:pointer"><div style="font-weight:800;color:var(--c18213a)">{{ t.l }}</div><div style="font-size:12px;color:var(--c5b6478);margin-top:4px;line-height:1.4">{{ t.d }}</div></button></sc-for>
+          </div>
+          <label style="display:flex;flex-direction:column;gap:6px;font-weight:700;font-size:13px;max-width:360px">Owning department
+            <select value="{{ form.dept }}" data-val="{{ form.dept }}" onChange="{{ on.dept }}" style="height:42px;border:1px solid var(--cd5dbe5);border-radius:8px;padding:0 10px;font-size:14px"><sc-for list="{{ depts }}" as="x"><option value="{{ x }}">{{ x }}</option></sc-for></select>
+          </label>
+          <label style="display:flex;gap:12px;align-items:flex-start;border:1px solid var(--cf3d9a8);background:var(--cfff9ef);border-radius:10px;padding:14px;cursor:pointer"><input type="checkbox" checked="{{ form.emergency }}" onChange="{{ on.emergency }}" style="width:18px;height:18px;margin-top:2px;accent-color:var(--c9a5b00)"><span><strong>This is an emergency change</strong><br><span style="font-size:13px;color:var(--c6b4200)">Restores service or fixes a critical security issue. Routed to Emergency CAB; full review is completed retrospectively.</span></span></label>
+        </sc-if>
+        <sc-if value="{{ wz.s2 }}">
+          <div style="font-size:18px;font-weight:800">Describe the change</div>
+          <label style="display:flex;flex-direction:column;gap:6px;font-weight:700;font-size:13px">Title *<input value="{{ form.title }}" onChange="{{ on.title }}" placeholder="e.g. Update premium collection schedule for group life" style="height:42px;border:1px solid {{ err.titleBd }};border-radius:8px;padding:0 12px;font-size:14px"></label>
+          <sc-if value="{{ err.title }}"><div style="color:var(--cb42318);font-size:13px;margin-top:-12px">A title is required.</div></sc-if>
+          <label style="display:flex;flex-direction:column;gap:6px;font-weight:700;font-size:13px">What is changing? *<textarea value="{{ form.summary }}" onChange="{{ on.summary }}" style="min-height:90px;border:1px solid {{ err.summaryBd }};border-radius:8px;padding:10px 12px;font-size:14px"></textarea></label>
+          <sc-if value="{{ err.summary }}"><div style="color:var(--cb42318);font-size:13px;margin-top:-12px">Describe what is changing.</div></sc-if>
+          <label style="display:flex;flex-direction:column;gap:6px;font-weight:700;font-size:13px">Business justification<textarea value="{{ form.reason }}" onChange="{{ on.reason }}" style="min-height:70px;border:1px solid var(--cd5dbe5);border-radius:8px;padding:10px 12px;font-size:14px"></textarea></label>
+          <label style="display:flex;flex-direction:column;gap:6px;font-weight:700;font-size:13px">Systems or areas affected<input value="{{ form.systems }}" onChange="{{ on.systems }}" placeholder="Comma-separated, e.g. Policy admin, Customer portal" style="height:42px;border:1px solid var(--cd5dbe5);border-radius:8px;padding:0 12px;font-size:14px"></label>
+          <div style="display:flex;flex-direction:column;gap:8px"><div style="font-weight:700;font-size:13px">Attachments</div>
+            <label style="border:1.5px dashed var(--cc5ccd8);border-radius:10px;padding:18px;text-align:center;cursor:pointer;color:var(--c5b6478);font-size:13px;background:var(--cf7f9fb)" style-hover="border-color:var(--c17b3b5)"><input type="file" multiple onChange="{{ onFiles }}" style="display:none"><strong style="color:var(--c0b7f82)">Choose files</strong> — design docs, test evidence, vendor contracts (max 25 MB each)</label>
+            <div style="display:flex;gap:8px;flex-wrap:wrap"><sc-for list="{{ formFiles }}" as="f"><span style="display:flex;gap:8px;align-items:center;border:1px solid var(--cd5dbe5);border-radius:8px;padding:6px 6px 6px 10px;font-size:13px"><span style="font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;background:var(--ce6f7f8);color:var(--c0b6f72);border-radius:4px;padding:2px 5px">{{ f.ext }}</span>{{ f.name }}<span style="color:var(--c8a93a6);font-size:12px">{{ f.size }}</span><button onClick="{{ f.remove }}" style="border:0;background:transparent;color:var(--c8a93a6);cursor:pointer;font-size:14px;padding:0 4px">×</button></span></sc-for></div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ wz.s3 }}">
+          <div style="font-size:18px;font-weight:800">Risk & impact assessment</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px">
+            <div style="display:flex;flex-direction:column;gap:8px"><div style="font-weight:700;font-size:13px">Impact if it goes wrong</div>
+              <sc-for list="{{ impactOpts }}" as="o"><button onClick="{{ o.pick }}" style="text-align:left;border:1.5px solid {{ o.bd }};background:{{ o.bg }};border-radius:8px;padding:10px 12px;cursor:pointer"><div style="font-weight:800;color:var(--c18213a)">{{ o.l }}</div><div style="font-size:12px;color:var(--c5b6478)">{{ o.d }}</div></button></sc-for>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px"><div style="font-weight:700;font-size:13px">Likelihood of issues</div>
+              <sc-for list="{{ likeOpts }}" as="o"><button onClick="{{ o.pick }}" style="text-align:left;border:1.5px solid {{ o.bd }};background:{{ o.bg }};border-radius:8px;padding:10px 12px;cursor:pointer"><div style="font-weight:800;color:var(--c18213a)">{{ o.l }}</div><div style="font-size:12px;color:var(--c5b6478)">{{ o.d }}</div></button></sc-for>
+            </div>
+          </div>
+          <div style="display:flex;gap:20px;flex-wrap:wrap">
+            <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" checked="{{ form.customer }}" onChange="{{ on.customer }}" style="accent-color:var(--c0b7f82);width:16px;height:16px">Customer-facing</label>
+            <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" checked="{{ form.regulatory }}" onChange="{{ on.regulatory }}" style="accent-color:var(--c0b7f82);width:16px;height:16px">Regulatory / NIC reporting implications</label>
+            <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" checked="{{ form.data }}" onChange="{{ on.data }}" style="accent-color:var(--c0b7f82);width:16px;height:16px">Touches personal data (Data Protection Act)</label>
+          </div>
+          <div style="background:var(--cf7f9fb);border-radius:10px;padding:14px 16px;display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap">
+            <div>Calculated risk: <strong style="color:{{ calc.fg }}">{{ calc.risk }}</strong> (score {{ calc.score }}/9)</div>
+            <div style="font-size:13px;color:var(--c5b6478)">Approval route: <strong>{{ calc.tier }}</strong> · {{ calc.n }} stages</div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ wz.s4 }}">
+          <div style="font-size:18px;font-weight:800">Plan & schedule</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px">
+            <label style="display:flex;flex-direction:column;gap:6px;font-weight:700;font-size:13px">Planned date<input type="date" value="{{ form.date }}" onChange="{{ on.date }}" style="height:42px;border:1px solid var(--cd5dbe5);border-radius:8px;padding:0 10px;font-size:14px"></label>
+            <label style="display:flex;flex-direction:column;gap:6px;font-weight:700;font-size:13px">Window<input value="{{ form.window }}" onChange="{{ on.window }}" style="height:42px;border:1px solid var(--cd5dbe5);border-radius:8px;padding:0 12px;font-size:14px"></label>
+            <label style="display:flex;flex-direction:column;gap:6px;font-weight:700;font-size:13px">Implementer<select value="{{ form.implementer }}" data-val="{{ form.implementer }}" onChange="{{ on.implementer }}" style="height:42px;border:1px solid var(--cd5dbe5);border-radius:8px;padding:0 10px;font-size:14px"><sc-for list="{{ implementers }}" as="x"><option value="{{ x }}">{{ x }}</option></sc-for></select></label>
+          </div>
+          <sc-if value="{{ calc.freeze }}"><div style="background:var(--cfff6e8);border:1px solid var(--cf3d9a8);border-radius:10px;padding:12px 16px;color:var(--c6b4200);font-size:13px">This date falls inside the <strong>{{ calc.freezeName }}</strong> freeze. An Executive override stage has been added to the approval route.</div></sc-if>
+          <label style="display:flex;flex-direction:column;gap:6px;font-weight:700;font-size:13px">Test plan<textarea value="{{ form.test }}" onChange="{{ on.test }}" style="min-height:70px;border:1px solid var(--cd5dbe5);border-radius:8px;padding:10px 12px;font-size:14px"></textarea></label>
+          <label style="display:flex;flex-direction:column;gap:6px;font-weight:700;font-size:13px">Rollback plan *<textarea value="{{ form.rollback }}" onChange="{{ on.rollback }}" placeholder="How will you restore the previous state if this fails?" style="min-height:70px;border:1px solid {{ err.rollbackBd }};border-radius:8px;padding:10px 12px;font-size:14px"></textarea></label>
+          <sc-if value="{{ err.rollback }}"><div style="color:var(--cb42318);font-size:13px;margin-top:-12px">Every change needs a rollback plan.</div></sc-if>
+        </sc-if>
+        <sc-if value="{{ wz.s5 }}">
+          <div style="font-size:18px;font-weight:800">Review & submit</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px">
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <sc-for list="{{ reviewFacts }}" as="f"><div style="display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid var(--cf1f4f8);padding:8px 0;font-size:13px"><span style="color:var(--c5b6478)">{{ f.l }}</span><strong style="text-align:right">{{ f.v }}</strong></div></sc-for>
+            </div>
+            <div style="background:var(--cf7f9fb);border-radius:10px;padding:16px">
+              <div style="font-weight:800;margin-bottom:4px">Approval route</div>
+              <div style="font-size:12px;color:var(--c5b6478);margin-bottom:12px">Set by Administration for {{ form.dept }} · {{ calc.tier }} changes</div>
+              <sc-for list="{{ calc.route }}" as="r"><div style="display:flex;gap:10px;align-items:center;padding:5px 0"><span style="width:22px;height:22px;border-radius:50%;background:var(--c1d2a4d);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center">{{ r.n }}</span><span style="font-size:13px"><strong>{{ r.role }}</strong> · {{ r.person }}</span></div></sc-for>
+            </div>
+          </div>
+          <label style="display:flex;gap:10px;align-items:flex-start;cursor:pointer"><input type="checkbox" checked="{{ form.attest }}" onChange="{{ on.attest }}" style="width:16px;height:16px;margin-top:2px;accent-color:var(--c0b7f82)"><span style="font-size:13px;line-height:1.5">I confirm this information is accurate and that the change has been discussed with affected teams.</span></label>
+          <sc-if value="{{ err.attest }}"><div style="color:var(--cb42318);font-size:13px;margin-top:-12px">Please confirm before submitting.</div></sc-if>
+        </sc-if>
+        <div style="display:flex;justify-content:space-between;gap:10px;border-top:1px solid var(--ceef1f5);padding-top:18px">
+          <button onClick="{{ saveDraft }}" style="height:40px;border:1px solid var(--cd5dbe5);border-radius:8px;background:var(--cfff);font-weight:700;padding:0 16px;cursor:pointer">Save draft</button>
+          <div style="display:flex;gap:10px">
+            <sc-if value="{{ wz.hasBack }}"><button onClick="{{ wizBack }}" style="height:40px;border:1px solid var(--cd5dbe5);border-radius:8px;background:var(--cfff);font-weight:700;padding:0 16px;cursor:pointer">Back</button></sc-if>
+            <button onClick="{{ wizNext }}" style="height:40px;border:0;border-radius:8px;background:var(--c1d2a4d);color:#fff;font-weight:700;padding:0 20px;cursor:pointer">{{ wz.nextLabel }}</button>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ s.calendar }}">
+      <div style="display:grid;display:flex;flex-wrap:wrap;gap:20px;align-items:flex-start">
+        <div style="background:var(--cfff);border:1px solid var(--ce3e8ef);border-radius:12px;overflow:hidden;flex:1 1 620px;min-width:0">
+          <div style="display:flex;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid var(--ce3e8ef)">
+            <button onClick="{{ calPrev }}" style="width:32px;height:32px;border:1px solid var(--cd5dbe5);border-radius:8px;background:var(--cfff);cursor:pointer">‹</button>
+            <button onClick="{{ calNext }}" style="width:32px;height:32px;border:1px solid var(--cd5dbe5);border-radius:8px;background:var(--cfff);cursor:pointer">›</button>
+            <div style="font-weight:800;font-size:16px">{{ calTitle }}</div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr))">
+            <sc-for list="{{ dows }}" as="w"><div style="padding:8px 10px;font-size:11px;font-weight:700;color:var(--c5b6478);text-transform:uppercase;border-bottom:1px solid var(--ce3e8ef)">{{ w }}</div></sc-for>
+            <sc-for list="{{ cells }}" as="c">
+              <div style="min-height:104px;border-right:1px solid var(--cf1f4f8);border-bottom:1px solid var(--cf1f4f8);padding:6px;background:{{ c.bg }};display:flex;flex-direction:column;gap:3px">
+                <span style="font-size:12px;font-weight:700;color:{{ c.fg }};width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:{{ c.todayBg }}">{{ c.day }}</span>
+                <sc-for list="{{ c.events }}" as="e"><div onClick="{{ e.open }}" style="background:{{ e.bg }};color:{{ e.fg }};border-radius:4px;padding:2px 6px;font-size:11px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer">{{ e.label }}</div></sc-for>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:14px;flex:1 1 260px">
+          <div style="background:var(--cfff);border:1px solid var(--ce3e8ef);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:12px">
+            <div style="font-weight:800">Freeze windows</div>
+            <sc-for list="{{ freezes }}" as="f"><div style="border-left:3px solid var(--cd98a00);padding-left:10px"><div style="font-weight:700;font-size:13px">{{ f.name }}</div><div style="font-size:12px;color:var(--c5b6478)">{{ f.range }}</div></div></sc-for>
+            <sc-if value="{{ canFreeze }}"><button onClick="{{ addFreeze }}" style="height:36px;border:1px solid var(--cd5dbe5);border-radius:8px;background:var(--cfff);font-weight:700;cursor:pointer">Add freeze window</button></sc-if>
+          </div>
+          <div style="background:var(--cfff);border:1px solid var(--ce3e8ef);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:8px;font-size:13px">
+            <div style="font-weight:800;margin-bottom:4px">Legend</div>
+            <sc-for list="{{ legend }}" as="l"><div style="display:flex;gap:8px;align-items:center"><span style="width:12px;height:12px;border-radius:3px;background:{{ l.bg }}"></span>{{ l.l }}</div></sc-for>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ s.flows }}">
+      <div style="background:var(--cfff);border:1px solid var(--ce3e8ef);border-radius:12px;padding:22px;display:flex;flex-direction:column;gap:18px">
+        <div><div style="font-weight:800;font-size:16px">Change lifecycle</div><div style="color:var(--c5b6478);font-size:13px;margin-top:4px">Every request moves through these states. Each transition is permission-checked and written to the audit trail.</div></div>
+        <div style="display:flex;align-items:stretch;gap:0;overflow-x:auto;padding-bottom:4px">
+          <sc-for list="{{ flowStates }}" as="f"><div style="display:flex;align-items:center;flex-shrink:0">
+            <div data-stagger="1" style="width:150px;border:1.5px solid {{ f.bd }};background:{{ f.bg }};border-radius:10px;padding:12px">
+              <div style="font-weight:800;font-size:13px;color:{{ f.fg }}">{{ f.l }}</div>
+              <div style="font-size:11px;color:var(--c5b6478);margin-top:4px;line-height:1.4">{{ f.who }}</div>
+            </div>
+            <sc-if value="{{ f.arrow }}"><svg width="28" height="12" viewBox="0 0 28 12" style="flex-shrink:0;color:var(--cc5ccd8)"><path d="M2 6h22M19 1l5 5-5 5" fill="none" stroke="currentColor" stroke-width="2"></path></svg></sc-if>
+          </div></sc-for>
+        </div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap">
+          <div style="flex:1 1 260px;border:1.5px dashed var(--cf1b5b0);background:var(--cfdecec);border-radius:10px;padding:12px 14px;font-size:13px;color:var(--c7a1c14)"><strong>Rejected</strong> — any approver can reject with a comment; remaining stages are skipped and the request is closed.</div>
+          <div style="flex:1 1 260px;border:1.5px dashed var(--c9e1c64);background:var(--cfce8f3);border-radius:10px;padding:12px 14px;font-size:13px;color:var(--c9e1c64)"><strong>Returned for rework</strong> — goes back to the requester; resubmitting restarts the approval route from stage 1.</div>
+          <div style="flex:1 1 260px;border:1.5px dashed var(--cf3d9a8);background:var(--cfff6e8);border-radius:10px;padding:12px 14px;font-size:13px;color:var(--c6b4200)"><strong>Emergency</strong> — skips to Emergency CAB; post-implementation review is mandatory within 5 working days.</div>
+        </div>
+      </div>
+      <div style="background:var(--cfff);border:1px solid var(--ce3e8ef);border-radius:12px;padding:22px;display:flex;flex-direction:column;gap:16px">
+        <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-end;flex-wrap:wrap">
+          <div><div style="font-weight:800;font-size:16px">Approval routes</div><div style="color:var(--c5b6478);font-size:13px;margin-top:4px">Live from Administration → Approval workflows. Risk tier = impact × likelihood.</div></div>
+          <select value="{{ flowDept }}" data-val="{{ flowDept }}" onChange="{{ onFlowDept }}" style="height:38px;border:1px solid var(--cd5dbe5);border-radius:8px;padding:0 10px;font-size:13px;background:var(--cfff);color:var(--c18213a)"><sc-for list="{{ flowDeptOpts }}" as="x"><option value="{{ x }}">{{ x }}</option></sc-for></select>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px">
+          <sc-for list="{{ flowRoutes }}" as="r"><div data-stagger="1" style="border:1px solid var(--ce3e8ef);border-radius:12px;overflow:hidden">
+            <div style="padding:12px 14px;background:{{ r.bg }};display:flex;justify-content:space-between;align-items:center"><strong style="color:{{ r.fg }}">{{ r.l }}</strong><span style="font-size:11px;color:{{ r.fg }};font-weight:700">{{ r.when }}</span></div>
+            <div style="padding:12px 14px;display:flex;flex-direction:column">
+              <sc-for list="{{ r.steps }}" as="st"><div style="display:flex;gap:10px;align-items:flex-start"><div style="display:flex;flex-direction:column;align-items:center"><span style="width:22px;height:22px;border-radius:50%;background:var(--c1d2a4d);color:#fff;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center">{{ st.n }}</span><span style="width:2px;height:14px;background:var(--ce3e8ef);display:{{ st.lineDisp }}"></span></div><div style="font-size:13px;padding-top:2px"><strong>{{ st.role }}</strong></div></div></sc-for>
+            </div>
+          </div></sc-for>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px">
+        <sc-for list="{{ principles }}" as="p"><div data-stagger="1" style="background:var(--cfff);border:1px solid var(--ce3e8ef);border-radius:12px;padding:18px"><div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--c0b6f72);font-weight:700">{{ p.n }}</div><div style="font-weight:800;margin-top:6px">{{ p.t }}</div><div style="color:var(--c5b6478);font-size:13px;line-height:1.5;margin-top:6px">{{ p.d }}</div></div></sc-for>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ s.reports }}">
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span style="color:var(--c5b6478);font-size:13px">Q4 2026 to date · all departments</span><button onClick="{{ exportReport }}" style="margin-left:auto;height:36px;border:1px solid var(--cd5dbe5);border-radius:8px;background:var(--cfff);color:var(--c18213a);font-weight:700;padding:0 14px;cursor:pointer;font-size:13px">Export CSV</button></div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px">
+        <sc-for list="{{ repKpis }}" as="k"><div data-stagger="1" style="background:var(--cfff);border:1px solid var(--ce3e8ef);border-radius:12px;padding:18px"><div style="color:var(--c5b6478);font-size:13px;font-weight:600">{{ k.label }}</div><div style="font-size:30px;font-weight:800;margin-top:6px">{{ k.value }}</div><div style="color:var(--c8a93a6);font-size:12px;margin-top:2px">{{ k.sub }}</div></div></sc-for>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px">
+        <div style="background:var(--cfff);border:1px solid var(--ce3e8ef);border-radius:12px;padding:20px">
+          <div style="font-weight:800;margin-bottom:16px">Changes by department · Q4 to date</div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <sc-for list="{{ byDept }}" as="b"><div style="display:grid;grid-template-columns:130px minmax(0,1fr) 30px;gap:10px;align-items:center;font-size:13px"><span style="color:var(--c3b4459)">{{ b.l }}</span><div style="height:12px;background:var(--cf1f4f8);border-radius:6px;overflow:hidden"><div style="height:100%;width:{{ b.w }};background:var(--c17b3b5);border-radius:6px"></div></div><strong style="text-align:right">{{ b.n }}</strong></div></sc-for>
+          </div>
+        </div>
+        <div style="background:var(--cfff);border:1px solid var(--ce3e8ef);border-radius:12px;padding:20px">
+          <div style="font-weight:800;margin-bottom:16px">Monthly volume and outcome</div>
+          <div style="display:flex;align-items:flex-end;gap:18px;height:200px;padding-top:10px">
+            <sc-for list="{{ monthly }}" as="m"><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;justify-content:flex-end"><span style="font-size:12px;font-weight:700">{{ m.n }}</span><div style="width:100%;max-width:44px;height:{{ m.h }};display:flex;flex-direction:column;border-radius:6px 6px 0 0;overflow:hidden"><div style="height:{{ m.fh }};background:var(--ce5484d)"></div><div style="flex:1;background:var(--c1d2a4d)"></div></div><span style="font-size:12px;color:var(--c5b6478)">{{ m.l }}</span></div></sc-for>
+          </div>
+          <div style="display:flex;gap:16px;font-size:12px;color:var(--c5b6478);margin-top:12px"><span style="display:flex;gap:6px;align-items:center"><span style="width:10px;height:10px;background:var(--c1d2a4d);border-radius:2px"></span>Successful</span><span style="display:flex;gap:6px;align-items:center"><span style="width:10px;height:10px;background:var(--ce5484d);border-radius:2px"></span>Failed / rolled back</span></div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ s.audit }}">
+      <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+        <select value="{{ af.role }}" data-val="{{ af.role }}" onChange="{{ afOn.role }}" style="height:34px;border:1px solid var(--cd5dbe5);border-radius:8px;padding:0 10px;font-size:13px;background:var(--cfff);color:var(--c18213a);min-width:160px"><sc-for list="{{ afRoleOpts }}" as="o"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select>
+        <select value="{{ af.cat }}" data-val="{{ af.cat }}" onChange="{{ afOn.cat }}" style="height:34px;border:1px solid var(--cd5dbe5);border-radius:8px;padding:0 10px;font-size:13px;background:var(--cfff);color:var(--c18213a);min-width:180px"><sc-for list="{{ afCatOpts }}" as="o"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select>
+        <sc-if value="{{ afActive }}"><a href="#" onClick="{{ afClear }}" style="font-size:13px;font-weight:700">Clear filters</a></sc-if>
+        <input value="{{ auditQ }}" onChange="{{ onAuditQ }}" placeholder="Search user, event or record" style="width:260px;height:38px;border:1px solid var(--cd5dbe5);border-radius:8px;padding:0 12px;font-size:13px;background:var(--cfff)">
+        <span style="font-size:12px;color:var(--c5b6478)">Append-only · entries are hash-chained and retained for 7 years</span>
+        <button onClick="{{ exportAudit }}" style="margin-left:auto;height:38px;border:1px solid var(--cd5dbe5);border-radius:8px;background:var(--cfff);font-weight:700;padding:0 14px;cursor:pointer">Export CSV</button>
+      </div>
+      <div style="background:var(--cfff);border:1px solid var(--ce3e8ef);border-radius:12px;overflow-x:auto">
+        <div style="display:grid;grid-template-columns:150px 170px 140px minmax(0,1fr) 130px 110px;min-width:980px;gap:12px;padding:12px 20px;background:var(--cf7f9fb);border-bottom:1px solid var(--ce3e8ef);font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--c5b6478)"><span>Timestamp</span><span>User</span><span>Role</span><span>Event</span><span>Record</span><span>Source IP</span></div>
+        <sc-for list="{{ auditRows }}" as="a"><div style="display:grid;grid-template-columns:150px 170px 140px minmax(0,1fr) 130px 110px;min-width:980px;gap:12px;padding:11px 20px;border-bottom:1px solid var(--cf1f4f8);font-size:13px;align-items:center"><span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--c5b6478)">{{ a.ts }}</span><strong>{{ a.user }}</strong><span style="color:var(--c5b6478)">{{ a.roleName }}</span><span>{{ a.action }}</span><span style="font-family:'JetBrains Mono',monospace;font-size:12px">{{ a.ref }}</span><span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--c8a93a6)">{{ a.ip }}</span></div></sc-for>
+        <sc-if value="{{ auditEmpty }}"><div style="padding:32px;text-align:center;color:var(--c5b6478)">No events match these filters.</div></sc-if>
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 20px;border-top:1px solid var(--ce3e8ef);font-size:13px;color:var(--c5b6478);background:var(--cfff)">
+          <span>{{ pgA.label }}</span>
+          <label style="display:flex;align-items:center;gap:6px;margin-left:auto">Rows per page <select value="{{ pgA.size }}" data-val="{{ pgA.size }}" onChange="{{ pgA.onSize }}" style="height:30px;border:1px solid var(--cd5dbe5);border-radius:6px;padding:0 6px;font-size:13px;background:var(--cfff);color:var(--c18213a)"><option value="5">5</option><option value="10">10</option><option value="25">25</option><option value="50">50</option></select></label>
+          <div style="display:flex;gap:4px;align-items:center">
+            <button onClick="{{ pgA.prev }}" title="Previous page" style="width:30px;height:30px;border:1px solid var(--cd5dbe5);border-radius:6px;background:var(--cfff);color:var(--c18213a);cursor:pointer;opacity:{{ pgA.prevOp }}">‹</button>
+            <sc-for list="{{ pgA.nums }}" as="n"><button onClick="{{ n.go }}" style="min-width:30px;height:30px;padding:0 6px;border:0;border-radius:6px;background:{{ n.bg }};color:{{ n.fg }};cursor:{{ n.cur }};font-weight:700;font-size:13px">{{ n.l }}</button></sc-for>
+            <button onClick="{{ pgA.next }}" title="Next page" style="width:30px;height:30px;border:1px solid var(--cd5dbe5);border-radius:6px;background:var(--cfff);color:var(--c18213a);cursor:pointer;opacity:{{ pgA.nextOp }}">›</button>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ s.admin }}">
+      <div style="display:flex;gap:4px;border-bottom:1px solid var(--ce3e8ef)">
+        <sc-for list="{{ adminTabs }}" as="t"><button onClick="{{ t.go }}" style="border:0;background:transparent;padding:12px 14px;font-size:14px;font-weight:700;cursor:pointer;color:{{ t.fg }};border-bottom:2px solid {{ t.bd }}">{{ t.l }}</button></sc-for>
+      </div>
+      <sc-if value="{{ at.depts }}">
+        <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap">
+          <div style="color:var(--c5b6478);max-width:640px;line-height:1.5">Departments appear in request forms, approval routing and reports. The line manager and department head are the default approvers at those stages for the department.</div>
+          <div style="display:flex;gap:8px"><button onClick="{{ exportDepts }}" style="height:38px;border:1px solid var(--cd5dbe5);border-radius:8px;background:var(--cfff);color:var(--c18213a);font-weight:700;padding:0 14px;cursor:pointer">Export</button><button onClick="{{ toggleDeptForm }}" style="height:38px;border:0;border-radius:8px;background:var(--c1d2a4d);color:#fff;font-weight:700;padding:0 16px;cursor:pointer">{{ deptFormLabel }}</button></div>
+        </div>
+        <sc-if value="{{ showDeptForm }}">
+          <div style="background:var(--cfff);border:2px solid var(--c17b3b5);border-radius:12px;padding:18px 20px;display:flex;flex-direction:column;gap:14px">
+            <div style="font-weight:800">New department</div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px">
+              <label style="display:flex;flex-direction:column;gap:6px;font-weight:700;font-size:13px">Name *<input value="{{ nd.name }}" onChange="{{ ndOn.name }}" placeholder="e.g. Bancassurance" style="height:40px;border:1px solid {{ ndErrBd }};border-radius:8px;padding:0 12px;font-size:14px"></label>
+              <label style="display:flex;flex-direction:column;gap:6px;font-weight:700;font-size:13px">Code *<input value="{{ nd.code }}" onChange="{{ ndOn.code }}" placeholder="e.g. BNC" maxLength="4" style="height:40px;border:1px solid {{ ndErrBd }};border-radius:8px;padding:0 12px;font-size:14px;font-family:'JetBrains Mono',monospace"></label>
+              <label style="display:flex;flex-direction:column;gap:6px;font-weight:700;font-size:13px">Department head<select value="{{ nd.head }}" data-val="{{ nd.head }}" onChange="{{ ndOn.head }}" style="height:40px;border:1px solid var(--cd5dbe5);border-radius:8px;padding:0 10px;font-size:14px"><sc-for list="{{ staffList }}" as="x"><option value="{{ x }}">{{ x }}</option></sc-for></select></label>
+              <label style="display:flex;flex-direction:column;gap:6px;font-weight:700;font-size:13px">Line manager<select value="{{ nd.lm }}" data-val="{{ nd.lm }}" onChange="{{ ndOn.lm }}" style="height:40px;border:1px solid var(--cd5dbe5);border-radius:8px;padding:0 10px;font-size:14px"><sc-for list="{{ staffList }}" as="x"><option value="{{ x }}">{{ x }}</option></sc-for></select></label>
+            </div>
+            <sc-if value="{{ hasNdErr }}"><div style="color:var(--cb42318);font-size:13px">{{ ndErr }}</div></sc-if>
+            <div style="display:flex;gap:10px"><button onClick="{{ addDept }}" style="height:38px;border:0;border-radius:8px;background:var(--c1d2a4d);color:#fff;font-weight:700;padding:0 16px;cursor:pointer">Create department</button><button onClick="{{ toggleDeptForm }}" style="height:38px;border:1px solid var(--cd5dbe5);border-radius:8px;background:var(--cfff);font-weight:700;padding:0 14px;cursor:pointer">Cancel</button></div>
+          </div>
+        </sc-if>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+          <input value="{{ dq }}" onChange="{{ onDq }}" placeholder="Search department, code or person" style="width:280px;height:36px;border:1px solid var(--cd5dbe5);border-radius:8px;padding:0 12px;font-size:13px;background:var(--cfff);color:var(--c18213a)">
+          <div style="display:flex;gap:6px"><sc-for list="{{ dFilters }}" as="f"><button onClick="{{ f.pick }}" style="border:1px solid {{ f.bd }};background:{{ f.bg }};color:{{ f.fg }};border-radius:20px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer">{{ f.l }} {{ f.n }}</button></sc-for></div>
+        </div>
+        <div style="background:var(--cfff);border:1px solid var(--ce3e8ef);border-radius:12px;overflow-x:auto">
+          <div style="display:grid;grid-template-columns:70px minmax(0,1.2fr) minmax(0,1fr) minmax(0,1fr) 110px 110px;min-width:860px;gap:12px;padding:12px 20px;background:var(--cf7f9fb);border-bottom:1px solid var(--ce3e8ef);font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--c5b6478)"><span>Code</span><span>Department</span><span>Department head</span><span>Line manager</span><span>Approval route</span><span>Status</span></div>
+          <sc-for list="{{ deptRows }}" as="x"><div style="display:grid;grid-template-columns:70px minmax(0,1.2fr) minmax(0,1fr) minmax(0,1fr) 110px 110px;min-width:860px;gap:12px;padding:10px 20px;border-bottom:1px solid var(--cf1f4f8);font-size:13px;align-items:center;opacity:{{ x.op }}">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--c5b6478)">{{ x.code }}</span>
+            <div><strong>{{ x.name }}</strong><div style="font-size:12px;color:var(--c5b6478)">{{ x.count }} change requests</div></div>
+            <select value="{{ x.head }}" data-val="{{ x.head }}" onChange="{{ x.setHead }}" style="height:34px;border:1px solid var(--cd5dbe5);border-radius:6px;padding:0 8px;font-size:13px;background:var(--cfff);min-width:0"><sc-for list="{{ staffList }}" as="p"><option value="{{ p }}">{{ p }}</option></sc-for></select>
+            <select value="{{ x.lm }}" data-val="{{ x.lm }}" onChange="{{ x.setLm }}" style="height:34px;border:1px solid var(--cd5dbe5);border-radius:6px;padding:0 8px;font-size:13px;background:var(--cfff);min-width:0"><sc-for list="{{ staffList }}" as="p"><option value="{{ p }}">{{ p }}</option></sc-for></select>
+            <a href="#" onClick="{{ x.editRoute }}" style="font-size:13px;font-weight:700">{{ x.route }}</a>
+            <button onClick="{{ x.toggle }}" style="justify-self:start;border:1px solid {{ x.bd }};background:{{ x.bg }};color:{{ x.fg }};border-radius:20px;padding:4px 12px;font-size:12px;font-weight:700;cursor:pointer">{{ x.status }}</button>
+          </div></sc-for>
+          <sc-if value="{{ deptEmpty }}"><div style="padding:32px;text-align:center;color:var(--c5b6478)">No departments match.</div></sc-if>
+          <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 20px;border-top:1px solid var(--ce3e8ef);font-size:13px;color:var(--c5b6478);background:var(--cfff)">
+          <span>{{ pgD.label }}</span>
+          <label style="display:flex;align-items:center;gap:6px;margin-left:auto">Rows per page <select value="{{ pgD.size }}" data-val="{{ pgD.size }}" onChange="{{ pgD.onSize }}" style="height:30px;border:1px solid var(--cd5dbe5);border-radius:6px;padding:0 6px;font-size:13px;background:var(--cfff);color:var(--c18213a)"><option value="5">5</option><option value="10">10</option><option value="25">25</option><option value="50">50</option></select></label>
+          <div style="display:flex;gap:4px;align-items:center">
+            <button onClick="{{ pgD.prev }}" title="Previous page" style="width:30px;height:30px;border:1px solid var(--cd5dbe5);border-radius:6px;background:var(--cfff);color:var(--c18213a);cursor:pointer;opacity:{{ pgD.prevOp }}">‹</button>
+            <sc-for list="{{ pgD.nums }}" as="n"><button onClick="{{ n.go }}" style="min-width:30px;height:30px;padding:0 6px;border:0;border-radius:6px;background:{{ n.bg }};color:{{ n.fg }};cursor:{{ n.cur }};font-weight:700;font-size:13px">{{ n.l }}</button></sc-for>
+            <button onClick="{{ pgD.next }}" title="Next page" style="width:30px;height:30px;border:1px solid var(--cd5dbe5);border-radius:6px;background:var(--cfff);color:var(--c18213a);cursor:pointer;opacity:{{ pgD.nextOp }}">›</button>
+          </div>
+        </div>
+        </div>
+      </sc-if>
+      <sc-if value="{{ at.types }}">
+        <div style="color:var(--c5b6478);max-width:640px;line-height:1.5">Change types are the categories requesters pick in step 1 of a new request. Inactive types are hidden from new requests but kept on existing records.</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px">
+          <sc-for list="{{ typeRows }}" as="t"><div style="background:var(--cfff);border:1px solid var(--ce3e8ef);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:8px;opacity:{{ t.op }}">
+            <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start"><strong>{{ t.l }}</strong><button onClick="{{ t.toggle }}" style="border:1px solid {{ t.bd }};background:{{ t.bg }};color:{{ t.fg }};border-radius:20px;padding:3px 10px;font-size:11px;font-weight:700;cursor:pointer;flex-shrink:0">{{ t.status }}</button></div>
+            <div style="font-size:13px;color:var(--c5b6478);line-height:1.4">{{ t.d }}</div>
+          </div></sc-for>
+          <div style="background:var(--cf7f9fb);border:1px dashed var(--cc5ccd8);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:8px">
+            <input value="{{ nt.l }}" onChange="{{ ntOn.l }}" placeholder="New type name" style="height:36px;border:1px solid var(--cd5dbe5);border-radius:8px;padding:0 10px;font-size:13px">
+            <input value="{{ nt.d }}" onChange="{{ ntOn.d }}" placeholder="Short description" style="height:36px;border:1px solid var(--cd5dbe5);border-radius:8px;padding:0 10px;font-size:13px">
+            <button onClick="{{ addType }}" style="height:36px;border:0;border-radius:8px;background:var(--c1d2a4d);color:#fff;font-weight:700;cursor:pointer">Add change type</button>
+          </div>
+        </div>
+      </sc-if>
+      <sc-if value="{{ at.roles }}">
+        <div style="background:var(--cfff);border:1px solid var(--ce3e8ef);border-radius:12px;overflow-x:auto">
+          <div style="display:grid;grid-template-columns:220px repeat(9,minmax(76px,1fr));min-width:980px">
+            <div style="padding:12px 16px;font-size:11px;font-weight:700;color:var(--c5b6478);text-transform:uppercase;border-bottom:1px solid var(--ce3e8ef);background:var(--cf7f9fb)">Permission</div>
+            <sc-for list="{{ roles }}" as="r"><div style="padding:12px 6px;font-size:11px;font-weight:700;color:var(--c3b4459);text-align:center;border-bottom:1px solid var(--ce3e8ef);background:var(--cf7f9fb)">{{ r.name }}</div></sc-for>
+            <sc-for list="{{ matrixRows }}" as="row">
+              <div style="padding:11px 16px;font-size:13px;border-bottom:1px solid var(--cf1f4f8);font-weight:600">{{ row.l }}</div>
+              <sc-for list="{{ row.cells }}" as="c"><div style="display:flex;align-items:center;justify-content:center;border-bottom:1px solid var(--cf1f4f8)"><span style="width:18px;height:18px;border-radius:5px;background:{{ c.bg }};border:1.5px solid {{ c.bd }};color:#fff;font-size:11px;display:flex;align-items:center;justify-content:center;font-weight:800">{{ c.t }}</span></div></sc-for>
+            </sc-for>
+          </div>
+        </div>
+        <div style="font-size:12px;color:var(--c5b6478)">Approval permissions are stage-bound: approvers can only act at the stage assigned to their role. Admins configure access but cannot approve changes (segregation of duties).</div>
+      </sc-if>
+      <sc-if value="{{ at.workflows }}">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px;align-items:start">
+          <div style="background:var(--cfff);border:1px solid var(--ce3e8ef);border-radius:12px;padding:8px">
+            <sc-for list="{{ wfDepts }}" as="x"><button onClick="{{ x.pick }}" style="display:block;width:100%;text-align:left;border:0;border-radius:8px;padding:10px 12px;cursor:pointer;font-size:13px;background:{{ x.bg }};color:{{ x.fg }};font-weight:{{ x.fw }}">{{ x.l }}<span style="display:block;font-size:11px;color:var(--c8a93a6);font-weight:500">{{ x.sub }}</span></button></sc-for>
+          </div>
+          <div style="background:var(--cfff);border:1px solid var(--ce3e8ef);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:16px">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><div style="font-weight:800;font-size:16px">{{ wfDept }}</div>
+              <div style="display:flex;gap:6px"><sc-for list="{{ wfTiers }}" as="t"><button onClick="{{ t.pick }}" style="border:1px solid {{ t.bd }};background:{{ t.bg }};color:{{ t.fg }};border-radius:20px;padding:5px 12px;font-size:12px;font-weight:700;cursor:pointer">{{ t.l }}</button></sc-for></div>
+            </div>
+            <sc-if value="{{ wfInherited }}"><div style="background:var(--cf1f4f8);border-radius:8px;padding:10px 12px;font-size:13px;color:var(--c3b4459)">Inherits the default route. Editing will create a {{ wfDept }}-specific override.</div></sc-if>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <sc-for list="{{ wfSteps }}" as="w"><div style="display:flex;align-items:center;gap:12px;border:1px solid var(--ce3e8ef);border-radius:10px;padding:10px 12px"><span style="width:24px;height:24px;border-radius:50%;background:var(--c1d2a4d);color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center">{{ w.n }}</span><div style="flex:1"><div style="font-weight:700">{{ w.role }}</div><div style="font-size:12px;color:var(--c5b6478)">SLA {{ w.sla }} · escalates to {{ w.esc }}</div></div><button onClick="{{ w.up }}" style="width:30px;height:30px;border:1px solid var(--cd5dbe5);border-radius:6px;background:var(--cfff);cursor:pointer">↑</button><button onClick="{{ w.remove }}" style="height:30px;border:1px solid var(--cf1b5b0);color:var(--cb42318);border-radius:6px;background:var(--cfff);cursor:pointer;padding:0 10px;font-size:12px;font-weight:700">Remove</button></div></sc-for>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <select value="{{ addRole }}" data-val="{{ addRole }}" onChange="{{ onAddRole }}" style="height:38px;border:1px solid var(--cd5dbe5);border-radius:8px;padding:0 10px;font-size:13px"><sc-for list="{{ approverRoles }}" as="r"><option value="{{ r.key }}">{{ r.name }}</option></sc-for></select>
+              <button onClick="{{ addStep }}" style="height:38px;border:0;border-radius:8px;background:var(--c1d2a4d);color:#fff;font-weight:700;padding:0 14px;cursor:pointer">Add stage</button>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+      <sc-if value="{{ at.users }}">
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <input value="{{ uq }}" onChange="{{ onUq }}" placeholder="Search name or email" style="width:260px;height:38px;border:1px solid var(--cd5dbe5);border-radius:8px;padding:0 12px;font-size:13px;background:var(--cfff)">
+          <select value="{{ uf.role }}" data-val="{{ uf.role }}" onChange="{{ ufOn.role }}" style="height:34px;border:1px solid var(--cd5dbe5);border-radius:8px;padding:0 10px;font-size:13px;background:var(--cfff);color:var(--c18213a);min-width:150px"><sc-for list="{{ ufRoleOpts }}" as="o"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select>
+          <select value="{{ uf.dept }}" data-val="{{ uf.dept }}" onChange="{{ ufOn.dept }}" style="height:34px;border:1px solid var(--cd5dbe5);border-radius:8px;padding:0 10px;font-size:13px;background:var(--cfff);color:var(--c18213a);min-width:160px"><sc-for list="{{ ufDeptOpts }}" as="o"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select>
+          <div style="display:flex;gap:6px"><sc-for list="{{ uFilters }}" as="f"><button onClick="{{ f.pick }}" style="border:1px solid {{ f.bd }};background:{{ f.bg }};color:{{ f.fg }};border-radius:20px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer">{{ f.l }} {{ f.n }}</button></sc-for></div>
+          <a href="#" onClick="{{ userTemplate }}" style="margin-left:auto;font-size:13px;font-weight:700">CSV template</a>
+          <label style="height:38px;border:1px solid var(--cd5dbe5);border-radius:8px;background:var(--cfff);font-weight:700;padding:0 14px;cursor:pointer;display:flex;align-items:center;font-size:13px">Import CSV<input type="file" accept=".csv,text/csv" onChange="{{ onImportUsers }}" style="display:none"></label>
+          <button onClick="{{ exportUsers }}" style="height:38px;border:1px solid var(--cd5dbe5);border-radius:8px;background:var(--cfff);color:var(--c18213a);font-weight:700;padding:0 14px;cursor:pointer;font-size:13px">Export</button>
+          <button onClick="{{ toggleUserForm }}" style="height:38px;border:0;border-radius:8px;background:var(--c1d2a4d);color:#fff;font-weight:700;padding:0 16px;cursor:pointer">{{ userFormLabel }}</button>
+        </div>
+        <sc-if value="{{ showUserForm }}">
+          <div style="background:var(--cfff);border:2px solid var(--c17b3b5);border-radius:12px;padding:18px 20px;display:flex;flex-direction:column;gap:14px">
+            <div style="font-weight:800">Add user</div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px">
+              <label style="display:flex;flex-direction:column;gap:6px;font-weight:700;font-size:13px">Full name *<input value="{{ nu.person }}" onChange="{{ nuOn.person }}" placeholder="e.g. Yaa Asantewaa" style="height:40px;border:1px solid var(--cd5dbe5);border-radius:8px;padding:0 12px;font-size:14px"></label>
+              <label style="display:flex;flex-direction:column;gap:6px;font-weight:700;font-size:13px">Work email *<input value="{{ nu.email }}" onChange="{{ nuOn.email }}" placeholder="name@milife.com.gh" style="height:40px;border:1px solid var(--cd5dbe5);border-radius:8px;padding:0 12px;font-size:14px"></label>
+              <label style="display:flex;flex-direction:column;gap:6px;font-weight:700;font-size:13px">Department<select value="{{ nu.dept }}" data-val="{{ nu.dept }}" onChange="{{ nuOn.dept }}" style="height:40px;border:1px solid var(--cd5dbe5);border-radius:8px;padding:0 10px;font-size:14px"><sc-for list="{{ depts }}" as="x"><option value="{{ x }}">{{ x }}</option></sc-for></select></label>
+              <label style="display:flex;flex-direction:column;gap:6px;font-weight:700;font-size:13px">Role<select value="{{ nu.role }}" data-val="{{ nu.role }}" onChange="{{ nuOn.role }}" style="height:40px;border:1px solid var(--cd5dbe5);border-radius:8px;padding:0 10px;font-size:14px"><sc-for list="{{ roles }}" as="r"><option value="{{ r.key }}">{{ r.name }}</option></sc-for></select></label>
+            </div>
+            <div style="font-size:12px;color:var(--c5b6478)">The user receives an email invitation to set their password. Privileged roles (Change Manager, CAB, System Admin) are logged for review.</div>
+            <sc-if value="{{ hasNuErr }}"><div style="color:var(--cb42318);font-size:13px">{{ nuErr }}</div></sc-if>
+            <div style="display:flex;gap:10px"><button onClick="{{ addUser }}" style="height:38px;border:0;border-radius:8px;background:var(--c1d2a4d);color:#fff;font-weight:700;padding:0 16px;cursor:pointer">Send invitation</button><button onClick="{{ toggleUserForm }}" style="height:38px;border:1px solid var(--cd5dbe5);border-radius:8px;background:var(--cfff);font-weight:700;padding:0 14px;cursor:pointer">Cancel</button></div>
+          </div>
+        </sc-if>
+        <div style="background:var(--cfff);border:1px solid var(--ce3e8ef);border-radius:12px;overflow-x:auto">
+          <div style="display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr) minmax(0,1fr) 90px 110px 220px;min-width:1000px;gap:12px;padding:12px 20px;background:var(--cf7f9fb);border-bottom:1px solid var(--ce3e8ef);font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--c5b6478)"><span>User</span><span>Role</span><span>Department</span><span>Status</span><span>Last sign-in</span><span>Actions</span></div>
+          <sc-for list="{{ userRows }}" as="u"><div style="display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr) minmax(0,1fr) 90px 110px 220px;min-width:1000px;gap:12px;padding:10px 20px;border-bottom:1px solid var(--cf1f4f8);font-size:13px;align-items:center;opacity:{{ u.op }}">
+            <div style="min-width:0"><strong>{{ u.person }}</strong><div style="font-size:12px;color:var(--c5b6478);overflow:hidden;text-overflow:ellipsis">{{ u.email }}</div></div>
+            <select value="{{ u.role }}" data-val="{{ u.role }}" onChange="{{ u.setRole }}" disabled="{{ u.locked }}" style="height:34px;border:1px solid var(--cd5dbe5);border-radius:6px;padding:0 8px;font-size:13px;background:var(--cfff);min-width:0"><sc-for list="{{ roles }}" as="r"><option value="{{ r.key }}">{{ r.name }}</option></sc-for></select>
+            <select value="{{ u.dept }}" data-val="{{ u.dept }}" onChange="{{ u.setDept }}" disabled="{{ u.locked }}" style="height:34px;border:1px solid var(--cd5dbe5);border-radius:6px;padding:0 8px;font-size:13px;background:var(--cfff);min-width:0"><sc-for list="{{ allDepts }}" as="x"><option value="{{ x }}">{{ x }}</option></sc-for></select>
+            <span style="justify-self:start;background:{{ u.sBg }};color:{{ u.sFg }};border-radius:20px;padding:3px 10px;font-size:12px;font-weight:700">{{ u.status }}</span>
+            <span style="color:var(--c5b6478)">{{ u.last }}</span>
+            <div style="display:flex;gap:6px">
+              <button onClick="{{ u.toggle }}" style="height:30px;border:1px solid {{ u.tBd }};color:{{ u.tFg }};border-radius:6px;background:var(--cfff);cursor:pointer;padding:0 10px;font-size:12px;font-weight:700">{{ u.toggleLabel }}</button>
+              <button onClick="{{ u.reset }}" style="height:30px;border:1px solid var(--cd5dbe5);border-radius:6px;background:var(--cfff);cursor:pointer;padding:0 10px;font-size:12px;font-weight:700">Reset password</button>
+            </div>
+          </div></sc-for>
+          <sc-if value="{{ userRowsEmpty }}"><div style="padding:32px;text-align:center;color:var(--c5b6478)">No users match.</div></sc-if>
+          <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 20px;border-top:1px solid var(--ce3e8ef);font-size:13px;color:var(--c5b6478);background:var(--cfff)">
+          <span>{{ pgU.label }}</span>
+          <label style="display:flex;align-items:center;gap:6px;margin-left:auto">Rows per page <select value="{{ pgU.size }}" data-val="{{ pgU.size }}" onChange="{{ pgU.onSize }}" style="height:30px;border:1px solid var(--cd5dbe5);border-radius:6px;padding:0 6px;font-size:13px;background:var(--cfff);color:var(--c18213a)"><option value="5">5</option><option value="10">10</option><option value="25">25</option><option value="50">50</option></select></label>
+          <div style="display:flex;gap:4px;align-items:center">
+            <button onClick="{{ pgU.prev }}" title="Previous page" style="width:30px;height:30px;border:1px solid var(--cd5dbe5);border-radius:6px;background:var(--cfff);color:var(--c18213a);cursor:pointer;opacity:{{ pgU.prevOp }}">‹</button>
+            <sc-for list="{{ pgU.nums }}" as="n"><button onClick="{{ n.go }}" style="min-width:30px;height:30px;padding:0 6px;border:0;border-radius:6px;background:{{ n.bg }};color:{{ n.fg }};cursor:{{ n.cur }};font-weight:700;font-size:13px">{{ n.l }}</button></sc-for>
+            <button onClick="{{ pgU.next }}" title="Next page" style="width:30px;height:30px;border:1px solid var(--cd5dbe5);border-radius:6px;background:var(--cfff);color:var(--c18213a);cursor:pointer;opacity:{{ pgU.nextOp }}">›</button>
+          </div>
+        </div>
+        </div>
+        <div style="font-size:12px;color:var(--c5b6478)">Disabling a user blocks sign-in immediately and reassigns their pending approvals to others with the same role. Users are never deleted, so their history stays in the audit trail. You can't disable your own account.</div>
+      </sc-if>
+    </sc-if>
+
+    </div>
+  </main>
+</div>
+</sc-if>
+
+<sc-if value="{{ showMobile }}" hint-placeholder-val="{{ false }}">
+<div style="padding:32px 16px;display:flex;justify-content:center">
+  <div style="width:390px;height:820px;border-radius:48px;background:#0E1424;padding:12px;box-shadow:0 30px 60px rgba(18,26,48,.25)">
+    <div data-anim="phone" style="width:100%;height:100%;border-radius:38px;background:var(--cf4f6f9);overflow:hidden;display:flex;flex-direction:column;position:relative">
+      <div style="height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 28px;font-size:13px;font-weight:700;background:var(--cfff)"><span>9:41</span><span style="width:100px;height:26px;border-radius:14px;background:#0E1424"></span><span>5G</span></div>
+      <sc-if value="{{ m.home }}">
+        <div style="background:var(--cfff);padding:8px 20px 16px;border-bottom:1px solid var(--ce3e8ef);display:flex;justify-content:space-between;align-items:center"><img src="assets/milife-wordmark-light.png" data-logo="1" alt="miLife Insurance" style="height:36px;display:block"><div style="width:34px;height:34px;border-radius:50%;background:var(--c1d2a4d);color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center">{{ me.initials }}</div></div>
+        <div style="flex:1;overflow-y:auto;padding:18px 16px;display:flex;flex-direction:column;gap:12px">
+          <div><div style="font-size:20px;font-weight:800">Hi {{ me.first }}</div><div style="color:var(--c5b6478);font-size:13px">{{ me.name }} · {{ me.dept }}</div></div>
+          <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--c5b6478);margin-top:6px">{{ mListTitle }}</div>
+          <sc-for list="{{ mList }}" as="c"><div onClick="{{ c.mopen }}" style="background:var(--cfff);border:1px solid var(--ce3e8ef);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:6px;cursor:pointer"><div style="display:flex;justify-content:space-between;gap:8px"><span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--c5b6478)">{{ c.id }}</span><span style="background:{{ c.sBg }};color:{{ c.sFg }};font-size:11px;font-weight:700;border-radius:20px;padding:2px 8px">{{ c.status }}</span></div><div style="font-weight:800;line-height:1.3">{{ c.title }}</div><div style="font-size:12px;color:var(--c5b6478)">{{ c.dept }} · <span style="color:{{ c.rFg }};font-weight:700">{{ c.risk }} risk</span> · {{ c.dateF }}</div></div></sc-for>
+          <sc-if value="{{ mEmpty }}"><div style="background:var(--cfff);border:1px dashed var(--cd5dbe5);border-radius:14px;padding:28px;text-align:center;color:var(--c5b6478);font-size:13px">Nothing here right now.</div></sc-if>
+        </div>
+        <div style="height:76px;background:var(--cfff);border-top:1px solid var(--ce3e8ef);display:grid;grid-template-columns:1fr 1fr 1fr;padding-bottom:16px">
+          <sc-for list="{{ mTabs }}" as="t"><button onClick="{{ t.go }}" style="border:0;background:transparent;font-size:12px;font-weight:700;color:{{ t.fg }};cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px"><span style="width:20px;height:3px;border-radius:2px;background:{{ t.bar }}"></span>{{ t.l }}</button></sc-for>
+        </div>
+      </sc-if>
+      <sc-if value="{{ m.detail }}">
+        <div style="background:var(--cfff);padding:8px 16px 14px;border-bottom:1px solid var(--ce3e8ef);display:flex;gap:10px;align-items:center"><button onClick="{{ mBack }}" style="border:0;background:var(--cf1f4f8);width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:16px">‹</button><span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--c5b6478)">{{ d.id }}</span></div>
+        <div style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:14px">
+          <div style="display:flex;gap:6px;flex-wrap:wrap"><span style="background:{{ d.sBg }};color:{{ d.sFg }};font-size:11px;font-weight:700;border-radius:20px;padding:3px 9px">{{ d.status }}</span><span style="background:{{ d.rBg }};color:{{ d.rFg }};font-size:11px;font-weight:700;border-radius:20px;padding:3px 9px">{{ d.risk }} risk</span></div>
+          <div style="font-size:20px;font-weight:800;line-height:1.25">{{ d.title }}</div>
+          <div style="font-size:14px;line-height:1.55;color:var(--c3b4459)">{{ d.summary }}</div>
+          <div style="background:var(--cfff);border:1px solid var(--ce3e8ef);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:8px"><sc-for list="{{ d.facts }}" as="f"><div style="display:flex;justify-content:space-between;gap:10px;font-size:13px"><span style="color:var(--c5b6478)">{{ f.l }}</span><strong style="text-align:right">{{ f.v }}</strong></div></sc-for></div>
+          <div style="background:var(--cfff);border:1px solid var(--ce3e8ef);border-radius:14px;padding:14px"><div style="font-weight:800;margin-bottom:8px">Approval route</div><sc-for list="{{ d.steps }}" as="st"><div style="display:flex;gap:10px;align-items:center;padding:6px 0"><div style="width:10px;height:10px;border-radius:50%;background:{{ st.dot }}"></div><span style="flex:1;font-size:13px">{{ st.roleName }}</span><span style="font-size:12px;color:{{ st.dot }};font-weight:700">{{ st.label }}</span></div></sc-for></div>
+          <sc-if value="{{ d.sodBlock }}"><div style="background:var(--cfdecec);border-radius:10px;padding:10px 12px;color:var(--c7a1c14);font-size:12px">You raised this request and cannot approve it.</div></sc-if>
+          <sc-if value="{{ d.canAct }}"><textarea value="{{ comment }}" onChange="{{ onComment }}" placeholder="Comment (required to reject)" style="min-height:64px;border:1px solid var(--cd5dbe5);border-radius:10px;padding:10px;font-size:14px"></textarea><sc-if value="{{ hasCommentErr }}"><div style="color:var(--cb42318);font-size:12px">{{ commentErr }}</div></sc-if></sc-if>
+        </div>
+        <sc-if value="{{ d.canAct }}">
+          <div style="background:var(--cfff);border-top:1px solid var(--ce3e8ef);padding:12px 16px 28px;display:grid;grid-template-columns:1fr 1.4fr;gap:10px">
+            <button onClick="{{ reject }}" style="height:50px;border:1px solid var(--cf1b5b0);color:var(--cb42318);background:var(--cfff);border-radius:12px;font-weight:800;font-size:15px;cursor:pointer">Reject</button>
+            <button onClick="{{ approve }}" style="height:50px;border:0;color:#fff;background:var(--c1d2a4d);border-radius:12px;font-weight:800;font-size:15px;cursor:pointer">Approve</button>
+          </div>
+        </sc-if>
+      </sc-if>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ importOpen }}">
+  <div onClick="{{ closeImport }}" style="position:fixed;inset:0;background:rgba(13,19,34,.55);z-index:90;display:flex;align-items:center;justify-content:center;padding:24px">
+    <div data-anim="modal" onClick="{{ stop }}" style="width:100%;max-width:760px;max-height:80vh;background:var(--cfff);color:var(--c18213a);border-radius:14px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 30px 60px rgba(0,0,0,.3)">
+      <div style="padding:18px 22px;border-bottom:1px solid var(--ce3e8ef)"><div style="font-weight:800;font-size:17px">Import users · {{ imp.file }}</div><div style="font-size:13px;color:var(--c5b6478);margin-top:4px">{{ imp.okCount }} ready to import · {{ imp.errCount }} with errors (will be skipped)</div></div>
+      <div style="overflow:auto;flex:1">
+        <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1.2fr);gap:10px;padding:10px 22px;background:var(--cf7f9fb);font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--c5b6478);min-width:680px"><span>Name</span><span>Email</span><span>Department</span><span>Role</span><span>Validation</span></div>
+        <sc-for list="{{ imp.rows }}" as="r"><div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1.2fr);gap:10px;padding:9px 22px;border-bottom:1px solid var(--cf1f4f8);font-size:13px;min-width:680px;background:{{ r.bg }}"><span>{{ r.person }}</span><span style="overflow:hidden;text-overflow:ellipsis">{{ r.email }}</span><span>{{ r.dept }}</span><span>{{ r.roleName }}</span><span style="color:{{ r.fg }};font-weight:700;font-size:12px">{{ r.msg }}</span></div></sc-for>
+      </div>
+      <div style="padding:14px 22px;border-top:1px solid var(--ce3e8ef);display:flex;justify-content:flex-end;gap:10px"><button onClick="{{ closeImport }}" style="height:40px;border:1px solid var(--cd5dbe5);border-radius:8px;background:var(--cfff);color:var(--c18213a);font-weight:700;padding:0 16px;cursor:pointer">Cancel</button><button onClick="{{ confirmImport }}" style="height:40px;border:0;border-radius:8px;background:var(--c1d2a4d);color:#fff;font-weight:700;padding:0 18px;cursor:pointer">Import {{ imp.okCount }} users</button></div>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ hasToast }}">
+  <div style="position:fixed;left:50%;bottom:28px;transform:translateX(-50%);background:#121A30;color:#fff;padding:12px 18px;border-radius:10px;font-size:14px;font-weight:600;box-shadow:0 10px 30px rgba(0,0,0,.2);z-index:100;animation:cmToast .2s ease-out">{{ toast }}</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;skipLogin&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;defaultRole&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;requester&quot;,&quot;lineManager&quot;,&quot;deptHead&quot;,&quot;changeManager&quot;,&quot;cab&quot;,&quot;risk&quot;,&quot;implementer&quot;,&quot;exec&quot;,&quot;admin&quot;],&quot;default&quot;:&quot;admin&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;light&quot;,&quot;dark&quot;],&quot;default&quot;:&quot;light&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+class Component extends DCLogic {
+  syncSelects(){requestAnimationFrame(()=>document.querySelectorAll('select[data-val]').forEach(el=>{const v=el.getAttribute('data-val');if(el.value!==v)el.value=v;}));}
+  anim(sel,frames,opts){document.querySelectorAll(sel).forEach(el=>{if(el.animate)el.animate(frames,{duration:280,easing:'cubic-bezier(.2,.7,.2,1)',fill:'backwards',...opts});});}
+  stagger(root){if(!root)return;root.querySelectorAll('[data-stagger]').forEach((el,i)=>el.animate&&el.animate([{opacity:0,transform:'translateY(10px)'},{opacity:1,transform:'none'}],{duration:320,delay:60+i*40,easing:'cubic-bezier(.2,.7,.2,1)',fill:'backwards'}));}
+  snap(){const S=this.state;this._prev={screen:S.screen,sel:S.sel,tab:S.tab,wiz:S.wiz,adminTab:S.adminTab,mScreen:S.mScreen,mTab:S.mTab,notifOpen:S.notifOpen,importOpen:S.importOpen,device:S.device,theme:S.theme,loggedIn:S.loggedIn,role:S.role};}
+  componentDidMount(){this.snap();this.syncSelects();this.anim('[data-anim="screen"]',[{opacity:0,transform:'translateY(8px)'},{opacity:1,transform:'none'}]);}
+  componentDidUpdate(){this.syncSelects();const S=this.state;const ps=this._prev||{};this.snap();
+    requestAnimationFrame(()=>{
+    if(ps.screen!==S.screen||ps.sel!==S.sel||ps.adminTab!==S.adminTab||ps.loggedIn!==S.loggedIn||ps.role!==S.role){this.anim('[data-anim="screen"]',[{opacity:0,transform:'translateY(8px)'},{opacity:1,transform:'none'}]);this.stagger(document.querySelector('[data-anim="screen"]'));}
+    if(ps.tab!==S.tab)this.anim('[data-anim="tab"]',[{opacity:0,transform:'translateX(8px)'},{opacity:1,transform:'none'}],{duration:220});
+    if(ps.wiz!==S.wiz){const dir=S.wiz>ps.wiz?16:-16;this.anim('[data-anim="wiz"] > *',[{opacity:0,transform:'translateX('+dir+'px)'},{opacity:1,transform:'none'}],{duration:260});}
+    if(ps.mScreen!==S.mScreen||ps.mTab!==S.mTab){const dir=S.mScreen==='detail'?40:-40;this.anim('[data-anim="phone"] > :not(:first-child)',[{opacity:0,transform:'translateX('+dir+'px)'},{opacity:1,transform:'none'}],{duration:300});}
+    if(!ps.notifOpen&&S.notifOpen)this.anim('[data-anim="pop"]',[{opacity:0,transform:'translateY(-6px) scale(.98)'},{opacity:1,transform:'none'}],{duration:180});
+    if(!ps.importOpen&&S.importOpen)this.anim('[data-anim="modal"]',[{opacity:0,transform:'translateY(14px) scale(.98)'},{opacity:1,transform:'none'}],{duration:240});
+    if(ps.device!==S.device&&S.device==='mobile')this.anim('[data-anim="phone"]',[{opacity:0,transform:'scale(.96)'},{opacity:1,transform:'none'}],{duration:320});
+    });
+    if(ps.theme!==S.theme){try{localStorage.setItem('milife-cm-theme',S.theme);}catch(e){}}
+  }
+  pager(key,list){const S=this.state;const size=S.ps[key],total=list.length,pages=Math.max(1,Math.ceil(total/size));const page=Math.min(S.pg[key],pages);const start=(page-1)*size;
+    const set=p=>this.setState(st=>({pg:{...st.pg,[key]:p}}));const nums=[];
+    for(let i=1;i<=pages;i++){if(i===1||i===pages||Math.abs(i-page)<=1)nums.push(i);else if(nums[nums.length-1]!=='…')nums.push('…');}
+    return {items:list.slice(start,start+size),pg:{label:total?'Showing '+(start+1)+'–'+Math.min(start+size,total)+' of '+total:'No results',size:String(size),
+      onSize:e=>this.setState(st=>({ps:{...st.ps,[key]:+e.target.value},pg:{...st.pg,[key]:1}})),prev:()=>{if(page>1)set(page-1);},next:()=>{if(page<pages)set(page+1);},prevOp:page>1?1:.4,nextOp:page<pages?1:.4,
+      nums:nums.map(n=>({l:n,bg:n===page?'var(--c1d2a4d)':'transparent',fg:n===page?'#fff':'var(--c3b4459)',cur:n==='…'?'default':'pointer',go:()=>{if(typeof n==='number')set(n);}}))}};}
+  filt(obj,key,k,v){this.setState(st=>({[obj]:{...st[obj],[k]:v},pg:{...st.pg,[key]:1}}));}
+  auditCat(a){const x=a.action;if(/Signed in|access/i.test(x))return 'signin';if(/^(Approved|Rejected|Returned)/.test(x))return 'decision';if(/Export|Imported/.test(x))return 'export';if(/workflow|department|change type|Invited|Disabled|Enabled|Moved|Changed role|Set |Assigned role|password/i.test(x))return 'config';return 'change';}
+  download(name,text,type){const b=new Blob([text],{type:type||'text/csv'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),1000);}
+  csv(rows){return rows.map(r=>r.map(v=>{v=v==null?'':String(v);return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;}).join(',')).join('\n');}
+  parseCsv(t){const out=[];let row=[],cur='',q=false;for(let i=0;i<t.length;i++){const c=t[i];if(q){if(c==='"'){if(t[i+1]==='"'){cur+='"';i++;}else q=false;}else cur+=c;}else if(c==='"')q=true;else if(c===','){row.push(cur);cur='';}else if(c==='\n'||c==='\r'){if(c==='\r'&&t[i+1]==='\n')i++;row.push(cur);out.push(row);row=[];cur='';}else cur+=c;}if(cur||row.length){row.push(cur);out.push(row);}return out.filter(r=>r.some(x=>x.trim()));}
+  fsize(n){return n>1048576?(n/1048576).toFixed(1)+' MB':Math.max(1,Math.round(n/1024))+' KB';}
+  static ROLES = [
+    {key:'requester',name:'Requester',person:'Ama Mensah',title:'Claims Officer',dept:'Claims'},
+    {key:'lineManager',name:'Line Manager',person:'Kwame Boateng',title:'Claims Supervisor',dept:'Claims'},
+    {key:'deptHead',name:'Department Head',person:'Efua Asante',title:'Head of Claims',dept:'Claims'},
+    {key:'changeManager',name:'Change Manager',person:'Yaw Owusu',title:'Change & Release Manager',dept:'IT'},
+    {key:'cab',name:'CAB Member',person:'Akosua Darko',title:'CAB Chair',dept:'Operations'},
+    {key:'risk',name:'Risk & Compliance',person:'Nana Agyeman',title:'Compliance Officer',dept:'Compliance'},
+    {key:'implementer',name:'Implementer',person:'Kojo Frimpong',title:'Systems Engineer',dept:'IT'},
+    {key:'exec',name:'Executive',person:'Abena Osei',title:'Chief Operating Officer',dept:'Executive'},
+    {key:'admin',name:'System Admin',person:'Selorm Dzidzienyo',title:'IAM Administrator',dept:'IT'}
+  ];
+  static PERMS = {
+    requester:['dashboard','changes','new','calendar','flows'],
+    lineManager:['dashboard','changes','new','approvals','calendar','flows'],
+    deptHead:['dashboard','changes','new','approvals','calendar','flows','reports'],
+    changeManager:['dashboard','changes','new','approvals','calendar','flows','reports','audit'],
+    cab:['dashboard','changes','approvals','calendar','flows','reports'],
+    risk:['dashboard','changes','approvals','calendar','flows','reports','audit'],
+    implementer:['dashboard','changes','calendar','flows'],
+    exec:['dashboard','changes','approvals','calendar','flows','reports'],
+    admin:['dashboard','admin','audit','flows']
+  };
+  static NAV = [['dashboard','Dashboard'],['changes','Change requests'],['new','New request'],['approvals','My approvals'],['calendar','Change calendar'],['flows','Process flows'],['reports','Reports'],['audit','Audit trail'],['admin','Administration']];
+  static STATUS = {'Draft':['var(--ceef1f5)','var(--c4a5568)'],'Pending approval':['var(--cfff1d6)','var(--c8a5200)'],'Returned for rework':['var(--cfce8f3)','var(--c9e1c64)'],'Approved':['var(--ce3f6f1)','var(--c0f7b5f)'],'Scheduled':['var(--ce6eeff)','var(--c1f4fb8)'],'In progress':['var(--ce0f5f6)','var(--c0b6f72)'],'Implemented':['var(--ce3f6f1)','var(--c0f7b5f)'],'Closed':['var(--ceef1f5)','var(--c4a5568)'],'Rejected':['var(--cfdecec)','var(--cb42318)']};
+  static RISK = {Low:['var(--ce3f6f1)','var(--c0f7b5f)'],Medium:['var(--cfff1d6)','var(--c8a5200)'],High:['var(--cfdecec)','var(--cb42318)']};
+  static TYPES = [['IT / system','Applications, infrastructure, integrations, data'],['Process / policy','Operating procedures, SOPs, internal policies'],['Product','New or modified insurance products & pricing'],['Organisational / HR','Structure, roles, HR policy, payroll'],['Infrastructure / facilities','Buildings, branches, power, physical security'],['Vendor / third-party','Onboarding, replacing or changing suppliers']];
+  static DEPTS = ['Claims','Underwriting','Finance','IT','HR','Customer Service','Actuarial','Sales & Distribution','Compliance','Operations'];
+  static FREEZES = [{name:'Month-end financial close',from:'2026-10-28',to:'2026-11-02'},{name:'Month-end financial close',from:'2026-11-27',to:'2026-12-02'},{name:'Year-end freeze',from:'2026-12-14',to:'2027-01-04'}];
+
+  st(role,status,at,comment){return {role,status,at:at||'',comment:comment||''};}
+  seedChanges(){
+    const s=this.st.bind(this);
+    const T=(arr,n)=>arr.map((t,i)=>({t,done:i<n}));
+    const tasksIT=['Confirm change window with service desk','Take backups / snapshots','Deploy to production','Run smoke tests','Notify stakeholders of completion'];
+    return [
+      {id:'CHG-2026-0144',title:'Add mobile money payout option to claims portal',type:'IT / system',dept:'Claims',impact:2,likelihood:2,tier:'Medium',status:'Pending approval',requester:'Ama Mensah',created:'2026-10-21',date:'2026-11-05',window:'22:00–02:00',implementer:'Kojo Frimpong',summary:'Enable MTN MoMo and Telecel Cash as payout channels for approved funeral and hospital-cash claims.',reason:'Most claimants request mobile money payout; bank transfers add 2–3 days to settlement.',systems:['Claims portal','Payments gateway'],customer:true,regulatory:false,data:true,rollback:'Disable feature flag and revert to bank-only payout. No data migration.',test:'UAT with 20 test claims in staging; Finance reconciliation sign-off.',steps:[s('lineManager','pending'),s('deptHead','waiting'),s('changeManager','waiting')],tasks:T(tasksIT,0)},
+      {id:'CHG-2026-0142',title:'Upgrade core policy administration system to v8.2',type:'IT / system',dept:'IT',impact:3,likelihood:2,tier:'High',status:'Pending approval',requester:'Kojo Frimpong',created:'2026-10-14',date:'2026-11-07',window:'Sat 20:00 – Sun 06:00',implementer:'Kojo Frimpong',summary:'Upgrade the policy admin platform from v7.9 to v8.2, including database schema migration and new premium-allocation engine.',reason:'v7.9 reaches end of vendor support in December 2026; v8.2 resolves two high-severity security findings.',systems:['Policy admin','Premium billing','Agent portal','Data warehouse'],customer:true,regulatory:true,data:true,rollback:'Restore database snapshot and VM images taken at T-0; DNS cut back to v7.9 cluster. Tested in DR rehearsal on 10 Oct.',test:'Full regression suite (1,240 cases) passed in pre-prod; performance test at 2× peak load.',files:[{name:'v8.2-upgrade-runbook.pdf',size:'2.4 MB'},{name:'regression-results.xlsx',size:'318 KB'},{name:'dr-rehearsal-signoff.pdf',size:'540 KB'}],steps:[s('lineManager','approved','15 Oct 2026, 09:12','Plan reviewed with infra team.'),s('deptHead','approved','16 Oct 2026, 14:40'),s('risk','approved','20 Oct 2026, 11:05','No change to NIC reporting outputs confirmed by Actuarial.'),s('cab','pending'),s('changeManager','waiting')],tasks:T(tasksIT,0)},
+      {id:'CHG-2026-0141',title:'Revise claims payout approval thresholds',type:'Process / policy',dept:'Claims',impact:2,likelihood:1,tier:'Medium',status:'Pending approval',requester:'Ama Mensah',created:'2026-10-18',date:'2026-11-09',window:'Effective from start of business',implementer:'Efua Asante',summary:'Raise the supervisor sign-off threshold for death claims from GHS 20,000 to GHS 35,000 and introduce dual control above GHS 100,000.',reason:'Reduces average settlement time while strengthening control on high-value claims.',systems:['Claims SOP','Delegation of authority matrix'],customer:false,regulatory:true,data:false,rollback:'Reissue previous SOP version; revert DoA matrix.',test:'Walk-through with claims team; Internal Audit review of revised matrix.',steps:[s('lineManager','approved','19 Oct 2026, 10:30'),s('deptHead','pending'),s('changeManager','waiting')],tasks:T(['Publish revised SOP','Update DoA matrix in claims system','Brief claims team'],0)},
+      {id:'CHG-2026-0139',title:'Launch “miFuneral Plus” product',type:'Product',dept:'Underwriting',impact:3,likelihood:2,tier:'High',status:'Pending approval',requester:'Esi Quaye',created:'2026-10-09',date:'2026-11-16',window:'Go-live 08:00',implementer:'Kojo Frimpong',summary:'New funeral cover with family add-ons and cash-back after 5 claim-free years, sold through agents and USSD.',reason:'Addresses demand in the informal sector; projected 8,000 policies in year one.',systems:['Policy admin','USSD channel','Agent app','Product rules'],customer:true,regulatory:true,data:true,rollback:'Withdraw product from sale channels; existing policies remain serviced.',test:'Pricing signed off by Actuarial; channel UAT complete.',steps:[s('lineManager','approved','10 Oct 2026, 08:50'),s('deptHead','approved','13 Oct 2026, 16:20'),s('risk','pending'),s('cab','waiting'),s('changeManager','waiting'),s('exec','waiting')],tasks:T(['Configure product rules','Load rates','Enable on agent app & USSD','Train agents'],0)},
+      {id:'CHG-2026-0138',title:'Migrate payroll processing to new provider',type:'Vendor / third-party',dept:'HR',impact:2,likelihood:2,tier:'Medium',status:'Scheduled',requester:'Adwoa Nyarko',created:'2026-10-01',date:'2026-10-26',window:'09:00–17:00',implementer:'Kojo Frimpong',summary:'Move payroll from in-house spreadsheet process to managed payroll provider with SSNIT and GRA integration.',reason:'Removes manual errors and key-person dependency.',systems:['Payroll','HRIS','GL interface'],customer:false,regulatory:true,data:true,rollback:'Run October payroll in parallel on legacy process.',test:'Parallel run for September payroll reconciled to the pesewa.',steps:[s('lineManager','approved','02 Oct 2026, 09:00'),s('deptHead','approved','03 Oct 2026, 12:10'),s('changeManager','approved','06 Oct 2026, 15:45')],tasks:T(['Data transfer agreement signed','Employee master data loaded','Parallel run reconciled','Cut over'],3)},
+      {id:'CHG-2026-0137',title:'Emergency: renew payment gateway TLS certificate',type:'IT / system',dept:'IT',impact:3,likelihood:1,tier:'Emergency',status:'Implemented',requester:'Kojo Frimpong',created:'2026-10-19',date:'2026-10-19',window:'14:30–15:00',implementer:'Kojo Frimpong',summary:'Certificate on the mobile money payment gateway expired early due to CA revocation; premium collections were failing.',reason:'Restore premium collections.',systems:['Payments gateway'],customer:true,regulatory:false,data:false,rollback:'N/A — restoring service.',test:'Test transaction confirmed.',steps:[s('changeManager','approved','19 Oct 2026, 14:22','ECAB call held.'),s('cab','approved','19 Oct 2026, 14:25')],tasks:T(['Install new certificate','Restart gateway','Confirm test transaction'],3)},
+      {id:'CHG-2026-0135',title:'Restructure Customer Service into regional teams',type:'Organisational / HR',dept:'Customer Service',impact:2,likelihood:2,tier:'Medium',status:'Draft',requester:'Ama Mensah',created:'2026-10-20',date:'2026-12-01',window:'Effective 1 Dec',implementer:'Efua Asante',summary:'Organise the contact centre into Southern, Middle and Northern regional teams with dedicated team leads.',reason:'Improve local language coverage and first-contact resolution.',systems:['Org chart','Call routing'],customer:true,regulatory:false,data:false,rollback:'Revert routing rules; teams return to central queue.',test:'Pilot with Northern team for 2 weeks.',steps:[s('lineManager','waiting'),s('deptHead','waiting'),s('changeManager','waiting')],tasks:T(['Consult staff','Update routing','Announce'],0)},
+      {id:'CHG-2026-0133',title:'Replace UPS units at Accra head office',type:'Infrastructure / facilities',dept:'Operations',impact:1,likelihood:2,tier:'Low',status:'In progress',requester:'Kofi Mensah',created:'2026-10-05',date:'2026-10-22',window:'18:00–23:00',implementer:'Kojo Frimpong',summary:'Swap two 20kVA UPS units serving the server room and 2nd floor.',reason:'Units are 9 years old; battery tests failed.',systems:['Server room power','2nd floor'],customer:false,regulatory:false,data:false,rollback:'Reconnect existing units (kept on site for 7 days).',test:'Load test after installation.',steps:[s('lineManager','approved','06 Oct 2026, 11:00')],tasks:T(['Notify building occupants','Switch to generator','Install new UPS','Load test','Return to mains'],2)},
+      {id:'CHG-2026-0136',title:'Refresh IFRS 17 actuarial models',type:'IT / system',dept:'Actuarial',impact:2,likelihood:2,tier:'Medium',status:'Scheduled',requester:'Kwesi Appiah',created:'2026-10-07',date:'2026-11-04',window:'08:00–12:00',implementer:'Kojo Frimpong',summary:'Deploy updated assumption set and model version for Q4 valuation.',reason:'Annual assumption review approved by the Board Risk Committee.',systems:['Actuarial models','Data warehouse'],customer:false,regulatory:true,data:false,rollback:'Restore previous model version from repository.',test:'Back-test on Q3 results.',steps:[s('lineManager','approved','08 Oct 2026, 10:00'),s('deptHead','approved','09 Oct 2026, 09:15'),s('changeManager','approved','12 Oct 2026, 13:00')],tasks:T(['Deploy model','Run validation','Sign-off'],0)},
+      {id:'CHG-2026-0130',title:'Onboard new reinsurance broker',type:'Vendor / third-party',dept:'Finance',impact:3,likelihood:2,tier:'High',status:'Rejected',requester:'Akua Sarpong',created:'2026-09-24',date:'2026-10-15',window:'—',implementer:'—',summary:'Appoint an additional reinsurance broker for the group life treaty.',reason:'Improve treaty pricing at renewal.',systems:['Reinsurance treaty','Vendor register'],customer:false,regulatory:true,data:true,rollback:'—',test:'—',steps:[s('lineManager','approved','25 Sep 2026, 09:00'),s('deptHead','approved','26 Sep 2026, 10:00'),s('risk','rejected','30 Sep 2026, 15:20','Due diligence incomplete: no evidence of NIC licence renewal and no data processing agreement.'),s('cab','skipped'),s('changeManager','skipped')],tasks:[]},
+      ...this.histChanges(),
+      {id:'CHG-2026-0128',title:'Quarterly firewall rule review',type:'IT / system',dept:'IT',impact:1,likelihood:1,tier:'Low',status:'Closed',requester:'Kojo Frimpong',created:'2026-10-01',date:'2026-10-08',window:'20:00–21:00',implementer:'Kojo Frimpong',summary:'Remove 34 unused firewall rules identified in quarterly review.',reason:'Reduce attack surface.',systems:['Perimeter firewall'],customer:false,regulatory:false,data:false,rollback:'Restore rule set from config backup.',test:'Connectivity checks to all critical services.',steps:[s('changeManager','approved','02 Oct 2026, 09:30')],tasks:T(['Backup config','Remove rules','Connectivity checks'],3),pir:{outcome:'Successful',notes:'All rules removed; no service impact reported.'}}
+    ];
+  }
+  histChanges(){
+    const T=['Patch Windows servers (monthly)','Update agent commission rates','Renew SSL certificates — portal','Migrate email to new tenant','Add USSD short code for claims','Revise underwriting guidelines — group life','Replace branch printers — Kumasi','Onboard SMS gateway provider','Database index optimisation — billing','Update KYC procedure','Retire legacy fax claims intake','Upgrade VPN concentrators','New hospital-cash rider','Change payroll cut-off date','Refresh call-centre IVR menu','Rotate service account credentials','Move backups to new storage','Update data retention policy','Install CCTV — Takoradi branch','Change premium grace period','Add Telecel Cash collections','Upgrade HRIS to latest release','Revise travel & expense policy','Decommission old intranet','Update reinsurance bordereaux format','Firewall upgrade — DR site','New complaints-handling SOP','Switch fuel card vendor'];
+    const D=['IT','Sales & Distribution','IT','IT','Claims','Underwriting','Operations','IT','IT','Compliance','Claims','IT','Underwriting','HR','Customer Service','IT','IT','Compliance','Operations','Finance','Finance','HR','Finance','IT','Finance','IT','Customer Service','Operations'];
+    const ty=d=>({IT:'IT / system',HR:'Organisational / HR',Operations:'Infrastructure / facilities',Compliance:'Process / policy',Finance:'Process / policy',Claims:'Process / policy','Customer Service':'Process / policy',Underwriting:'Product','Sales & Distribution':'Process / policy'}[d]);
+    return T.map((t,i)=>{const m=7+Math.floor(i/10),day=String(3+(i*3)%25).padStart(2,'0');const date='2026-0'+m+'-'+day;const imp=1+(i%3),lik=1+((i+1)%2);const sc=imp*lik;const tier=sc<=2?'Low':sc<=4?'Medium':'High';const rej=i%9===4;
+      const route=(tier==='Low'?['lineManager']:tier==='Medium'?['lineManager','deptHead','changeManager']:['lineManager','deptHead','risk','cab','changeManager']);
+      const steps=route.map((r,k)=>this.st(r,rej&&k===route.length-1?'rejected':'approved',day+' '+['Jul','Aug','Sep'][m-7]+' 2026, 10:'+String(10+k*7).padStart(2,'0'),rej&&k===route.length-1?'Insufficient testing evidence.':''));
+      return {id:'CHG-2026-0'+String(100+i).padStart(3,'0'),title:t,type:i===27?'Vendor / third-party':ty(D[i]),dept:D[i],impact:imp,likelihood:lik,tier,status:rej?'Rejected':'Closed',requester:['Kojo Frimpong','Ama Mensah','Esi Quaye','Akua Sarpong','Adwoa Nyarko'][i%5],created:'2026-0'+m+'-01',date,window:'20:00–23:00',implementer:rej?'—':'Kojo Frimpong',summary:t+'.',reason:'Routine improvement.',systems:[D[i]],customer:i%2===0,regulatory:i%4===0,data:i%3===0,rollback:'Restore previous configuration.',test:'Verified in staging.',steps,tasks:[{t:'Implement',done:!rej},{t:'Verify',done:!rej}],pir:rej?null:{outcome:i%11===3?'Successful with issues':'Successful',notes:'Completed within window.'}};});
+  }
+  seedAudit(){
+    return [
+      ['22 Oct 2026 09:41','Yaw Owusu','changeManager','Signed in','—','10.20.4.18'],
+      ['22 Oct 2026 08:15','Kojo Frimpong','implementer','Started implementation','CHG-2026-0133','10.20.6.42'],
+      ['21 Oct 2026 16:02','Ama Mensah','requester','Submitted change request','CHG-2026-0144','10.20.8.11'],
+      ['20 Oct 2026 11:05','Nana Agyeman','risk','Approved at Risk & Compliance stage','CHG-2026-0142','10.20.3.77'],
+      ['20 Oct 2026 10:12','Selorm Dzidzienyo','admin','Assigned role CAB Member to Akosua Darko','USR-0217','10.20.1.5'],
+      ['19 Oct 2026 15:04','Kojo Frimpong','implementer','Marked as implemented','CHG-2026-0137','10.20.6.42'],
+      ['19 Oct 2026 14:25','Akosua Darko','cab','Approved (Emergency CAB)','CHG-2026-0137','102.176.4.9'],
+      ['19 Oct 2026 14:22','Yaw Owusu','changeManager','Approved (Emergency CAB)','CHG-2026-0137','10.20.4.18'],
+      ['19 Oct 2026 10:30','Kwame Boateng','lineManager','Approved at Line Manager stage','CHG-2026-0141','10.20.8.20'],
+      ['16 Oct 2026 14:40','Efua Asante','deptHead','Approved at Department Head stage','CHG-2026-0142','10.20.8.3'],
+      ['15 Oct 2026 17:48','Selorm Dzidzienyo','admin','Updated workflow: Underwriting · High','WF-UW-HIGH','10.20.1.5'],
+      ['14 Oct 2026 09:02','Kojo Frimpong','implementer','Submitted change request','CHG-2026-0142','10.20.6.42'],
+      ['30 Sep 2026 15:20','Nana Agyeman','risk','Rejected at Risk & Compliance stage','CHG-2026-0130','10.20.3.77']
+    ].map(([ts,user,role,action,ref,ip])=>({ts,user,role,action,ref,ip})).concat(this.histChanges().flatMap(c=>{const ev=[{ts:c.steps[0].at.replace(',',''),user:this.roleOf(c.steps[0].role).person,role:c.steps[0].role,action:'Approved at '+this.roleOf(c.steps[0].role).name+' stage',ref:c.id,ip:'10.20.8.20'}];
+      if(c.status==='Closed')ev.unshift({ts:c.steps[0].at.split(',')[0]+' 16:40',user:'Yaw Owusu',role:'changeManager',action:'Completed post-implementation review & closed',ref:c.id,ip:'10.20.4.18'});else ev.unshift({ts:c.steps[c.steps.length-1].at.replace(',',''),user:this.roleOf(c.steps[c.steps.length-1].role).person,role:c.steps[c.steps.length-1].role,action:'Rejected at '+this.roleOf(c.steps[c.steps.length-1].role).name+' stage',ref:c.id,ip:'10.20.3.77'});return ev;}));
+  }
+  seedWF(){
+    const def={Low:['lineManager'],Medium:['lineManager','deptHead','changeManager'],High:['lineManager','deptHead','risk','cab','changeManager'],Emergency:['changeManager','cab']};
+    const c=o=>JSON.parse(JSON.stringify(o));
+    return {
+      'All departments (default)':c(def),
+      'IT':{Low:['changeManager'],Medium:['lineManager','changeManager','cab'],High:['lineManager','deptHead','risk','cab','changeManager'],Emergency:['changeManager','cab']},
+      'Underwriting':{...c(def),High:['lineManager','deptHead','risk','cab','changeManager','exec']},
+      'Finance':{...c(def),Medium:['lineManager','deptHead','risk','changeManager'],High:['lineManager','deptHead','risk','cab','changeManager','exec']}
+    };
+  }
+  seedUsers(){
+    const base=this.constructor.ROLES.map((r,i)=>({person:r.person,role:r.key,dept:r.dept==='Executive'?'Operations':r.dept,status:'Active',last:['Today 08:02','Today 09:10','Yesterday','Today 09:41','Today 07:55','20 Oct','Today 08:15','19 Oct','Today 08:30'][i]}));
+    const extra=[['Esi Quaye','deptHead','Underwriting','Active','Today 08:44'],['Akua Sarpong','deptHead','Finance','Active','Yesterday'],['Adwoa Nyarko','deptHead','HR','Active','21 Oct'],['Kwesi Appiah','deptHead','Actuarial','Active','Today 07:30'],['Kofi Mensah','lineManager','Operations','Active','20 Oct'],['Adjoa Bonsu','implementer','IT','Active','Yesterday'],['Yaw Mensah','requester','Sales & Distribution','Invited','—'],['Afia Owusu','requester','Customer Service','Disabled','02 Sep'],
+      ...['Kwabena Ofori|IT|implementer','Yaa Asantewaa|Claims|requester','Kweku Badu|Finance|requester','Abena Mensah|Underwriting|requester','Kojo Asare|Sales & Distribution|lineManager','Ama Serwaa|Customer Service|requester','Kofi Boakye|Operations|requester','Akosua Frimpong|HR|requester','Efua Quansah|Actuarial|requester','Kwame Ansah|IT|implementer','Adwoa Pokua|Claims|requester','Esi Arthur|Compliance|risk','Fiifi Sam|Finance|lineManager','Selasi Agbeko|IT|requester','Edem Kpodo|Underwriting|requester','Dzifa Ahiable|Customer Service|lineManager','Mawuli Tetteh|Operations|implementer','Naa Adjeley Lamptey|Sales & Distribution|requester','Nii Armah|IT|cab','Ekow Hagan|Finance|requester'].map((x,i)=>{const [p,d,r]=x.split('|');return [p,r,d,i===6||i===15?'Invited':i===11?'Disabled':'Active',['Today 08:12','Yesterday','20 Oct','Today 09:02','19 Oct','Today 07:48','18 Oct'][i%7]];})].map(([person,role,dept,status,last])=>({person,role,dept,status,last}));
+    return [...base,...extra].map((u,i)=>({...u,id:'USR-'+String(201+i).padStart(4,'0'),email:u.person.toLowerCase().replace(/ /g,'.')+'@milife.com.gh'}));
+  }
+  blankForm(){return {type:'IT / system',dept:'Claims',emergency:false,title:'',summary:'',reason:'',systems:'',impact:2,likelihood:1,customer:false,regulatory:false,data:false,date:'2026-11-12',window:'20:00–23:00',implementer:'Kojo Frimpong',test:'',rollback:'',attest:false,files:[]};}
+
+  state = {
+    loggedIn: !!this.props.skipLogin, email:'yaw.owusu@milife.com.gh', pwd:'demo-password', loginErr:'',
+    depts:[['CLM','Claims','Efua Asante','Kwame Boateng'],['UW','Underwriting','Esi Quaye','Kwame Boateng'],['FIN','Finance','Akua Sarpong','Kwame Boateng'],['IT','IT','Yaw Owusu','Kojo Frimpong'],['HR','HR','Adwoa Nyarko','Kwame Boateng'],['CS','Customer Service','Efua Asante','Kwame Boateng'],['ACT','Actuarial','Kwesi Appiah','Kwame Boateng'],['SD','Sales & Distribution','Abena Osei','Kwame Boateng'],['CMP','Compliance','Nana Agyeman','Kwame Boateng'],['OPS','Operations','Akosua Darko','Kofi Mensah']].map(([code,name,head,lm])=>({code,name,head,lm,active:true})),
+    types:this.constructor.TYPES.map(([l,d])=>({l,d,active:true})), showDeptForm:false, theme:(()=>{try{return localStorage.getItem('milife-cm-theme')||this.props.theme||'light';}catch(e){return this.props.theme||'light';}})(), notifOpen:false, readCount:0, importOpen:false, imp:null, flowDept:'All departments (default)', showUserForm:false, uq:'', uFilter:'All', nu:{person:'',email:'',dept:'Claims',role:'requester'}, nuErr:'',
+    users:this.seedUsers(), nd:{name:'',code:'',head:'Efua Asante',lm:'Kwame Boateng'}, ndErr:'', nt:{l:'',d:''},
+    role: this.props.defaultRole || 'changeManager', device:'desktop',
+    screen:'dashboard', sel:'CHG-2026-0142', tab:'overview', comment:'', commentErr:'',
+    q:'', filter:'All', calY:2026, calM:9, wiz:1, form:this.blankForm(), err:{},
+    changes:this.seedChanges(), audit:this.seedAudit(), workflows:this.seedWF(),
+    adminTab:'depts', wfDept:'All departments (default)', wfTier:'High', addRole:'exec',
+    pir:{outcome:'Successful',notes:''}, toast:'', mScreen:'home', mTab:'action', auditQ:'',
+    pg:{changes:1,audit:1,users:1,depts:1}, ps:{changes:10,audit:10,users:10,depts:10},
+    cf:{dept:'All',risk:'All',type:'All',sort:'planned'}, af:{role:'All',cat:'All'}, uf:{role:'All',dept:'All'}, dq:'', dStatus:'All'
+  };
+
+  roleOf(k){return this.constructor.ROLES.find(r=>r.key===k);}
+  now(){const d=new Date();return '22 Oct 2026, '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');}
+  nowTs(){return this.now().replace(',','');}
+  flash(t){this.setState({toast:t});clearTimeout(this._t);this._t=setTimeout(()=>this.setState({toast:''}),2600);}
+  log(action,ref){const me=this.roleOf(this.state.role);return {ts:this.nowTs(),user:me.person,role:me.key,action,ref,ip:'10.20.4.18'};}
+  fmt(s){if(!s)return '—';const d=new Date(s+'T00:00:00');if(isNaN(d))return s;return d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});}
+  inFreeze(s){return this.constructor.FREEZES.find(f=>s>=f.from&&s<=f.to);}
+  riskOf(i,l){const sc=i*l;return {score:sc,risk:sc<=2?'Low':sc<=4?'Medium':'High'};}
+  route(dept,tier){const w=this.state.workflows;return (w[dept]||w['All departments (default)'])[tier]||[];}
+  can(p){return this.constructor.PERMS[this.state.role].includes(p);}
+  updChange(id,fn){this.setState(s=>({changes:s.changes.map(c=>c.id===id?fn({...c,steps:c.steps.map(x=>({...x})),tasks:c.tasks.map(x=>({...x}))}):c)}));}
+  go(screen){this.setState({screen,q:screen==='changes'?this.state.q:''});if(this.mainScroll)window.scrollTo(0,0);}
+  open(id){this.setState({screen:'detail',sel:id,tab:'overview',comment:'',commentErr:''});window.scrollTo(0,0);}
+
+  decide(kind){
+    const c=this.state.changes.find(x=>x.id===this.state.sel);const me=this.roleOf(this.state.role);
+    if(kind!=='approve'&&!this.state.comment.trim()){this.setState({commentErr:'A comment is required to '+(kind==='reject'?'reject':'request rework')+'.'});return;}
+    const i=c.steps.findIndex(x=>x.status==='pending');const stage=this.roleOf(c.steps[i].role).name;
+    this.updChange(c.id,n=>{
+      const s=n.steps[i];s.at=this.now();s.comment=this.state.comment.trim();s.by=me.person;
+      if(kind==='approve'){s.status='approved';const nx=n.steps.findIndex(x=>x.status==='waiting');if(nx>=0)n.steps[nx].status='pending';else n.status=n.date?'Scheduled':'Approved';}
+      else if(kind==='reject'){s.status='rejected';n.steps.forEach(x=>{if(x.status==='waiting')x.status='skipped';});n.status='Rejected';}
+      else {s.status='returned';n.status='Returned for rework';}
+      return n;});
+    const verb=kind==='approve'?'Approved':kind==='reject'?'Rejected':'Returned for rework';
+    this.setState(s=>({comment:'',commentErr:'',audit:[this.log(verb+' at '+stage+' stage',c.id),...s.audit],mScreen:s.device==='mobile'?'home':s.mScreen}));
+    this.flash(verb+' · '+c.id);
+  }
+
+  wizNext(){
+    const f=this.state.form,w=this.state.wiz,err={};
+    if(w===2){if(!f.title.trim())err.title=1;if(!f.summary.trim())err.summary=1;}
+    if(w===4&&!f.rollback.trim())err.rollback=1;
+    if(w===5&&!f.attest)err.attest=1;
+    if(Object.keys(err).length){this.setState({err});return;}
+    if(w<5){this.setState({wiz:w+1,err:{}});window.scrollTo(0,0);return;}
+    this.createChange('Pending approval');
+  }
+  calcFor(f){
+    const r=this.riskOf(f.impact,f.likelihood);const tier=f.emergency?'Emergency':r.risk;
+    let route=[...this.route(f.dept,tier)];const fz=this.inFreeze(f.date);
+    if(fz&&!f.emergency&&!route.includes('exec'))route.push('exec');
+    return {...r,tier,route,freeze:fz};
+  }
+  createChange(status){
+    const f=this.state.form,me=this.roleOf(this.state.role),k=this.calcFor(f);
+    const num=145+this.state.changes.filter(c=>c.id>='CHG-2026-0145').length;const id='CHG-2026-0'+num;
+    const steps=k.route.map((r,i)=>this.st(r,status==='Draft'?'waiting':i===0?'pending':'waiting'));
+    const c={id,title:f.title.trim()||'Untitled change',type:f.type,dept:f.dept,impact:f.impact,likelihood:f.likelihood,tier:k.tier,status,requester:me.person,created:'2026-10-22',date:f.date,window:f.window,implementer:f.implementer,summary:f.summary||'—',reason:f.reason||'—',systems:f.systems?f.systems.split(',').map(x=>x.trim()).filter(Boolean):['—'],customer:f.customer,regulatory:f.regulatory,data:f.data,rollback:f.rollback||'—',test:f.test||'—',files:f.files||[],steps,tasks:['Confirm window','Implement change','Verify outcome','Notify stakeholders'].map(t=>({t,done:false}))};
+    this.setState(s=>({changes:[c,...s.changes],audit:[this.log(status==='Draft'?'Saved draft':'Submitted change request',id),...s.audit],form:this.blankForm(),wiz:1,err:{},screen:'detail',sel:id,tab:status==='Draft'?'overview':'approvals'}));
+    this.flash((status==='Draft'?'Draft saved · ':'Submitted for approval · ')+id);
+  }
+
+  renderVals(){
+    const C=this.constructor,S=this.state,me={...this.roleOf(S.role)};
+    me.first=me.person.split(' ')[0];me.initials=me.person.split(' ').map(x=>x[0]).join('');
+    const perms=C.PERMS[S.role];
+    const deco=c=>{const [sBg,sFg]=C.STATUS[c.status]||C.STATUS.Draft;const r=this.riskOf(c.impact,c.likelihood);const [rBg,rFg]=C.RISK[r.risk];const pi=c.steps.findIndex(x=>x.status==='pending');const d=new Date(c.date+'T00:00:00');
+      return {...c,sBg,sFg,risk:r.risk,score:r.score,rBg,rFg,dateF:this.fmt(c.date),createdF:this.fmt(c.created),stage:pi>=0?'Awaiting '+this.roleOf(c.steps[pi].role).name:c.status,stageIdx:pi+1,stageTotal:c.steps.length,pendingRole:pi>=0?c.steps[pi].role:null,mon:d.toLocaleDateString('en-GB',{month:'short'}),day:d.getDate(),open:()=>this.open(c.id),mopen:()=>this.setState({sel:c.id,mScreen:'detail',comment:'',commentErr:''})};};
+    const all=S.changes.map(deco);
+    const visible=S.role==='requester'?all.filter(c=>c.requester===me.person):all;
+    const inbox=all.filter(c=>c.status==='Pending approval'&&c.pendingRole===S.role&&c.requester!==me.person);
+    const q=S.q.trim().toLowerCase();
+    const cf=S.cf;const searched=visible.filter(c=>(!q||c.id.toLowerCase().includes(q)||c.title.toLowerCase().includes(q))&&(cf.dept==='All'||c.dept===cf.dept)&&(cf.risk==='All'||c.risk===cf.risk)&&(cf.type==='All'||c.type===cf.type));
+    const fl=['All','Pending approval','Scheduled','In progress','Implemented','Closed','Rejected','Draft'];
+    const filters=fl.map(l=>{const on=S.filter===l;return {l,n:l==='All'?searched.length:searched.filter(c=>c.status===l).length,bg:on?'var(--c1d2a4d)':'var(--cfff)',fg:on?'#fff':'var(--c3b4459)',bd:on?'var(--c1d2a4d)':'var(--cd5dbe5)',pick:()=>this.setState(st=>({filter:l,pg:{...st.pg,changes:1}}))};});
+    const rk={High:0,Medium:1,Low:2};
+    const rowsAll=searched.filter(c=>S.filter==='All'||c.status===S.filter).sort((a,b)=>cf.sort==='planned'?a.date.localeCompare(b.date):cf.sort==='newest'?b.created.localeCompare(a.created):cf.sort==='risk'?(rk[a.risk]-rk[b.risk])||a.date.localeCompare(b.date):b.id.localeCompare(a.id));
+    const PC=this.pager('changes',rowsAll);const rows=PC.items;
+    const opts=(arr,all)=>[{v:'All',l:all},...arr.map(x=>({v:x,l:x}))];
+
+    const screenPerm=S.screen==='detail'?'changes':S.screen;
+    const denied=!perms.includes(screenPerm);
+    const s={};['dashboard','changes','approvals','detail','new','calendar','flows','reports','audit','admin'].forEach(k=>s[k]=!denied&&S.screen===k);
+    const labels=Object.fromEntries(C.NAV);labels.detail='Change request';
+    const nav=C.NAV.filter(([k])=>perms.includes(k)).map(([k,l])=>{const on=S.screen===k||(k==='changes'&&S.screen==='detail');const badge=k==='approvals'?inbox.length:0;return {l,bg:on?'var(--ce6f7f8)':'transparent',fg:on?'var(--c0b6f72)':'var(--c3b4459)',fw:on?800:600,hasBadge:badge>0,badge,go:()=>this.go(k)};});
+
+    // dashboard
+    const approverRoles=['lineManager','deptHead','cab','risk','exec'];
+    let kpis,actionTitle,actionList;
+    const up=all.filter(c=>['Scheduled','In progress','Approved'].includes(c.status)).sort((a,b)=>a.date.localeCompare(b.date));
+    if(S.role==='requester'){const mine=visible;kpis=[{label:'My open requests',value:mine.filter(c=>!['Closed','Rejected'].includes(c.status)).length,sub:'Across all statuses'},{label:'Awaiting approval',value:mine.filter(c=>c.status==='Pending approval').length,sub:'In approval routes'},{label:'Drafts',value:mine.filter(c=>c.status==='Draft').length,sub:'Not yet submitted'},{label:'Returned to me',value:mine.filter(c=>c.status==='Returned for rework').length,sub:'Need your update'}];actionTitle='My change requests';actionList=mine.filter(c=>!['Closed'].includes(c.status));}
+    else if(approverRoles.includes(S.role)){kpis=[{label:'Awaiting my decision',value:inbox.length,sub:'At your stage'},{label:'Decided by me (30 days)',value:{lineManager:14,deptHead:9,cab:22,risk:11,exec:3}[S.role],sub:'Approved or rejected'},{label:'Avg. decision time',value:{lineManager:'0.6d',deptHead:'1.1d',cab:'1.8d',risk:'2.3d',exec:'1.0d'}[S.role],sub:'SLA 2 working days'},{label:'Scheduled next 14 days',value:up.length,sub:'Company-wide'}];actionTitle='Awaiting your decision';actionList=inbox;}
+    else if(S.role==='changeManager'){kpis=[{label:'Pending approval',value:all.filter(c=>c.status==='Pending approval').length,sub:'All departments'},{label:'Scheduled',value:all.filter(c=>c.status==='Scheduled').length,sub:'Approved & planned'},{label:'In progress',value:all.filter(c=>c.status==='In progress').length,sub:'Being implemented'},{label:'Change success rate',value:'96.1%',sub:'Rolling 90 days'}];actionTitle='Needs attention';actionList=all.filter(c=>c.pendingRole==='changeManager'||c.status==='Implemented'||c.status==='Pending approval');}
+    else if(S.role==='implementer'){const mine=all.filter(c=>c.implementer===me.person);kpis=[{label:'Assigned to me',value:mine.filter(c=>!['Closed','Rejected'].includes(c.status)).length,sub:'Open changes'},{label:'Ready to start',value:mine.filter(c=>c.status==='Scheduled').length,sub:'Approved & scheduled'},{label:'In progress',value:mine.filter(c=>c.status==='In progress').length,sub:'Checklist open'},{label:'Awaiting review',value:mine.filter(c=>c.status==='Implemented').length,sub:'Post-implementation review'}];actionTitle='My implementation queue';actionList=mine.filter(c=>['Scheduled','In progress','Implemented'].includes(c.status));}
+    else {kpis=[{label:'Active users',value:S.users.filter(u=>u.status==='Active').length,sub:S.users.filter(u=>u.status==='Disabled').length+' disabled · '+S.users.filter(u=>u.status==='Invited').length+' invited'},{label:'Departments',value:S.depts.filter(x=>x.active).length,sub:'Active'},{label:'Access requests',value:'3',sub:'Awaiting line manager'},{label:'Privileged role changes',value:'7',sub:'Last 30 days'}];actionTitle='Recent security & access events';actionList=[];}
+
+    // detail
+    const raw=all.find(c=>c.id===S.sel)||all[0];
+    const dd={...raw};
+    const pi=raw.steps.findIndex(x=>x.status==='pending');
+    const isReq=raw.requester===me.person;
+    dd.canAct=raw.status==='Pending approval'&&raw.pendingRole===S.role&&!isReq;
+    dd.sodBlock=raw.status==='Pending approval'&&isReq&&raw.steps.some(x=>x.role===S.role&&x.status!=='approved');
+    dd.curStage=pi>=0?this.roleOf(raw.steps[pi].role).name+' review':'';
+    dd.canSubmit=(raw.status==='Draft'||raw.status==='Returned for rework')&&isReq;
+    const canImpl=S.role==='changeManager'||(S.role==='implementer'&&raw.implementer===me.person);
+    dd.canStart=canImpl&&['Scheduled','Approved'].includes(raw.status);
+    dd.readOnly=!dd.canAct&&!dd.sodBlock&&!dd.canSubmit&&!dd.canStart&&raw.status==='Pending approval';
+    dd.readOnlyMsg=pi>=0?'Read-only · this request is waiting at the '+this.roleOf(raw.steps[pi].role).name+' stage. Only users holding that role can act on it.':'';
+    const lab={approved:['Approved','var(--c0f7b5f)','var(--ce3f6f1)'],pending:['Awaiting decision','var(--cb36b00)','var(--cfff1d6)'],waiting:['Not started','var(--ca0a9ba)','var(--cf1f4f8)'],rejected:['Rejected','var(--cb42318)','var(--cfdecec)'],skipped:['Skipped','var(--ca0a9ba)','var(--cf1f4f8)'],returned:['Returned','var(--c9e1c64)','var(--cfce8f3)']};
+    dd.steps=raw.steps.map(x=>{const r=this.roleOf(x.role);const [label,dot,ring]=lab[x.status];return {roleName:r.name+(raw.tier==='Emergency'?' (ECAB)':''),person:x.by||r.person,at:x.at||(x.status==='pending'?'Due within 2 working days':'—'),label,dot,ring,anim:x.status==='pending'?'cmPulse 1.8s ease-out infinite':'none',comment:x.comment,hasComment:!!x.comment};});
+    dd.factors=[{l:'Impact',v:['','Minor','Moderate','Major'][raw.impact]},{l:'Likelihood',v:['','Unlikely','Possible','Likely'][raw.likelihood]},{l:'Customer-facing',v:raw.customer?'Yes':'No'},{l:'Regulatory / NIC implications',v:raw.regulatory?'Yes':'No'},{l:'Personal data',v:raw.data?'Yes':'No'},{l:'Approval route',v:raw.tier}];
+    dd.facts=[{l:'Requester',v:raw.requester},{l:'Department',v:raw.dept},{l:'Created',v:raw.createdF},{l:'Planned',v:raw.dateF},{l:'Window',v:raw.window},{l:'Implementer',v:raw.implementer}];
+    const taskEditable=canImpl&&raw.status==='In progress';
+    dd.tasks=raw.tasks.map((t,i)=>({...t,locked:!taskEditable,cur:taskEditable?'pointer':'default',op:taskEditable||t.done?1:.7,toggle:()=>{this.updChange(raw.id,n=>{n.tasks[i].done=!n.tasks[i].done;return n;});}}));
+    dd.doneCount=raw.tasks.filter(t=>t.done).length;dd.taskCount=raw.tasks.length;
+    dd.canFinish=taskEditable&&dd.doneCount===dd.taskCount&&dd.taskCount>0;
+    dd.implHint=raw.status!=='In progress'||!canImpl||!dd.canFinish;
+    dd.implHintMsg=raw.status==='In progress'?(canImpl?'Complete every checklist item to mark the change as implemented.':'Only the assigned implementer or Change Manager can update the checklist.'):['Implemented','Closed'].includes(raw.status)?'Implementation complete.':'The checklist unlocks once the change is approved and implementation has started.';
+    dd.canPir=raw.status==='Implemented'&&S.role==='changeManager';
+    dd.hasPir=!!raw.pir;dd.pirOutcome=raw.pir&&raw.pir.outcome;dd.pirNotes=raw.pir&&raw.pir.notes;
+    dd.pirLocked=!dd.canPir&&!dd.hasPir;
+    dd.pirMsg=raw.status==='Implemented'?'Awaiting post-implementation review by the Change Manager.':'The review opens after the change has been implemented.';
+    dd.activity=S.audit.filter(a=>a.ref===raw.id);
+    const tabs=[['overview','Overview'],['risk','Risk & impact'],['approvals','Approvals'],['impl','Implementation'],['pir','Post-review'],['activity','Activity']];
+    const tab={};tabs.forEach(([k])=>tab[k]=S.tab===k);
+    const matrix=[];[3,2,1].forEach(l=>{matrix.push({l:['','Low','Med','High'][l],h:'52px',bg:'transparent',fg:'var(--c5b6478)',ol:'none'});[1,2,3].forEach(i=>{const sc=i*l;const r=sc<=2?'Low':sc<=4?'Medium':'High';const on=raw.impact===i&&raw.likelihood===l;const [bg,fg]=C.RISK[r];matrix.push({l:on?'●':sc,h:'52px',bg:on?fg:bg,fg:on?'#fff':fg,ol:'none'});});});
+    matrix.push({l:'',h:'20px',bg:'transparent',fg:'var(--c5b6478)',ol:'none'});['Minor','Mod.','Major'].forEach(x=>matrix.push({l:x,h:'20px',bg:'transparent',fg:'var(--c5b6478)',ol:'none'}));
+
+    // wizard
+    const f=S.form,k=this.calcFor(f);
+    const wl=['Classify','Describe','Risk & impact','Plan','Review'];
+    const wizSteps=wl.map((l,i)=>{const n=i+1;return {n:n<S.wiz?'✓':n,l,bg:n===S.wiz?'var(--c1d2a4d)':n<S.wiz?'var(--ce6f7f8)':'var(--cfff)',fg:n===S.wiz?'#fff':n<S.wiz?'var(--c0b6f72)':'var(--c5b6478)'};});
+    const wz={s1:S.wiz===1,s2:S.wiz===2,s3:S.wiz===3,s4:S.wiz===4,s5:S.wiz===5,hasBack:S.wiz>1,nextLabel:S.wiz===5?'Submit for approval':'Continue'};
+    const setF=(key,v)=>this.setState(st=>({form:{...st.form,[key]:v},err:{...st.err,[key]:0}}));
+    const on={};['dept','title','summary','reason','systems','date','window','implementer','test','rollback'].forEach(x=>on[x]=e=>setF(x,e.target.value));
+    ['emergency','customer','regulatory','data','attest'].forEach(x=>on[x]=e=>setF(x,e.target.checked));
+    const types=S.types.filter(t=>t.active).map(({l,d})=>({l,d,bd:f.type===l?'var(--c17b3b5)':'var(--ce3e8ef)',bg:f.type===l?'var(--cf0fbfb)':'var(--cfff)',pick:()=>setF('type',l)}));
+    const opt=(key,arr)=>arr.map(([v,l,d])=>({l,d,bd:f[key]===v?'var(--c17b3b5)':'var(--ce3e8ef)',bg:f[key]===v?'var(--cf0fbfb)':'var(--cfff)',pick:()=>setF(key,v)}));
+    const err={title:!!S.err.title,summary:!!S.err.summary,rollback:!!S.err.rollback,attest:!!S.err.attest,titleBd:S.err.title?'var(--ce5484d)':'var(--cd5dbe5)',summaryBd:S.err.summary?'var(--ce5484d)':'var(--cd5dbe5)',rollbackBd:S.err.rollback?'var(--ce5484d)':'var(--cd5dbe5)'};
+    const calc={risk:k.risk,score:k.score,fg:C.RISK[k.risk][1],tier:k.tier,n:k.route.length,freeze:!!k.freeze&&!f.emergency,freezeName:k.freeze?k.freeze.name:'',route:k.route.map((r,i)=>({n:i+1,role:this.roleOf(r).name,person:this.roleOf(r).person}))};
+
+    // calendar
+    const first=new Date(S.calY,S.calM,1),off=(first.getDay()+6)%7;const cells=[];
+    const evc={'Scheduled':['var(--ce6eeff)','var(--c1f4fb8)'],'In progress':['var(--ce0f5f6)','var(--c0b6f72)'],'Pending approval':['var(--cfff1d6)','var(--c8a5200)'],'Implemented':['var(--ce3f6f1)','var(--c0f7b5f)'],'Closed':['var(--ceef1f5)','var(--c4a5568)']};
+    const iso=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+    for(let i=0;i<42;i++){const d=new Date(S.calY,S.calM,1-off+i);const id=iso(d);const inM=d.getMonth()===S.calM;if(i>=35&&!inM&&d.getDay()===1)break;const fz=this.inFreeze(id);const today=id==='2026-10-22';
+      cells.push({day:d.getDate(),bg:fz?'repeating-linear-gradient(135deg,var(--cfff6e8) 0 8px,var(--cfdefd8) 8px 16px)':inM?'var(--cfff)':'var(--cfafbfc)',fg:today?'#fff':inM?'var(--c18213a)':'var(--ca0a9ba)',todayBg:today?'var(--c1d2a4d)':'transparent',events:visible.filter(c=>c.date===id&&evc[c.status]).map(c=>({label:c.id.slice(-4)+' '+c.title,bg:evc[c.status][0],fg:evc[c.status][1],open:()=>this.open(c.id)}))});}
+
+    // reports
+    const byD=[['IT',31],['Claims',18],['Underwriting',14],['Finance',12],['Operations',11],['Customer Service',9],['HR',8],['Actuarial',6],['Sales & Distribution',5],['Compliance',3]];
+    const mo=[['Jul',38,2],['Aug',41,1],['Sep',44,3],['Oct',35,1]];
+
+    // admin
+    const permRows=[['Raise change requests',['requester','lineManager','deptHead','changeManager','risk','implementer','exec']],['Approve at assigned stage',['lineManager','deptHead','changeManager','cab','risk','exec']],['Approve emergency changes (ECAB)',['changeManager','cab']],['Implement & update checklist',['changeManager','implementer']],['Conduct post-implementation review',['changeManager']],['Manage calendar & freeze windows',['changeManager']],['View reports',['deptHead','changeManager','cab','risk','exec']],['View audit trail',['changeManager','risk','admin']],['Configure approval workflows',['admin']],['Manage users & role assignments',['admin']]];
+    const matrixRows=permRows.map(([l,rs])=>({l,cells:C.ROLES.map(r=>{const y=rs.includes(r.key);return {bg:y?'var(--c0b7f82)':'var(--cfff)',bd:y?'var(--c0b7f82)':'var(--cd5dbe5)',t:y?'✓':''};})}));
+    const wf=S.workflows,wfOwn=wf[S.wfDept];const curSteps=(wfOwn||wf['All departments (default)'])[S.wfTier];
+    const editWF=fn=>{this.setState(st=>{const w=JSON.parse(JSON.stringify(st.workflows));if(!w[st.wfDept])w[st.wfDept]=JSON.parse(JSON.stringify(w['All departments (default)']));fn(w[st.wfDept][st.wfTier]);return {workflows:w,audit:[this.log('Updated workflow: '+st.wfDept+' · '+st.wfTier,'WF'),...st.audit]};});this.flash('Workflow saved · change logged to audit trail');};
+    const wfDeptList=['All departments (default)',...S.depts.filter(x=>x.active).map(x=>x.name)].map(l=>({l,sub:l.startsWith('All')?'Applies unless overridden':wf[l]?'Custom route':'Uses default',bg:S.wfDept===l?'var(--ce6f7f8)':'transparent',fg:S.wfDept===l?'var(--c0b6f72)':'var(--c3b4459)',fw:S.wfDept===l?800:600,pick:()=>this.setState({wfDept:l})}));
+    const users=C.ROLES.map((r,i)=>({...r,email:r.person.toLowerCase().replace(/ /g,'.')+'@milife.com.gh',mfa:i===5?'Invited':'Active',mfaFg:i===5?'var(--cb36b00)':'var(--c0f7b5f)',last:['Today 08:02','Today 09:10','Yesterday','Today 09:41','Today 07:55','20 Oct','Today 08:15','19 Oct','Today 08:30'][i]}));
+
+    const staff=S.users.filter(u=>u.status==='Active').map(u=>u.person).sort();
+    const updUser=(id,patch,msg)=>{this.setState(st=>({users:st.users.map(u=>u.id===id?{...u,...patch}:u),audit:[this.log(msg,id),...st.audit]}));this.flash(msg);};
+    const uSt={Active:['var(--ce3f6f1)','var(--c0f7b5f)'],Invited:['var(--cfff1d6)','var(--c8a5200)'],Disabled:['var(--cf1f4f8)','var(--c5b6478)']};
+    const uq=S.uq.trim().toLowerCase();
+    const uf=S.uf;const uBase=S.users.filter(u=>(!uq||(u.person+u.email).toLowerCase().includes(uq))&&(uf.role==='All'||u.role===uf.role)&&(uf.dept==='All'||u.dept===uf.dept));
+    const PU=this.pager('users',uBase.filter(u=>S.uFilter==='All'||u.status===S.uFilter));const userRows=PU.items.map(u=>{const self=u.person===me.person;const dis=u.status==='Disabled';return {...u,sBg:uSt[u.status][0],sFg:uSt[u.status][1],op:dis?.6:1,locked:dis,
+      toggleLabel:dis?'Enable':'Disable',tBd:dis?'var(--cb5e6d6)':'var(--cf1b5b0)',tFg:dis?'var(--c0f7b5f)':'var(--cb42318)',
+      setRole:e=>updUser(u.id,{role:e.target.value},'Changed role of '+u.person+' to '+this.roleOf(e.target.value).name),
+      setDept:e=>updUser(u.id,{dept:e.target.value},'Moved '+u.person+' to '+e.target.value),
+      toggle:()=>{if(self){this.flash("You can't disable your own account");return;}updUser(u.id,{status:dis?'Active':'Disabled'},(dis?'Enabled ':'Disabled ')+u.person);},
+      reset:()=>{if(dis){this.flash('Enable the account before resetting its password');return;}this.setState(st=>({audit:[this.log('Sent password reset to '+u.person,u.id),...st.audit]}));this.flash('Password reset link sent to '+u.email);}};});
+    const uFilters=['All','Active','Invited','Disabled'].map(l=>{const on=S.uFilter===l;return {l,n:l==='All'?uBase.length:uBase.filter(u=>u.status===l).length,bg:on?'var(--c1d2a4d)':'var(--cfff)',fg:on?'#fff':'var(--c3b4459)',bd:on?'var(--c1d2a4d)':'var(--cd5dbe5)',pick:()=>this.setState(st=>({uFilter:l,pg:{...st.pg,users:1}}))};});
+    const updDept=(code,patch,msg)=>{this.setState(st=>({depts:st.depts.map(x=>x.code===code?{...x,...patch}:x),audit:[this.log(msg,'DEPT-'+code),...st.audit]}));this.flash(msg);};
+    const pill=on=>({bg:on?'var(--ce3f6f1)':'var(--cf1f4f8)',fg:on?'var(--c0f7b5f)':'var(--c5b6478)',bd:on?'var(--cb5e6d6)':'var(--cd5dbe5)'});
+    const dq=S.dq.trim().toLowerCase();const dBase=S.depts.filter(x=>!dq||(x.name+x.code+x.head+x.lm).toLowerCase().includes(dq));
+    const dFilters=['All','Active','Inactive'].map(l=>{const on=S.dStatus===l;return {l,n:l==='All'?dBase.length:dBase.filter(x=>(l==='Active')===x.active).length,bg:on?'var(--c1d2a4d)':'var(--cfff)',fg:on?'#fff':'var(--c3b4459)',bd:on?'var(--c1d2a4d)':'var(--cd5dbe5)',pick:()=>this.setState(st=>({dStatus:l,pg:{...st.pg,depts:1}}))};});
+    const PD=this.pager('depts',dBase.filter(x=>S.dStatus==='All'||(S.dStatus==='Active')===x.active));
+    const deptRows=PD.items.map(x=>({...x,...pill(x.active),status:x.active?'Active':'Inactive',op:x.active?1:.6,count:S.changes.filter(c=>c.dept===x.name).length,route:wf[x.name]?'Custom':'Default',
+      setHead:e=>updDept(x.code,{head:e.target.value},'Set '+e.target.value+' as head of '+x.name),setLm:e=>updDept(x.code,{lm:e.target.value},'Set '+e.target.value+' as line manager for '+x.name),
+      toggle:()=>updDept(x.code,{active:!x.active},(x.active?'Deactivated ':'Activated ')+x.name),
+      editRoute:e=>{e.preventDefault();this.setState({adminTab:'workflows',wfDept:x.name});}}));
+    const typeRows=S.types.map((t,i)=>({...t,...pill(t.active),status:t.active?'Active':'Inactive',op:t.active?1:.6,toggle:()=>{this.setState(st=>({types:st.types.map((y,j)=>j===i?{...y,active:!y.active}:y),audit:[this.log((t.active?'Deactivated':'Activated')+' change type '+t.l,'TYPE'),...st.audit]}));}}));
+    const mList=S.mTab==='action'?(approverRoles.includes(S.role)||S.role==='changeManager'?inbox:actionList):visible;
+    const tl=(on)=>({bg:on?'#fff':'transparent',fg:on?'#121A30':'#C9D1E3'});
+
+    // lifecycle
+    const LIFE=['Draft','Pending approval','Scheduled','In progress','Implemented','Closed'];
+    const stIdx={'Draft':0,'Returned for rework':0,'Pending approval':1,'Approved':2,'Scheduled':2,'In progress':3,'Implemented':4,'Closed':5,'Rejected':1}[raw.status];
+    const failed=raw.status==='Rejected'||raw.status==='Returned for rework';
+    dd.life=LIFE.map((l,i)=>{const done=i<stIdx||(raw.status==='Closed'&&i===5);const cur=i===stIdx&&!done;const red=cur&&failed;
+      return {l:cur&&failed?raw.status:l,mark:done?'✓':i+1,bg:done?'var(--c0b7f82)':cur?(red?'var(--cb42318)':'var(--c1d2a4d)'):'var(--cfff)',fg:done||cur?'#fff':'var(--c8a93a6)',bd:done?'var(--c0b7f82)':cur?(red?'var(--cb42318)':'var(--c1d2a4d)'):'var(--cd5dbe5)',fw:cur?800:600,tc:cur?'var(--c18213a)':done?'var(--c3b4459)':'var(--c8a93a6)',line:i<stIdx?'var(--c0b7f82)':'var(--ce3e8ef)',lineOp:i===LIFE.length-1?0:1};});
+    dd.files=(raw.files||[]).map(f=>({...f,ext:(f.name.split('.').pop()||'').toUpperCase().slice(0,4)}));dd.hasFiles=dd.files.length>0;
+    // notifications
+    const notifAll=[...inbox.map(c=>({text:c.id+' is waiting for your '+me.name+' decision',when:'Due '+(c.stageIdx===1?'today':'tomorrow'),id:c.id,dot:'var(--cd98a00)'})),
+      ...S.audit.filter(a=>a.user!==me.person&&S.changes.some(c=>c.id===a.ref&&(c.requester===me.person||c.implementer===me.person))).slice(0,4).map(a=>({text:a.user+' · '+a.action.toLowerCase()+' on '+a.ref,when:a.ts,id:a.ref,dot:'var(--c17b3b5)'})),
+      {text:'Month-end change freeze starts 28 Oct',when:'Calendar',id:null,dot:'var(--c9a5b00)'}];
+    const unread=Math.max(0,notifAll.length-S.readCount);
+    const notifs=notifAll.map((n,i)=>({...n,bg:i<unread?'var(--cf0fbfb)':'transparent',open:()=>{this.setState({notifOpen:false,readCount:notifAll.length});if(n.id&&perms.includes('changes'))this.open(n.id);else if(perms.includes('calendar'))this.go('calendar');}}));
+    // flows
+    const tierMeta={Low:['var(--ce3f6f1)','var(--c0f7b5f)','Score 1–2'],Medium:['var(--cfff1d6)','var(--c8a5200)','Score 3–4'],High:['var(--cfdecec)','var(--cb42318)','Score 6–9'],Emergency:['var(--cfce8f3)','var(--c9e1c64)','Service down / security']};
+    const flowRoutes=['Low','Medium','High','Emergency'].map(t=>{const st=this.route(S.flowDept,t);return {l:t,bg:tierMeta[t][0],fg:tierMeta[t][1],when:tierMeta[t][2],steps:st.map((r,i)=>({n:i+1,role:this.roleOf(r).name+(t==='Emergency'?' (ECAB)':''),lineDisp:i===st.length-1?'none':'block'}))};});
+    const flowStates=[['Draft','Requester'],['Pending approval','Approvers, stage by stage'],['Scheduled','Change Manager'],['In progress','Implementer'],['Implemented','Implementer'],['Post-review','Change Manager'],['Closed','System']].map(([l,who],i,a)=>({l,who,arrow:i<a.length-1,bg:i===0?'var(--cf7f9fb)':i===a.length-1?'var(--ce3f6f1)':'var(--cfff)',bd:i===a.length-1?'var(--cb5e6d6)':'var(--ce3e8ef)',fg:i===a.length-1?'var(--c0f7b5f)':'var(--c18213a)'}));
+    const principles=[{n:'01',t:'Least privilege',d:'Each role sees only the screens and records it needs. Requesters see their own changes; admins configure but cannot approve.'},{n:'02',t:'Segregation of duties',d:'Nobody can approve a change they raised. Implementers cannot approve their own work.'},{n:'03',t:'Stage-bound approval',d:'Approvers can only act when a request is at their stage, in the order set for that department and risk tier.'},{n:'04',t:'Complete audit trail',d:'Every sign-in, decision, configuration and export is logged with user, time and source IP.'}];
+    const ui=tl;
+    return {
+      theme:S.theme, logoSrc:S.theme==='dark'?'assets/milife-wordmark-dark.png':'assets/milife-wordmark-light.png',
+      thL:ui(S.theme==='light'), thD:ui(S.theme==='dark'), toLight:()=>this.setState({theme:'light'}), toDark:()=>this.setState({theme:'dark'}), toggleTheme:()=>this.setState({theme:S.theme==='dark'?'light':'dark'}),
+      themeIcon:S.theme==='dark'?'M12 3v2M12 19v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M3 12h2M19 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4M12 8a4 4 0 1 0 0 8a4 4 0 0 0 0-8z':'M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z',
+      notifs, notifEmpty:notifs.length===0, unread, hasUnread:unread>0, notifOpen:S.notifOpen, toggleNotif:()=>this.setState({notifOpen:!S.notifOpen}), markRead:e=>{e.preventDefault();this.setState({readCount:notifAll.length});},
+      flowStates, flowRoutes, principles, flowDept:S.flowDept, flowDeptOpts:['All departments (default)',...S.depts.filter(x=>x.active).map(x=>x.name)], onFlowDept:e=>this.setState({flowDept:e.target.value}),
+      formFiles:(f.files||[]).map((x,i)=>({...x,ext:(x.name.split('.').pop()||'').toUpperCase().slice(0,4),remove:e=>{e.preventDefault();setF('files',f.files.filter((_,j)=>j!==i));}})),
+      onFiles:e=>{const fl=[...e.target.files].map(x=>({name:x.name,size:this.fsize(x.size)}));e.target.value='';setF('files',[...(f.files||[]),...fl]);},
+      exportChange:()=>{const lines=[['Field','Value'],['ID',raw.id],['Title',raw.title],['Type',raw.type],['Department',raw.dept],['Status',raw.status],['Risk',raw.risk+' ('+raw.score+'/9)'],['Route',raw.tier],['Requester',raw.requester],['Planned',raw.dateF+' '+raw.window],['Implementer',raw.implementer],['Summary',raw.summary],['Justification',raw.reason],['Rollback',raw.rollback],['Test plan',raw.test],...raw.steps.map((x,i)=>['Stage '+(i+1)+': '+this.roleOf(x.role).name,x.status+(x.at?' · '+x.at:'')+(x.comment?' · '+x.comment:'')])];this.download(raw.id+'.csv',this.csv(lines));this.setState(st=>({audit:[this.log('Exported change record',raw.id),...st.audit]}));this.flash('Exported '+raw.id+'.csv');},
+      exportChanges:()=>{this.download('milife-change-requests.csv',this.csv([['ID','Title','Type','Department','Risk','Route','Status','Requester','Planned','Implementer'],...rowsAll.map(c=>[c.id,c.title,c.type,c.dept,c.risk,c.tier,c.status,c.requester,c.date,c.implementer])]));this.setState(st=>({audit:[this.log('Exported '+rowsAll.length+' change requests (CSV)','—'),...st.audit]}));this.flash('Exported '+rowsAll.length+' change requests');},
+      exportReport:()=>{this.download('milife-change-report-q4.csv',this.csv([['Department','Changes'],...byD]));this.flash('Report exported');},
+      exportUsers:()=>{this.download('milife-users.csv',this.csv([['name','email','department','role','status'],...S.users.map(u=>[u.person,u.email,u.dept,u.role,u.status])]));this.setState(st=>({audit:[this.log('Exported user list (CSV)','—'),...st.audit]}));this.flash('User list exported');},
+      exportDepts:()=>{this.download('milife-departments.csv',this.csv([['code','name','head','line_manager','active'],...S.depts.map(d=>[d.code,d.name,d.head,d.lm,d.active?'yes':'no'])]));this.flash('Departments exported');},
+      userTemplate:e=>{e.preventDefault();this.download('milife-users-template.csv',this.csv([['name','email','department','role'],['Yaa Asantewaa','yaa.asantewaa@milife.com.gh','Claims','requester'],['Kwabena Ofori','kwabena.ofori@milife.com.gh','IT','implementer']]));},
+      onImportUsers:e=>{const file=e.target.files[0];e.target.value='';if(!file)return;const rd=new FileReader();rd.onload=()=>{const rowsC=this.parseCsv(String(rd.result));if(!rowsC.length){this.flash('That file is empty');return;}let hdr=rowsC[0].map(x=>x.trim().toLowerCase());let body=rowsC.slice(1);if(!hdr.includes('email')){hdr=['name','email','department','role'];body=rowsC;}
+        const ix=k=>hdr.indexOf(k);const deptNames=S.depts.map(d=>d.name.toLowerCase());const seen=new Set(S.users.map(u=>u.email.toLowerCase()));
+        const roleKey=v=>{v=(v||'').trim().toLowerCase();const r=C.ROLES.find(r=>r.key.toLowerCase()===v||r.name.toLowerCase()===v);return r?r.key:null;};
+        const out=body.map(r=>{const person=(r[ix('name')]||'').trim(),email=(r[ix('email')]||'').trim().toLowerCase(),deptRaw=(r[ix('department')]||'').trim(),rk=roleKey(r[ix('role')]||'requester');let msg='Ready';
+          if(!person)msg='Missing name';else if(!/^[^@\s]+@milife\.com\.gh$/.test(email))msg='Email must be @milife.com.gh';else if(seen.has(email))msg='Already exists';else if(!deptNames.includes(deptRaw.toLowerCase()))msg='Unknown department';else if(!rk)msg='Unknown role';
+          if(msg==='Ready')seen.add(email);const dept=S.depts.find(d=>d.name.toLowerCase()===deptRaw.toLowerCase());return {person,email,dept:dept?dept.name:deptRaw,role:rk,roleName:rk?this.roleOf(rk).name:(r[ix('role')]||'—'),ok:msg==='Ready',msg};});
+        this.setState({importOpen:true,imp:{file:file.name,rows:out}});};rd.readAsText(file);},
+      importOpen:S.importOpen, imp:S.imp?{file:S.imp.file,okCount:S.imp.rows.filter(r=>r.ok).length,errCount:S.imp.rows.filter(r=>!r.ok).length,rows:S.imp.rows.map(r=>({...r,fg:r.ok?'var(--c0f7b5f)':'var(--cb42318)',bg:r.ok?'transparent':'var(--cfdecec)'}))}:{rows:[]},
+      closeImport:()=>this.setState({importOpen:false,imp:null}), stop:e=>e.stopPropagation(),
+      confirmImport:()=>{const ok=S.imp.rows.filter(r=>r.ok);if(!ok.length){this.flash('No valid rows to import');return;}this.setState(st=>{let n=st.users.length;const add=ok.map(r=>({id:'USR-'+String(201+(n++)).padStart(4,'0'),person:r.person,email:r.email,dept:r.dept,role:r.role,status:'Invited',last:'—'}));return {users:[...add,...st.users],importOpen:false,imp:null,uFilter:'All',audit:[this.log('Imported '+add.length+' users from '+st.imp.file,'—'),...st.audit]};});this.flash(ok.length+' users imported · invitations sent');},
+      roles:C.ROLES, role:S.role, me, loggedIn:S.loggedIn, notLogged:!S.loggedIn, email:S.email, pwd:S.pwd, onPwd:e=>this.setState({pwd:e.target.value,loginErr:''}), loginErr:S.loginErr, hasLoginErr:!!S.loginErr,
+      doLogin:()=>{if(!/@/.test(S.email)||!S.pwd){this.setState({loginErr:'Enter your work email and password.'});return;}this.setState(st=>({loggedIn:true,screen:'dashboard',loginErr:'',audit:[this.log('Signed in','—'),...st.audit]}));},
+      forgot:e=>{e.preventDefault();this.flash('Password reset link sent to '+S.email);},
+      showDesktop:S.loggedIn&&S.device==='desktop', showMobile:S.loggedIn&&S.device==='mobile',
+      devD:tl(S.device==='desktop'), devM:tl(S.device==='mobile'),
+      onRole:e=>{this.setState({role:e.target.value,mScreen:'home',comment:'',commentErr:''});},
+      toDesktop:()=>this.setState({device:'desktop'}), toMobile:()=>this.setState({device:'mobile',mScreen:'home'}),
+      signOut:()=>this.setState({loggedIn:false}),
+      onEmail:e=>this.setState({email:e.target.value,loginErr:''}),
+      nav, pageTitle:denied?'Access restricted':labels[S.screen], canNew:perms.includes('new'), goNew:()=>this.go('new'), goDash:()=>this.go('dashboard'), goCal:e=>{e.preventDefault();this.go('calendar');},
+      q:S.q, onQ:e=>this.setState({q:e.target.value,screen:perms.includes('changes')?'changes':S.screen}),
+      denied, deniedLabel:labels[S.screen], requestAccess:()=>{this.setState(st=>({audit:[this.log('Requested access to '+labels[S.screen],'—'),...st.audit]}));this.flash('Access request sent to your line manager');},
+      s, kpis, actionTitle, actionList, actionCount:S.role==='admin'?5:actionList.length, actionEmpty:actionList.length===0, isAdmin:S.role==='admin', notAdmin:S.role!=='admin',
+      recentAudit:S.audit.slice(0,5), upcoming:up.slice(0,5),
+      filters, rows, rowsEmpty:rows.length===0, pgC:PC.pg, cf,
+      cfDeptOpts:opts(S.depts.map(x=>x.name),'All departments'), cfRiskOpts:opts(['High','Medium','Low'],'All risk levels'), cfTypeOpts:opts(S.types.map(t=>t.l),'All change types'),
+      cfSortOpts:[{v:'planned',l:'Planned date (soonest)'},{v:'newest',l:'Newest first'},{v:'risk',l:'Risk (highest first)'},{v:'id',l:'Change ID'}],
+      cfOn:Object.fromEntries(['dept','risk','type','sort'].map(k=>[k,e=>this.filt('cf','changes',k,e.target.value)])),
+      cfActive:cf.dept!=='All'||cf.risk!=='All'||cf.type!=='All'||S.filter!=='All', cfClear:e=>{e.preventDefault();this.setState(st=>({cf:{...st.cf,dept:'All',risk:'All',type:'All'},filter:'All',pg:{...st.pg,changes:1}}));}, isRequester:S.role==='requester',
+      inbox, inboxEmpty:inbox.length===0,
+      d:dd, tabs:tabs.map(([k,l])=>({l,fg:S.tab===k?'var(--c0b6f72)':'var(--c5b6478)',bd:S.tab===k?'var(--c17b3b5)':'transparent',go:()=>this.setState({tab:k})})), tab, matrix,
+      backList:e=>{e.preventDefault();this.go(perms.includes('changes')?'changes':'dashboard');},
+      comment:S.comment, onComment:e=>this.setState({comment:e.target.value,commentErr:''}), commentErr:S.commentErr, hasCommentErr:!!S.commentErr,
+      approve:()=>this.decide('approve'), reject:()=>this.decide('reject'), rework:()=>this.decide('rework'),
+      submitDraft:()=>{const r=this.route(raw.dept,raw.tier);this.updChange(raw.id,n=>{n.status='Pending approval';n.steps=r.map((x,i)=>this.st(x,i===0?'pending':'waiting'));return n;});this.setState(st=>({audit:[this.log('Submitted change request',raw.id),...st.audit],tab:'approvals'}));this.flash('Submitted for approval · '+raw.id);},
+      startImpl:()=>{this.updChange(raw.id,n=>{n.status='In progress';return n;});this.setState(st=>({tab:'impl',audit:[this.log('Started implementation',raw.id),...st.audit]}));this.flash('Implementation started');},
+      finishImpl:()=>{this.updChange(raw.id,n=>{n.status='Implemented';return n;});this.setState(st=>({tab:'pir',audit:[this.log('Marked as implemented',raw.id),...st.audit]}));this.flash('Marked as implemented · review due in 5 days');},
+      pir:S.pir, pirOpts:['Successful','Successful with issues','Failed — rolled back'].map(l=>({l,bg:S.pir.outcome===l?'var(--c1d2a4d)':'var(--cfff)',fg:S.pir.outcome===l?'#fff':'var(--c3b4459)',bd:S.pir.outcome===l?'var(--c1d2a4d)':'var(--cd5dbe5)',pick:()=>this.setState(st=>({pir:{...st.pir,outcome:l}}))})),
+      onPirNotes:e=>this.setState({pir:{...S.pir,notes:e.target.value}}),
+      submitPir:()=>{const p={...S.pir,notes:S.pir.notes||'No issues recorded.'};this.updChange(raw.id,n=>{n.status='Closed';n.pir=p;return n;});this.setState(st=>({pir:{outcome:'Successful',notes:''},audit:[this.log('Completed post-implementation review & closed',raw.id),...st.audit]}));this.flash('Change closed · '+raw.id);},
+      wizSteps, wz, form:f, on, err, types, depts:S.depts.filter(x=>x.active).map(x=>x.name), calc,
+      impactOpts:opt('impact',[[1,'Minor','Single team, no customer impact'],[2,'Moderate','Several teams or limited customer impact'],[3,'Major','Company-wide, customer-facing or regulatory']]),
+      likeOpts:opt('likelihood',[[1,'Unlikely','Routine and well tested'],[2,'Possible','Some unknowns or dependencies'],[3,'Likely','New, complex or untested']]),
+      implementers:['Kojo Frimpong','Adjoa Bonsu','Efua Asante','Vendor — managed service'],
+      reviewFacts:[{l:'Type',v:f.type+(f.emergency?' · Emergency':'')},{l:'Department',v:f.dept},{l:'Title',v:f.title||'—'},{l:'Risk',v:k.risk+' (score '+k.score+')'},{l:'Planned',v:this.fmt(f.date)+' · '+f.window},{l:'Implementer',v:f.implementer},{l:'Rollback plan',v:f.rollback?'Provided':'Missing'}],
+      wizBack:()=>this.setState({wiz:Math.max(1,S.wiz-1),err:{}}), wizNext:()=>this.wizNext(), saveDraft:()=>this.createChange('Draft'),
+      calTitle:first.toLocaleDateString('en-GB',{month:'long',year:'numeric'}), dows:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'], cells,
+      calPrev:()=>this.setState(st=>st.calM===0?{calM:11,calY:st.calY-1}:{calM:st.calM-1}), calNext:()=>this.setState(st=>st.calM===11?{calM:0,calY:st.calY+1}:{calM:st.calM+1}),
+      freezes:C.FREEZES.map(x=>({name:x.name,range:this.fmt(x.from)+' – '+this.fmt(x.to)})), canFreeze:S.role==='changeManager', addFreeze:()=>this.flash('Freeze window editor · Change Manager only'),
+      legend:[{l:'Scheduled',bg:'var(--cbbd0ff)'},{l:'In progress',bg:'var(--ca6e3e5)'},{l:'Pending approval',bg:'var(--cffdc9e)'},{l:'Implemented / closed',bg:'var(--cb5e6d6)'},{l:'Freeze window',bg:'var(--cf7d9a8)'}],
+      repKpis:[{label:'Changes this quarter',value:'117',sub:'+9% vs Q3'},{label:'Success rate',value:'96.1%',sub:'Target ≥ 95%'},{label:'Avg. approval time',value:'2.4 days',sub:'Submission to final approval'},{label:'Emergency changes',value:'6%',sub:'Target ≤ 10%'}],
+      byDept:byD.map(([l,n])=>({l,n,w:Math.round(n/31*100)+'%'})), monthly:mo.map(([l,n,fl])=>({l,n,h:Math.round(n/44*160)+'px',fh:Math.max(4,Math.round(fl/n*160*3))+'px'})),
+      auditQ:S.auditQ, onAuditQ:e=>{const v=e.target.value;this.setState(st=>({auditQ:v,pg:{...st.pg,audit:1}}));}, exportAudit:()=>{this.setState(st=>({audit:[this.log('Exported audit log (CSV)','—'),...st.audit]}));this.flash('Audit export generated · this export is itself logged');},
+      ...(()=>{const x=S.auditQ.toLowerCase(),af=S.af;const list=S.audit.filter(a=>(!x||(a.user+a.action+a.ref).toLowerCase().includes(x))&&(af.role==='All'||a.role===af.role)&&(af.cat==='All'||this.auditCat(a)===af.cat)).map(a=>({...a,roleName:this.roleOf(a.role).name}));const P=this.pager('audit',list);
+        return {auditRows:P.items,auditEmpty:list.length===0,pgA:P.pg,af,afRoleOpts:[{v:'All',l:'All roles'},...C.ROLES.map(r=>({v:r.key,l:r.name}))],afCatOpts:[{v:'All',l:'All event types'},{v:'signin',l:'Sign-ins & access'},{v:'decision',l:'Approval decisions'},{v:'change',l:'Change activity'},{v:'config',l:'Configuration & users'},{v:'export',l:'Imports & exports'}],
+          afOn:{role:e=>this.filt('af','audit','role',e.target.value),cat:e=>this.filt('af','audit','cat',e.target.value)},afActive:af.role!=='All'||af.cat!=='All'||!!x,afClear:e=>{e.preventDefault();this.setState(st=>({af:{role:'All',cat:'All'},auditQ:'',pg:{...st.pg,audit:1}}));}};})(),
+      adminTabs:[['depts','Departments'],['types','Change types'],['roles','Roles & permissions'],['workflows','Approval workflows'],['users','Users & access']].map(([k,l])=>({l,fg:S.adminTab===k?'var(--c0b6f72)':'var(--c5b6478)',bd:S.adminTab===k?'var(--c17b3b5)':'transparent',go:()=>this.setState({adminTab:k})})),
+      at:{depts:S.adminTab==='depts',types:S.adminTab==='types',roles:S.adminTab==='roles',workflows:S.adminTab==='workflows',users:S.adminTab==='users'}, matrixRows,
+      wfDepts:wfDeptList, wfDept:S.wfDept, wfInherited:!wfOwn,
+      wfTiers:['Low','Medium','High','Emergency'].map(l=>({l,bg:S.wfTier===l?'var(--c1d2a4d)':'var(--cfff)',fg:S.wfTier===l?'#fff':'var(--c3b4459)',bd:S.wfTier===l?'var(--c1d2a4d)':'var(--cd5dbe5)',pick:()=>this.setState({wfTier:l})})),
+      wfSteps:curSteps.map((r,i)=>({n:i+1,role:this.roleOf(r).name,sla:r==='cab'?'weekly CAB (Tue)':S.wfTier==='Emergency'?'2 hours':'2 working days',esc:r==='exec'?'CEO':r==='lineManager'?'Department Head':'Change Manager',up:()=>{if(i>0)editWF(a=>{[a[i-1],a[i]]=[a[i],a[i-1]];});},remove:()=>{if(curSteps.length>1)editWF(a=>a.splice(i,1));else this.flash('A route needs at least one approval stage');}})),
+      approverRoles:C.ROLES.filter(r=>['lineManager','deptHead','changeManager','cab','risk','exec'].includes(r.key)), addRole:S.addRole, onAddRole:e=>this.setState({addRole:e.target.value}),
+      addStep:()=>{if(curSteps.includes(S.addRole)){this.flash('That role is already in this route');return;}editWF(a=>a.push(S.addRole));},
+      userRows, userRowsEmpty:userRows.length===0, pgU:PU.pg, uFilters, uq:S.uq, onUq:e=>{const v=e.target.value;this.setState(st=>({uq:v,pg:{...st.pg,users:1}}));}, uf, ufRoleOpts:[{v:'All',l:'All roles'},...C.ROLES.map(r=>({v:r.key,l:r.name}))], ufDeptOpts:[{v:'All',l:'All departments'},...S.depts.map(d=>({v:d.name,l:d.name}))], ufOn:{role:e=>this.filt('uf','users','role',e.target.value),dept:e=>this.filt('uf','users','dept',e.target.value)}, allDepts:S.depts.map(x=>x.name),
+      showUserForm:S.showUserForm, userFormLabel:S.showUserForm?'Close':'Add user', toggleUserForm:()=>this.setState({showUserForm:!S.showUserForm,nuErr:''}),
+      nu:S.nu, nuErr:S.nuErr, hasNuErr:!!S.nuErr, nuOn:Object.fromEntries(['person','email','dept','role'].map(k=>[k,e=>this.setState({nu:{...S.nu,[k]:e.target.value},nuErr:''})])),
+      addUser:()=>{const n=S.nu;if(!n.person.trim()||!/^[^@\s]+@milife\.com\.gh$/i.test(n.email.trim())){this.setState({nuErr:'Enter a full name and a valid @milife.com.gh email.'});return;}if(S.users.some(u=>u.email.toLowerCase()===n.email.trim().toLowerCase())){this.setState({nuErr:'A user with that email already exists.'});return;}const id='USR-'+String(201+S.users.length).padStart(4,'0');this.setState(st=>({users:[{id,person:n.person.trim(),email:n.email.trim().toLowerCase(),dept:n.dept,role:n.role,status:'Invited',last:'—'},...st.users],nu:{person:'',email:'',dept:'Claims',role:'requester'},showUserForm:false,uFilter:'All',audit:[this.log('Invited '+n.person.trim()+' as '+this.roleOf(n.role).name,id),...st.audit]}));this.flash('Invitation sent to '+n.email.trim());},
+      staffList:staff, deptRows, deptEmpty:deptRows.length===0, pgD:PD.pg, dFilters, dq:S.dq, onDq:e=>{const v=e.target.value;this.setState(st=>({dq:v,pg:{...st.pg,depts:1}}));}, typeRows, showDeptForm:S.showDeptForm, deptFormLabel:S.showDeptForm?'Close':'Add department',
+      toggleDeptForm:()=>this.setState({showDeptForm:!S.showDeptForm,ndErr:''}), nd:S.nd, ndErr:S.ndErr, hasNdErr:!!S.ndErr, ndErrBd:S.ndErr?'var(--ce5484d)':'var(--cd5dbe5)',
+      ndOn:{name:e=>this.setState({nd:{...S.nd,name:e.target.value},ndErr:''}),code:e=>this.setState({nd:{...S.nd,code:e.target.value.toUpperCase()},ndErr:''}),head:e=>this.setState({nd:{...S.nd,head:e.target.value}}),lm:e=>this.setState({nd:{...S.nd,lm:e.target.value}})},
+      addDept:()=>{const n=S.nd;if(!n.name.trim()||!n.code.trim()){this.setState({ndErr:'Name and code are required.'});return;}if(S.depts.some(x=>x.code===n.code||x.name.toLowerCase()===n.name.trim().toLowerCase())){this.setState({ndErr:'A department with that name or code already exists.'});return;}this.setState(st=>({depts:[...st.depts,{code:n.code,name:n.name.trim(),head:n.head,lm:n.lm,active:true}],nd:{name:'',code:'',head:'Efua Asante',lm:'Kwame Boateng'},showDeptForm:false,audit:[this.log('Created department '+n.name.trim(),'DEPT-'+n.code),...st.audit]}));this.flash('Department created · uses the default approval route');},
+      nt:S.nt, ntOn:{l:e=>this.setState({nt:{...S.nt,l:e.target.value}}),d:e=>this.setState({nt:{...S.nt,d:e.target.value}})},
+      addType:()=>{if(!S.nt.l.trim()){this.flash('Enter a name for the change type');return;}this.setState(st=>({types:[...st.types,{l:st.nt.l.trim(),d:st.nt.d.trim()||'—',active:true}],nt:{l:'',d:''},audit:[this.log('Added change type '+st.nt.l.trim(),'TYPE'),...st.audit]}));this.flash('Change type added');},
+      m:{home:S.mScreen==='home',detail:S.mScreen==='detail'}, mBack:()=>this.setState({mScreen:'home'}),
+      mList, mEmpty:mList.length===0, mListTitle:S.mTab==='action'?actionTitle:'All requests',
+      mTabs:[['action','For me'],['all','Requests']].concat([['dash','Desktop']]).map(([k,l])=>({l,fg:S.mTab===k?'var(--c0b6f72)':'var(--c5b6478)',bar:S.mTab===k?'var(--c17b3b5)':'transparent',go:()=>k==='dash'?this.setState({device:'desktop'}):this.setState({mTab:k})})),
+      toast:S.toast, hasToast:!!S.toast
+    };
+  }
+}
+</script>
+</body>
+</html>

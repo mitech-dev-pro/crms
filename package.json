@@ -1,0 +1,12 @@
+{
+  "name": "crms",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:frontend": "npm run dev -w frontend",
+    "typecheck:shared": "npm run typecheck -w @crms/shared"
+  }
+}
