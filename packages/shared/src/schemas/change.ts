@@ -34,6 +34,8 @@ export const changeCreateSchema = z.object({
   attest: z.literal(true, { error: "Please confirm the declaration" }),
 });
 export type ChangeCreateInput = z.infer<typeof changeCreateSchema>;
+/** What the wizard form holds before validation (z.input), e.g. for React Hook Form. */
+export type ChangeCreateFormInput = z.input<typeof changeCreateSchema>;
 
 /** Per-step slices so the wizard can validate one step at a time. */
 export const wizardStepSchemas = [
@@ -70,6 +72,7 @@ export const changeListQuerySchema = z.object({
   status: z.enum(CHANGE_STATUSES).optional(),
   departmentId: z.string().optional(),
   typeId: z.string().optional(),
+  implementerId: z.string().optional(),
   tier: z.enum(RISK_TIERS).optional(),
   sort: z.enum(["planned", "newest", "risk", "ref"]).default("planned"),
 });

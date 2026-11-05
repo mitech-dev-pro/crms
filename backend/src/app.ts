@@ -18,6 +18,11 @@ import { metaRouter } from "./modules/meta/routes";
 export function createApp() {
   const app = express();
 
+  // Requests arrive through the Next.js /api rewrite running on this machine.
+  // Trust its X-Forwarded-For header (only from loopback) so req.ip — and the
+  // audit trail — shows the real client address instead of 127.0.0.1.
+  app.set("trust proxy", "loopback");
+
   // Middleware runs top to bottom for every request.
   app.use(helmet()); // security headers
   app.use(cors({ origin: env.CORS_ORIGIN, credentials: true })); // let the Next app call us and send cookies

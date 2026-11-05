@@ -1,6 +1,6 @@
 import {
   CHANGE_STATUSES, CHANGE_STATUS_LABELS, ROLE_LABELS, calcRisk, changeCreateSchema, overrideReasonSchema, tierFor,
-  type ChangeDraftInput, type ChangeListQuery, type ChangeStatus, type ChangeUpdateInput,
+  type ChangeDetail, type ChangeDraftInput, type ChangeListQuery, type ChangeStatus, type ChangeUpdateInput,
   type DecisionInput, type Level, type PirInput, type Role,
 } from "@crms/shared";
 import { Prisma } from "../../generated/prisma/client";
@@ -43,6 +43,7 @@ export async function listChanges(u: Actor, q: ChangeListQuery) {
       {
         ...(q.departmentId && { departmentId: q.departmentId }),
         ...(q.typeId && { typeId: q.typeId }),
+        ...(q.implementerId && { implementerId: q.implementerId }),
         ...(q.tier && { tier: q.tier }),
         ...(q.q && { OR: [{ ref: { contains: q.q } }, { title: { contains: q.q } }] }),
       },
@@ -77,7 +78,8 @@ export async function getChange(u: Actor, ref: string, db: Tx | typeof prisma = 
     orderBy: { at: "desc" },
     select: { id: true, at: true, userName: true, role: true, action: true, category: true },
   });
-  return { ...toDetail(c, u), activity };
+  const detail: ChangeDetail = { ...toDetail(c, u), activity: activity.map((a) => ({ ...a, at: a.at.toISOString() })) };
+  return detail;
 }
 
 /** Changes waiting at this user's stage that they did not raise. */

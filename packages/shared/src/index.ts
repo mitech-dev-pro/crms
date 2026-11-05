@@ -4,3 +4,4 @@ export * from "./routing";
 export * from "./schemas/change";
 export * from "./schemas/auth";
 export * from "./schemas/audit";
+export type * from "./api";

@@ -550,6 +550,42 @@ Each phase ends in something you can run. Agents: **finish a phase, show it work
 6. Change detail with its 6 tabs and the decision panel (approve / rework / reject).
 7. My approvals, Dashboard KPIs by role.
 - **Done when:** the Phase 4 scenario can be clicked through in the browser.
+- ✅ **Done (2026-11-05).** Run the API with `npm run dev:backend` and the web app with `npm run dev:frontend`, then open http://localhost:3000. Dev-only buttons on the login page fill in each demo role. Both servers are also defined in `.claude/launch.json` (`api`, `web`).
+  - **Data flow:**
+    - Next **rewrites `/api/*` to Express** (`API_URL`, default `http://localhost:4000`), so the browser uses one origin: no CORS, and the cookie just works. Express sets `trust proxy: loopback`, so audit IPs are the real client IP.
+    - `src/proxy.ts` (Next 16's name for middleware) redirects to `/login?next=…` when there's no session cookie.
+    - `lib/api.ts` is the fetch wrapper and `ApiError`; a 401 means a full reload to `/login`.
+    - `lib/queries.ts` holds every TanStack Query hook and mutation. After any change action, the detail cache is replaced and the list and inbox are invalidated.
+  - **Shared response types:** `packages/shared/src/api.ts`. The backend DTOs are typed against them (dates are ISO strings), so the two sides can't drift apart.
+  - **Rendering model (important with Cache Components):**
+    - Signed-in pages render in the browser **after hydration**. `SessionGate` uses `useHydrated()`, which avoids a hydration mismatch, and `/auth/me` and the page's own queries start in parallel.
+    - Because of that, `next.config.ts` sets `experimental.instantInsights.validationLevel: "manual-warning"`. Opt a segment in with `export const instant = true` if it gets server-rendered content.
+    - Anything that reads the URL (`useSearchParams`, `params`) sits inside `<Suspense>`.
+  - **Design tokens:**
+    - The prototype's colours are CSS variables in `globals.css`, exposed to Tailwind as `bg-surface`, `text-ink`, `text-muted`, `bg-navy`, `text-teal-strong` and so on.
+    - Status pills use the `--{tone}-bg` / `--{tone}-fg` pairs.
+    - Dark mode is `[data-theme="dark"]`, set before paint by an inline script and toggled via `useSyncExternalStore`.
+    - Fonts: Manrope + JetBrains Mono.
+  - **Screens built:**
+    - **Login.**
+    - **Dashboard:** KPIs and action list per role, a freeze banner, upcoming changes.
+    - **Change list:** filters stored in the URL, status chips with counts, pagination.
+    - **Change detail:** lifecycle bar, an action panel driven by the server's `actions` (decide, override, submit, start, or the segregation-of-duties and read-only notices), 6 tabs, facts panel, route card.
+    - **My approvals.**
+    - **5-step wizard:** React Hook Form + `zodResolver(changeCreateSchema)`, per-step validation from `wizardStepSchemas`, live risk and route preview with the freeze warning, server field errors mapped back onto the form. It also edits drafts and returned requests via `?edit=REF`.
+    - **Placeholder pages:** calendar, flows, reports, audit, admin. They're permission-checked, so the nav and the 403 screen already work for them.
+  - **Responsive:** `ChangeTable` uses a **container query** (`@container`, `@3xl:`), so it switches to stacked rows in narrow cards as well as on phones. On phones the sidebar becomes a drawer.
+  - **Verified in the browser:**
+    - The proxy redirect.
+    - Ama's dashboard, with the right counts.
+    - Wizard validation messages, the live High · 6 stages preview with the freeze Executive stage, and submit → `CHG-2026-0145`.
+    - Kwame's decision panel and badge (2 → 1 after approving), with his comment on the timeline.
+    - The read-only notice.
+    - Dark mode.
+    - A 403 for `/audit` as a Line Manager.
+    - The phone layout, with no horizontal scroll.
+  - **Removed:** the starter mock data, the old types and the old 4-step form components. They're in git history.
+  - **Not done:** frontend tests (Playwright, Phase 7) and file attachments upload (Phase 6).
 
 ### Phase 6: Secondary screens
 Calendar (month grid + freezes), Process flows, Reports, Audit trail (+ export), Administration (departments, users + CSV import, change types, workflow editor, permissions matrix), notifications, mobile approvals layout.

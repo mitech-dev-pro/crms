@@ -1,33 +1,27 @@
-import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
-import ChangeRequestWizard from "@/components/changes/ChangeRequestWizard";
+"use client";
 
+import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
+import ChangeRequestWizard from "@/components/changes/wizard/ChangeRequestWizard";
+import { RequirePerm } from "@/components/layout/SessionGate";
+import { Spinner } from "@/components/ui/States";
+
+// /changes/new            → new request
+// /changes/new?edit=REF   → edit a draft or returned request
 export default function NewChangePage() {
   return (
-    <div className="max-w-4xl space-y-6">
-      <Link
-        href="/changes"
-        className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-emerald-800"
-      >
-        <ArrowLeft size={16} />
-        Back to Change Requests
-      </Link>
+    <Suspense fallback={<Spinner />}>
+      <WithParams />
+    </Suspense>
+  );
+}
 
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">New Change Request</h1>
-
-        <p className="mt-1 text-sm text-gray-500">
-          Submit a request for an organizational change.
-        </p>
-      </div>
-
-      <div className="rounded-xl border border-gray-200 bg-white p-6">
-        <h2 className="mb-6 text-lg font-semibold text-gray-900">
-          Step 1: Basic Information
-        </h2>
-
-        <ChangeRequestWizard />
-      </div>
-    </div>
+function WithParams() {
+  const editRef = useSearchParams().get("edit") ?? undefined;
+  // Editing goes through the "changes" screen (requesters own their drafts); creating needs "new".
+  return (
+    <RequirePerm screen={editRef ? "changes" : "new"}>
+      <ChangeRequestWizard editRef={editRef} />
+    </RequirePerm>
   );
 }

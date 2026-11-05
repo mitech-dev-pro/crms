@@ -1,23 +1,18 @@
-import type { ReactNode } from "react";
-import AppSidebar from "@/components/layout/AppSidebar";
-import AppHeader from "@/components/layout/AppHeader";
+import { Suspense } from "react";
+import AppShell from "@/components/layout/AppShell";
+import { SessionGate } from "@/components/layout/SessionGate";
+import { Spinner } from "@/components/ui/States";
 
-type DashboardLayoutProps = {
-  children: ReactNode;
-};
-
-export default function DashboardLayout({ children }: DashboardLayoutProps) {
+// Every signed-in page shares this layout. Pages render in the browser after
+// hydration (see SessionGate), because their data depends on the session cookie.
+// The shell reads the current URL (usePathname), so with Cache Components it
+// sits inside a Suspense boundary.
+export default function DashboardLayout({ children }: LayoutProps<"/">) {
   return (
-    <div className="flex min-h-screen bg-gray-50 text-gray-900">
-      <div className="hidden md:flex">
-        <AppSidebar />
-      </div>
-
-      <div className="flex min-w-0 flex-1 flex-col">
-        <AppHeader />
-
-        <main className="flex-1 p-4 md:p-6">{children}</main>
-      </div>
-    </div>
+    <SessionGate>
+      <Suspense fallback={<Spinner />}>
+        <AppShell>{children}</AppShell>
+      </Suspense>
+    </SessionGate>
   );
 }

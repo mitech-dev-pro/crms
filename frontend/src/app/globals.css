@@ -1,26 +1,108 @@
 @import "tailwindcss";
 
+/* `dark:` utilities follow the data-theme attribute set on <html>, not the OS setting. */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/*
+ * MiLife design tokens, taken from the prototype.
+ * Components use the semantic names (bg-surface, text-muted, …), so dark mode
+ * is just a second set of values here — no dark: classes needed in components.
+ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #eef2f6;
+  --surface: #ffffff;
+  --surface-2: #f7f9fb;
+  --border: #e3e8ef;
+  --border-strong: #d5dbe5;
+  --text: #18213a;
+  --text-2: #3b4459;
+  --muted: #5b6478;
+  --faint: #8a93a6;
+  --navy: #1d2a4d;
+  --navy-hover: #2a3a66;
+  --teal: #0b7f82;
+  --teal-strong: #0b6f72;
+  --teal-tint: #e6f7f8;
+  --teal-bright: #17b3b5;
+  --danger: #b42318;
+  --danger-ring: #e5484d;
+
+  /* status pills: tint background + strong foreground */
+  --amber-bg: #fff1d6;  --amber-fg: #8a5200;
+  --green-bg: #e3f6f1;  --green-fg: #0f7b5f;
+  --red-bg: #fdecec;    --red-fg: #b42318;
+  --pink-bg: #fce8f3;   --pink-fg: #9e1c64;
+  --blue-bg: #e6eeff;   --blue-fg: #1f4fb8;
+  --gray-bg: #eef1f5;   --gray-fg: #4a5568;
+  --cyan-bg: #e0f5f6;   --cyan-fg: #0b6f72;
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0d1322;
+  --surface: #172036;
+  --surface-2: #1b2540;
+  --border: #2a3654;
+  --border-strong: #36446a;
+  --text: #e8ecf5;
+  --text-2: #c3cbdd;
+  --muted: #9aa4bc;
+  --faint: #7c87a2;
+  --navy: #3a5ba8;
+  --navy-hover: #4a6cbc;
+  --teal: #1a9c9f;
+  --teal-strong: #5fd6d8;
+  --teal-tint: #12363f;
+  --teal-bright: #2bc4c6;
+  --danger: #ff7a70;
+  --danger-ring: #f0646a;
+
+  --amber-bg: #3a2c0f;  --amber-fg: #f2b85a;
+  --green-bg: #113a31;  --green-fg: #4fd1a5;
+  --red-bg: #3b1a1e;    --red-fg: #ff7a70;
+  --pink-bg: #3a1730;   --pink-fg: #f28cc4;
+  --blue-bg: #17264d;   --blue-fg: #8db0ff;
+  --gray-bg: #253050;   --gray-fg: #b5bed2;
+  --cyan-bg: #12363f;   --cyan-fg: #5fd6d8;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-line: var(--border);
+  --color-line-strong: var(--border-strong);
+  --color-ink: var(--text);
+  --color-ink-2: var(--text-2);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-navy: var(--navy);
+  --color-navy-hover: var(--navy-hover);
+  --color-teal: var(--teal);
+  --color-teal-strong: var(--teal-strong);
+  --color-teal-tint: var(--teal-tint);
+  --color-teal-bright: var(--teal-bright);
+  --color-danger: var(--danger);
+  --color-danger-ring: var(--danger-ring);
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-sans: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, monospace;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
 }
+
+/* Smooth theme switches, like the prototype. */
+[data-theme] * {
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.15s ease;
+}
+
+@keyframes stage-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(217, 138, 0, 0.45); }
+  70% { box-shadow: 0 0 0 8px rgba(217, 138, 0, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(217, 138, 0, 0); }
+}
+.animate-stage-pulse { animation: stage-pulse 1.8s ease-out infinite; }
