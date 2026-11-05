@@ -8,6 +8,7 @@ const envSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
   PORT: z.coerce.number().int().positive().default(4000),
   CORS_ORIGIN: z.url().default("http://localhost:3000"),
+  DATABASE_URL: z.string().startsWith("mysql://", "DATABASE_URL must look like mysql://user:pass@host:3306/db"),
 });
 
 const parsed = envSchema.safeParse(process.env);

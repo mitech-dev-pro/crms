@@ -483,6 +483,12 @@ Each phase ends in something you can run. Agents: **finish a phase, show it work
 - Local MySQL 8 (Docker `docker-compose.yml` or a local install). Database `crms`.
 - Prisma schema (section 6), first migration, **seed** that ports the prototype's `seedChanges`, `histChanges`, `seedUsers`, departments, types, `seedWF` and freezes. Seed password: `demo-password` for every user (dev only).
 - **Done when:** `npx prisma migrate dev` + `npx prisma db seed` work and Prisma Studio shows about 40 changes and 37 users.
+- ✅ **Done (2026-11-05).** The database is **`changehub`** (local MySQL80 service, port 3306). Prisma is **pinned to 7.10.1**, the last stable release; npm's `latest` tag is an 8.0 RC. Migration `20261105142100_init` is applied. The seed loads 10 departments, 37 users, 6 types, 47 workflow stages, 3 freezes, 39 changes, 99 approval steps, 94 tasks, 3 attachments, 26 PIRs and 69 audit rows.
+  - Scripts (run in `backend/`): `npm run db:generate | db:migrate | db:seed | db:reset | db:studio`.
+  - **Fresh clone:** `src/generated/` is git-ignored, so run `npm run db:generate` after `npm install`.
+  - Files: `prisma/schema.prisma`, `prisma.config.ts`, `prisma/seed-data.ts` (prototype data as plain arrays), `prisma/seed.ts` (wipes and inserts; dev only), `src/lib/prisma.ts` (parses `DATABASE_URL` → mariadb adapter, with `allowPublicKeyRetrieval` for MySQL 8), `src/lib/db.ts` (the app's single client). `DATABASE_URL` is now required in `config/env.ts`.
+  - **Project owner changes:** added a `superAdmin` role to the schema; it's mirrored in `shared/enums.ts` and can see every screen for now (see open question 8). Renamed 8 demo users to real names; seed references were updated to match.
+  - npm on this machine blocks package install scripts. Prisma still generated and migrated fine without them.
 
 ### Phase 3: Auth and permissions
 - Login, logout and me. JWT cookie. `auth` + `requirePerm` middleware. `PERMS` map lives in `shared`. Audit on sign-in.
@@ -527,3 +533,4 @@ Rate-limit login, attachments storage (local → S3/Blob later), email notificat
 5. Email/Teams notifications in v1?
 6. Hosting target (on-prem vs cloud) and MySQL version available.
 7. Change reference numbering: `CHG-<year>-<4 digits>`, resetting each year?
+8. **`superAdmin` role:** what can it do beyond `admin`? Can it approve changes, override segregation of duties, or manage other admins? It currently sees every screen and is in no approval route. Should a superAdmin user be seeded?

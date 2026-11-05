@@ -1,0 +1,245 @@
+// MiLife ChangeHub — database schema.
+// Enum values match packages/shared/src/enums.ts exactly.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql" // connection URL lives in prisma.config.ts
+}
+
+enum Role {
+  requester
+  lineManager
+  deptHead
+  changeManager
+  cab
+  risk
+  implementer
+  exec
+  admin
+  superAdmin
+}
+
+enum UserStatus {
+  Active
+  Invited
+  Disabled
+}
+
+enum RiskTier {
+  Low
+  Medium
+  High
+  Emergency
+}
+
+enum ChangeStatus {
+  Draft
+  PendingApproval
+  ReturnedForRework
+  Approved
+  Scheduled
+  InProgress
+  Implemented
+  Closed
+  Rejected
+}
+
+enum StepStatus {
+  waiting
+  pending
+  approved
+  rejected
+  returned
+  skipped
+}
+
+enum PirOutcome {
+  Successful
+  SuccessfulWithIssues
+  Failed
+  RolledBack
+}
+
+model User {
+  id           String     @id @default(cuid())
+  code         String     @unique // USR-0201
+  name         String
+  email        String     @unique
+  passwordHash String? // null until an invited user sets a password
+  title        String?
+  role         Role
+  status       UserStatus @default(Invited)
+  departmentId String
+  department   Department @relation("DepartmentMembers", fields: [departmentId], references: [id])
+  lastLoginAt  DateTime?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  headOf        Department[]               @relation("DepartmentHead")
+  lineManagerOf Department[]               @relation("DepartmentLineManager")
+  requested     Change[]                   @relation("ChangeRequester")
+  implementing  Change[]                   @relation("ChangeImplementer")
+  decisions     ApprovalStep[]
+  tasksDone     ChecklistTask[]
+  reviews       PostImplementationReview[]
+  auditEntries  AuditLog[]
+}
+
+model Department {
+  id            String  @id @default(cuid())
+  code          String  @unique // CLM
+  name          String  @unique
+  active        Boolean @default(true)
+  headId        String?
+  head          User?   @relation("DepartmentHead", fields: [headId], references: [id], onDelete: SetNull)
+  lineManagerId String?
+  lineManager   User?   @relation("DepartmentLineManager", fields: [lineManagerId], references: [id], onDelete: SetNull)
+
+  users     User[]          @relation("DepartmentMembers")
+  changes   Change[]
+  workflows WorkflowStage[]
+}
+
+model ChangeType {
+  id          String   @id @default(cuid())
+  label       String   @unique
+  description String
+  active      Boolean  @default(true)
+  changes     Change[]
+}
+
+/// One row per approval stage. departmentId = null is the company default route;
+/// a department with rows for a tier overrides the default for that tier.
+model WorkflowStage {
+  id           String      @id @default(cuid())
+  departmentId String?
+  department   Department? @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  tier         RiskTier
+  order        Int
+  role         Role
+
+  @@unique([departmentId, tier, order])
+}
+
+model FreezeWindow {
+  id   String   @id @default(cuid())
+  name String
+  from DateTime @db.Date
+  to   DateTime @db.Date
+}
+
+model Change {
+  id             String       @id @default(cuid())
+  ref            String       @unique // CHG-2026-0144
+  title          String
+  summary        String       @db.Text
+  reason         String       @db.Text
+  typeId         String
+  type           ChangeType   @relation(fields: [typeId], references: [id])
+  departmentId   String
+  department     Department   @relation(fields: [departmentId], references: [id])
+  emergency      Boolean      @default(false)
+  impact         Int // 1..3
+  likelihood     Int // 1..3
+  tier           RiskTier // calculated by the server at submit time
+  customerFacing Boolean      @default(false)
+  regulatory     Boolean      @default(false)
+  personalData   Boolean      @default(false)
+  systems        Json // string[]
+  plannedDate    DateTime?    @db.Date
+  window         String?
+  testPlan       String?      @db.Text
+  rollbackPlan   String?      @db.Text
+  status         ChangeStatus @default(Draft)
+  requesterId    String
+  requester      User         @relation("ChangeRequester", fields: [requesterId], references: [id])
+  implementerId  String?
+  implementer    User?        @relation("ChangeImplementer", fields: [implementerId], references: [id], onDelete: SetNull)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  submittedAt    DateTime?
+
+  steps       ApprovalStep[]
+  tasks       ChecklistTask[]
+  attachments Attachment[]
+  pir         PostImplementationReview?
+
+  @@index([status])
+  @@index([plannedDate])
+}
+
+/// The route is copied onto the change at submit time, so later workflow
+/// edits never affect changes already in flight.
+model ApprovalStep {
+  id          String     @id @default(cuid())
+  changeId    String
+  change      Change     @relation(fields: [changeId], references: [id], onDelete: Cascade)
+  order       Int
+  role        Role
+  status      StepStatus @default(waiting)
+  decidedById String?
+  decidedBy   User?      @relation(fields: [decidedById], references: [id], onDelete: SetNull)
+  decidedAt   DateTime?
+  comment     String?    @db.Text
+
+  @@unique([changeId, order])
+  @@index([role, status])
+}
+
+model ChecklistTask {
+  id       String    @id @default(cuid())
+  changeId String
+  change   Change    @relation(fields: [changeId], references: [id], onDelete: Cascade)
+  order    Int
+  label    String
+  done     Boolean   @default(false)
+  doneAt   DateTime?
+  doneById String?
+  doneBy   User?     @relation(fields: [doneById], references: [id], onDelete: SetNull)
+
+  @@unique([changeId, order])
+}
+
+model Attachment {
+  id         String   @id @default(cuid())
+  changeId   String
+  change     Change   @relation(fields: [changeId], references: [id], onDelete: Cascade)
+  fileName   String
+  sizeBytes  Int
+  storageKey String
+  uploadedAt DateTime @default(now())
+}
+
+model PostImplementationReview {
+  id           String     @id @default(cuid())
+  changeId     String     @unique
+  change       Change     @relation(fields: [changeId], references: [id], onDelete: Cascade)
+  outcome      PirOutcome
+  notes        String     @db.Text
+  reviewedById String
+  reviewedBy   User       @relation(fields: [reviewedById], references: [id])
+  reviewedAt   DateTime   @default(now())
+}
+
+/// Append-only. userName/role are copied in so the trail still reads
+/// correctly after a user is renamed, re-roled or disabled.
+model AuditLog {
+  id       String   @id @default(cuid())
+  at       DateTime @default(now())
+  userId   String?
+  user     User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userName String
+  role     Role?
+  action   String
+  category String // signin | change | decision | config | export
+  ref      String? // CHG-…, USR-…, WF-…
+  ip       String?
+  meta     Json?
+
+  @@index([ref])
+  @@index([at])
+}

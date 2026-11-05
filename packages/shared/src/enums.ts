@@ -11,6 +11,7 @@ export const ROLES = [
   "implementer",
   "exec",
   "admin",
+  "superAdmin",
 ] as const;
 export type Role = (typeof ROLES)[number];
 
@@ -24,6 +25,7 @@ export const ROLE_LABELS: Record<Role, string> = {
   implementer: "Implementer",
   exec: "Executive",
   admin: "System Admin",
+  superAdmin: "Super Admin",
 };
 
 export const RISK_TIERS = ["Low", "Medium", "High", "Emergency"] as const;
@@ -82,6 +84,9 @@ export const PERMS: Record<Role, readonly Screen[]> = {
   implementer: ["dashboard", "changes", "calendar", "flows"],
   exec: ["dashboard", "changes", "approvals", "calendar", "flows", "reports"],
   admin: ["dashboard", "admin", "audit", "flows"],
+  // Not in the prototype — added to the schema by the project owner. Sees every screen
+  // until its exact powers are decided (it is not an approval stage in any route).
+  superAdmin: SCREENS,
 };
 
 export const can = (role: Role, screen: Screen): boolean => PERMS[role].includes(screen);
