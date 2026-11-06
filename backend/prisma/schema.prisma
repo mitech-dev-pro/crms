@@ -65,24 +65,24 @@ enum PirOutcome {
 }
 
 model User {
-  id           String     @id @default(cuid())
-  code         String     @unique // USR-0201
-  name         String
-  email        String     @unique
-  passwordHash String? // null until an invited user sets a password
-  title        String?
-  role         Role
-  status       UserStatus @default(Invited)
-  departmentId String
-  department   Department @relation("DepartmentMembers", fields: [departmentId], references: [id])
-  lastLoginAt  DateTime?
+  id                 String     @id @default(cuid())
+  code               String     @unique // USR-0201
+  name               String
+  email              String     @unique
+  passwordHash       String? // null until an invited user sets a password
+  title              String?
+  role               Role
+  status             UserStatus @default(Invited)
+  departmentId       String
+  department         Department @relation("DepartmentMembers", fields: [departmentId], references: [id])
+  lastLoginAt        DateTime?
   /// Bumped on logout, password change/reset, disable and role change. Session tokens
   /// carry the version they were issued with, so older tokens stop working at once.
-  sessionVersion     Int     @default(0)
+  sessionVersion     Int        @default(0)
   /// Set when an admin issues a temporary password; the user must choose a new one first.
-  mustChangePassword Boolean @default(false)
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
+  mustChangePassword Boolean    @default(false)
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
 
   headOf        Department[]               @relation("DepartmentHead")
   lineManagerOf Department[]               @relation("DepartmentLineManager")
@@ -92,6 +92,8 @@ model User {
   tasksDone     ChecklistTask[]
   reviews       PostImplementationReview[]
   auditEntries  AuditLog[]
+
+  @@index([status]) // admin filters and status counts
 }
 
 model Department {
@@ -175,6 +177,9 @@ model Change {
 
   @@index([status])
   @@index([plannedDate])
+  @@index([createdAt]) // "newest first" sort and reports
+  @@index([requesterId, status]) // "my requests", returned-to-me notifications
+  @@index([implementerId, status]) // implementer queue
 }
 
 /// The route is copied onto the change at submit time, so later workflow
@@ -249,4 +254,6 @@ model AuditLog {
 
   @@index([ref])
   @@index([at])
+  @@index([category, at]) // audit filter by category, newest first
+  @@index([role, at])
 }

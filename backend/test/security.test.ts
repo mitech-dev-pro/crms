@@ -96,3 +96,11 @@ describe("login rate limiting", () => {
     await request(app).post("/api/auth/login").send({ email: "efua.asante@milife.com.gh", password: "demo-password" }).expect(200);
   });
 });
+
+describe("health checks", () => {
+  it("liveness and readiness (database) both answer without signing in", async () => {
+    await request(app).get("/api/health").expect(200);
+    const ready = await request(app).get("/api/health/ready").expect(200);
+    expect(ready.body).toMatchObject({ ok: true, database: "up" });
+  });
+});
