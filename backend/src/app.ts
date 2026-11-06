@@ -24,7 +24,7 @@ export function createApp() {
   // Requests arrive through the Next.js /api rewrite running on this machine.
   // Trust its X-Forwarded-For header (only from loopback) so req.ip — and the
   // audit trail — shows the real client address instead of 127.0.0.1.
-  app.set("trust proxy", "loopback");
+  app.set("trust proxy", env.TRUST_PROXY);
 
   // Middleware runs top to bottom for every request.
   app.use(helmet()); // security headers

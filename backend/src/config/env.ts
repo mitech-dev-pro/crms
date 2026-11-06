@@ -15,6 +15,9 @@ const envSchema = z.object({
   // Login rate limits per 15 minutes (see middleware/rate-limit.ts).
   LOGIN_MAX_FAILURES: z.coerce.number().int().positive().default(10),
   LOGIN_MAX_PER_IP: z.coerce.number().int().positive().default(100),
+  // Which proxies may tell us the client's IP (X-Forwarded-For): Express "trust proxy" syntax,
+  // e.g. "loopback" (Next on the same machine) or "loopback, 10.0.0.5" (plus a reverse proxy).
+  TRUST_PROXY: z.string().default("loopback"),
   // Folder for uploaded attachments (relative to backend/). Git-ignored.
   UPLOAD_DIR: z.string().default("uploads"),
 });

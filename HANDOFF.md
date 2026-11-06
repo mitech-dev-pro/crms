@@ -625,6 +625,26 @@ Calendar (month grid + freezes), Process flows, Reports, Audit trail (+ export),
 
 ### Phase 7: Hardening
 Rate-limit login, attachments storage (local → S3/Blob later), email notifications on stage change, pagination indexes, E2E test (Playwright), deployment notes.
+- ✅ **Done (2026-11-06).** Run the backend tests with `npm run test:backend` (71 tests) and the browser tests with `npm run test:e2e` (5 tests); both reset `changehub_test`, so don't run them at the same time.
+  - **7a, security:**
+    - **Session revocation:** tokens carry the user's `sessionVersion`. Logout, password change or reset, disabling and role changes bump it, so old or copied tokens stop working. Only a still-valid token can sign out.
+    - **Forced password change:** an admin-issued temporary password sets `mustChangePassword`. The API then allows only `/api/auth/me` and `/api/auth/change-password` (anything else gets 403 `PASSWORD_CHANGE_REQUIRED`), and the frontend redirects to `/change-password`.
+    - **Password rules** (`shared/schemas/auth.ts`): at least 10 characters, with letters and a number. Changing your password signs out your other sessions.
+    - **Login rate limits** (`middleware/rate-limit.ts`, `express-rate-limit`): `LOGIN_MAX_FAILURES` failed attempts per account and address (default 10) and `LOGIN_MAX_PER_IP` per address (default 100), per 15 min. Returns 429 with `Retry-After`. Counters are in memory, which suits a single instance.
+    - **Seed guard:** `db:seed` refuses to run with `NODE_ENV=production`.
+    - Validation errors report the first problem per field.
+  - **7b, email and SMS notifications: dropped by the project owner (2026-11-06).** The in-app bell is the notification channel for now.
+  - **7c, data:**
+    - Indexes: Change(createdAt), (requesterId, status), (implementerId, status); AuditLog(category, at), (role, at); User(status). Foreign-key columns were already indexed by MySQL.
+    - `GET /api/health/ready` pings the database (503 if it's down).
+  - **7d, end-to-end tests:** `e2e/` workspace with Playwright, driving the **installed Chrome** (`channel: "chrome"`, no browser download).
+    - It starts its own API (:4100, `changehub_test`, `.e2e-uploads`) and a **production build** of the frontend (:3100), so dev servers and dev data are untouched.
+    - Covers: the requester's wizard → line manager approves via the notification bell → Scheduled; segregation of duties in the UI; login redirect and the generic error; nav and 403 per role.
+    - On failure: screenshot and trace in `e2e/test-results`; view with `npm run report -w @crms/e2e`.
+  - **7e, deployment:** `docs/DEPLOYMENT.md` covers architecture, configuration, first install, reverse proxy, health checks, backups, upgrades and a security checklist.
+    - New `npm run db:bootstrap -w @crms/backend -- --email … --name …`: on a real database it creates only the change types, the default routes, one department and the first Super Admin (temporary password printed once; must change it at first sign-in).
+    - New `db:deploy` (`prisma migrate deploy`).
+    - New `TRUST_PROXY` env setting for a reverse proxy in front of Next.
 
 ---
 
@@ -641,7 +661,7 @@ Rate-limit login, attachments storage (local → S3/Blob later), email notificat
 2. **Approver scoping:** must the Line Manager/Dept Head be from the **change's department**? The prototype only checks the role. Recommend: yes, scope by department for `lineManager` and `deptHead`.
 3. Keep the current form's extra fields (`implementationPlan`, `riskDescription`, `mitigationPlan`)?
 4. Attachments: where should files be stored in production?
-5. Email/Teams notifications in v1?
+5. ~~Email/Teams notifications in v1?~~ **Decided: no email or SMS for now** (in-app bell only).
 6. Hosting target (on-prem vs cloud) and MySQL version available.
 7. Change reference numbering: `CHG-<year>-<4 digits>`, resetting each year?
 8. **`superAdmin` role:** mostly decided and built.
