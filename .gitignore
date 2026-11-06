@@ -23,3 +23,6 @@ backend/.test-uploads/
 npm-debug.log*
 .DS_Store
 Thumbs.db
+backend/.e2e-uploads/
+e2e/test-results/
+e2e/playwright-report/

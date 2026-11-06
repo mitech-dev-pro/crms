@@ -4,11 +4,14 @@
   "workspaces": [
     "frontend",
     "backend",
-    "packages/*"
+    "packages/*",
+    "e2e"
   ],
   "scripts": {
     "dev:frontend": "npm run dev -w frontend",
     "dev:backend": "npm run dev -w @crms/backend",
-    "typecheck:shared": "npm run typecheck -w @crms/shared"
+    "typecheck:shared": "npm run typecheck -w @crms/shared",
+    "test:backend": "npm test -w @crms/backend",
+    "test:e2e": "npm test -w @crms/e2e"
   }
 }

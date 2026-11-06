@@ -41,8 +41,12 @@ export default function NotificationBell() {
         )}
       </button>
       {open && (
-        <div className="absolute right-0 z-30 mt-2 w-80 max-w-[calc(100vw-2rem)] overflow-hidden rounded-xl border border-line bg-surface shadow-lg">
-          <p className="border-b border-line px-4 py-2.5 text-sm font-extrabold text-ink">Needs your attention</p>
+        <div
+          role="region"
+          aria-labelledby="notif-title"
+          className="absolute right-0 z-30 mt-2 w-80 max-w-[calc(100vw-2rem)] overflow-hidden rounded-xl border border-line bg-surface shadow-lg"
+        >
+          <p id="notif-title" className="border-b border-line px-4 py-2.5 text-sm font-extrabold text-ink">Needs your attention</p>
           {items.length ? (
             <ul className="max-h-96 divide-y divide-line overflow-y-auto">
               {items.map((n) => (
