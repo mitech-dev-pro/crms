@@ -5,12 +5,14 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { ChevronLeft, ChevronRight, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { RequirePerm } from "@/components/layout/SessionGate";
 import { Button } from "@/components/ui/Button";
 import { Card, CardHeader } from "@/components/ui/Card";
+import { DatePicker } from "@/components/ui/DatePicker";
 import { Field, Input } from "@/components/ui/Form";
 import { ErrorState } from "@/components/ui/States";
+import { monthGrid, ymd } from "@/lib/dates";
 import { formatDate } from "@/lib/format";
 import { useCalendar, useCreateFreeze, useDeleteFreeze, useFreezes, useMe } from "@/lib/queries";
 
@@ -20,17 +22,6 @@ export default function CalendarPage() {
       <CalendarView />
     </RequirePerm>
   );
-}
-
-// Local-time "YYYY-MM-DD" (toISOString would shift the date across time zones).
-const ymd = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-
-/** The 5–6 week grid for a month, starting on Monday like the prototype. */
-function monthGrid(year: number, month: number) {
-  const first = new Date(year, month, 1);
-  const start = new Date(year, month, 1 - ((first.getDay() + 6) % 7)); // back to Monday
-  const weeks = Math.ceil(((first.getDay() + 6) % 7 + new Date(year, month + 1, 0).getDate()) / 7);
-  return Array.from({ length: weeks * 7 }, (_, i) => new Date(start.getFullYear(), start.getMonth(), start.getDate() + i));
 }
 
 // Chip colours follow the prototype's legend.
@@ -178,18 +169,40 @@ function FreezePanel() {
 
 function FreezeForm({ onDone }: { onDone: () => void }) {
   const create = useCreateFreeze();
-  const { register, handleSubmit, formState: { errors } } = useForm<FreezeInput>({ resolver: zodResolver(freezeSchema) });
+  const freezes = useFreezes();
+  const { register, handleSubmit, control, formState: { errors } } = useForm<FreezeInput>({ resolver: zodResolver(freezeSchema) });
+  const from = useWatch({ control, name: "from" });
+  const markers = (freezes.data?.items ?? []).map((f) => ({ from: f.from, to: f.to, label: `${f.name} freeze` }));
+  // Existing freezes are shaded so overlaps are easy to spot; "To" can't be before "From".
+  const picker = (name: "from" | "to", min?: string) => (
+    <Controller
+      name={name}
+      control={control}
+      render={({ field }) => (
+        <DatePicker
+          id={`fz-${name}`}
+          value={field.value}
+          onChange={field.onChange}
+          onBlur={field.onBlur}
+          min={min}
+          invalid={!!errors[name]}
+          markers={markers}
+          markerLegend="Existing freeze"
+        />
+      )}
+    />
+  );
   return (
     <form onSubmit={handleSubmit((v) => create.mutate(v, { onSuccess: onDone }))} noValidate className="space-y-3">
       <Field label="Name" htmlFor="fz-name" error={errors.name?.message}>
         <Input id="fz-name" placeholder="e.g. Quarter-end close" invalid={!!errors.name} {...register("name")} />
       </Field>
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid gap-3">
         <Field label="From" htmlFor="fz-from" error={errors.from?.message}>
-          <Input id="fz-from" type="date" invalid={!!errors.from} {...register("from")} />
+          {picker("from")}
         </Field>
         <Field label="To" htmlFor="fz-to" error={errors.to?.message}>
-          <Input id="fz-to" type="date" invalid={!!errors.to} {...register("to")} />
+          {picker("to", from)}
         </Field>
       </div>
       <p className="text-xs text-muted">Non-emergency changes dated inside a freeze get an Executive approval stage.</p>

@@ -1,21 +1,7 @@
 // The core journey, clicked through like a person would: raise a change in the
 // wizard, approve it as the next approver, and check the result.
-import { expect, test, type Page } from "@playwright/test";
-
-const PASSWORD = "demo-password"; // seeded demo accounts (test database only)
-
-async function signIn(page: Page, handle: string) {
-  await page.goto("/login");
-  await page.getByLabel("Email").fill(`${handle}@milife.com.gh`);
-  await page.getByLabel("Password").fill(PASSWORD);
-  await page.getByRole("button", { name: "Sign in", exact: true }).click();
-  await expect(page).toHaveURL(/\/dashboard/);
-}
-
-async function signOut(page: Page) {
-  await page.getByRole("button", { name: "Sign out" }).click();
-  await expect(page).toHaveURL(/\/login/);
-}
+import { expect, test } from "@playwright/test";
+import { signIn, signOut } from "./helpers";
 
 test("requester raises a change and the line manager approves it", async ({ page }) => {
   const title = `E2E payout change ${Date.now()}`;
@@ -39,7 +25,10 @@ test("requester raises a change and the line manager approves it", async ({ page
   await expect(page.getByText(/Approval route: Low · 1 stages/)).toBeVisible();
   await page.getByRole("button", { name: "Continue" }).click();
 
-  await page.getByLabel("Planned date").fill("2026-12-08"); // outside every freeze window
+  // Typed day-first; on leaving the field it is shown in words. 8 Dec is outside every freeze window.
+  await page.getByLabel("Planned date").fill("8/12/2026");
+  await page.getByLabel("Planned date").press("Tab");
+  await expect(page.getByLabel("Planned date")).toHaveValue("Tue, 8 Dec 2026");
   await page.getByLabel("Implementer").selectOption({ label: "Kojo Frimpong" });
   await page.getByLabel("Rollback plan").fill("Switch the feature flag off.");
   await page.getByRole("button", { name: "Continue" }).click();

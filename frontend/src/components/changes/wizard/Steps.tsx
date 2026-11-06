@@ -8,9 +8,10 @@ import { AlertTriangle, Paperclip, Upload, X } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { Controller, useFormContext, useWatch } from "react-hook-form";
 import { Pill } from "@/components/ui/Badges";
+import { DatePicker } from "@/components/ui/DatePicker";
 import { Checkbox, Field, Input, OptionCard, Select, Textarea } from "@/components/ui/Form";
 import { fileSize, formatDate } from "@/lib/format";
-import { useRoutePreview } from "@/lib/queries";
+import { useFreezes, useRoutePreview } from "@/lib/queries";
 import type { WizardValues } from "./ChangeRequestWizard";
 
 const optionalString = { setValueAs: (v: string) => v || undefined }; // "" → undefined, so optional fields stay optional
@@ -199,13 +200,30 @@ function RouteSummary({ detailed = false }: { detailed?: boolean }) {
 // ------------------------------------------------------------------ 4. Plan
 
 export function PlanStep({ meta }: { meta: MetaResponse }) {
-  const { register, formState: { errors } } = useFormContext<WizardValues>();
+  const { register, control, formState: { errors } } = useFormContext<WizardValues>();
+  const freezes = useFreezes();
+  const markers = (freezes.data?.items ?? []).map((f) => ({ from: f.from, to: f.to, label: `${f.name} freeze` }));
   return (
     <>
       <StepTitle title="Plan the change">When it happens, who does it, how it&apos;s tested and how to undo it.</StepTitle>
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label="Planned date" htmlFor="plannedDate" error={errors.plannedDate?.message}>
-          <Input id="plannedDate" type="date" invalid={!!errors.plannedDate} {...register("plannedDate", optionalString)} />
+          <Controller
+            name="plannedDate"
+            control={control}
+            render={({ field }) => (
+              <DatePicker
+                id="plannedDate"
+                value={field.value}
+                onChange={field.onChange}
+                onBlur={field.onBlur}
+                invalid={!!errors.plannedDate}
+                markers={markers}
+                markerLegend="Freeze window"
+                clearable
+              />
+            )}
+          />
         </Field>
         <Field label="Change window" htmlFor="window" hint="e.g. 20:00–23:00 or Sat 20:00 – Sun 06:00">
           <Input id="window" {...register("window")} />
