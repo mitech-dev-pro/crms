@@ -3,17 +3,26 @@
 import { changePasswordFormSchema, type ChangePasswordFormInput, type SessionUser } from "@crms/shared";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
+import { Check, CheckCircle2, Circle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
-import Logo from "@/components/layout/Logo";
+import { useForm, useWatch } from "react-hook-form";
+import AuthShell from "@/components/auth/AuthShell";
 import { Button, ButtonLink } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
-import { Field, Input } from "@/components/ui/Form";
+import { Field } from "@/components/ui/Form";
+import { PasswordInput } from "@/components/ui/PasswordInput";
 import { Spinner } from "@/components/ui/States";
 import { api, ApiError } from "@/lib/api";
 import { keys, useLogout, useMe } from "@/lib/queries";
 import { useHydrated } from "@/lib/use-hydrated";
+
+/** The same rules as the shared passwordSchema, shown live as a checklist. */
+const RULES: { label: string; test: (pw: string, confirm: string) => boolean }[] = [
+  { label: "At least 10 characters", test: (pw) => pw.length >= 10 },
+  { label: "Contains a letter", test: (pw) => /[A-Za-z]/.test(pw) },
+  { label: "Contains a number", test: (pw) => /\d/.test(pw) },
+  { label: "Both new passwords match", test: (pw, c) => pw.length > 0 && pw === c },
+];
 
 /** Change your password. Also where users land after an admin issues a temporary password. */
 export default function ChangePasswordPage() {
@@ -23,9 +32,10 @@ export default function ChangePasswordPage() {
   const qc = useQueryClient();
   const logout = useLogout();
   const [done, setDone] = useState(false);
-  const { register, handleSubmit, setError, formState: { errors, isSubmitting } } = useForm<ChangePasswordFormInput>({
+  const { register, handleSubmit, setError, control, formState: { errors, isSubmitting } } = useForm<ChangePasswordFormInput>({
     resolver: zodResolver(changePasswordFormSchema),
   });
+  const [pw = "", confirm = ""] = useWatch({ control, name: ["newPassword", "confirm"] });
 
   if (!hydrated || !me) return <Spinner />;
   const forced = me.mustChangePassword;
@@ -43,44 +53,62 @@ export default function ChangePasswordPage() {
   });
 
   return (
-    <main className="flex min-h-screen items-center justify-center p-4">
+    <AuthShell panel="password">
       <title>Change password · MiLife ChangeHub</title>
-      <Card className="w-full max-w-sm p-6 sm:p-8">
-        <Logo className="mb-6 h-12" />
-        <h1 className="text-xl font-extrabold text-ink">{forced ? "Choose a new password" : "Change password"}</h1>
-        <p className="mt-1 mb-6 text-sm text-muted">
-          {forced
-            ? "You signed in with a temporary password. Choose your own to continue."
-            : "Changing your password signs you out on every other device."}
-        </p>
-        {done && !forced ? (
-          <div className="space-y-4">
-            <p role="status" className="rounded-lg px-3 py-2 text-sm font-semibold" style={{ background: "var(--green-bg)", color: "var(--green-fg)" }}>
-              Your password has been changed.
-            </p>
-            <ButtonLink href="/dashboard" className="w-full">Back to the dashboard</ButtonLink>
-          </div>
+      <h1 className="rise font-display text-[2rem] leading-tight font-medium tracking-tight text-ink">
+        {forced ? "Choose your password" : "Change password"}
+      </h1>
+      <p className="rise rise-1 mt-2 text-sm leading-relaxed text-muted">
+        {forced ? (
+          <>Hi {me.name.split(" ")[0]}, you signed in with a temporary password. Choose your own to continue.</>
         ) : (
-          <form onSubmit={onSubmit} noValidate className="space-y-4">
-            <input type="email" autoComplete="username" value={me.email} readOnly hidden />
-            <Field label={forced ? "Temporary password" : "Current password"} htmlFor="current" error={errors.currentPassword?.message}>
-              <Input id="current" type="password" autoComplete="current-password" invalid={!!errors.currentPassword} {...register("currentPassword")} />
-            </Field>
-            <Field label="New password" htmlFor="new" hint="At least 10 characters, with letters and a number" error={errors.newPassword?.message}>
-              <Input id="new" type="password" autoComplete="new-password" invalid={!!errors.newPassword} {...register("newPassword")} />
-            </Field>
-            <Field label="Confirm new password" htmlFor="confirm" error={errors.confirm?.message}>
-              <Input id="confirm" type="password" autoComplete="new-password" invalid={!!errors.confirm} {...register("confirm")} />
-            </Field>
-            <Button type="submit" loading={isSubmitting} className="w-full">Save new password</Button>
-            {forced ? (
-              <Button type="button" variant="ghost" className="w-full" onClick={() => logout.mutate()}>Sign out</Button>
-            ) : (
-              <ButtonLink href="/dashboard" variant="ghost" className="w-full">Cancel</ButtonLink>
-            )}
-          </form>
+          <>Signed in as <span className="font-semibold text-ink-2">{me.email}</span>.</>
         )}
-      </Card>
-    </main>
+      </p>
+
+      {done && !forced ? (
+        <div className="rise mt-7 space-y-5">
+          <p role="status" className="flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-semibold" style={{ background: "var(--green-bg)", color: "var(--green-fg)" }}>
+            <CheckCircle2 size={16} aria-hidden /> Your password has been changed.
+          </p>
+          <ButtonLink href="/dashboard" className="w-full py-2.5">Back to the dashboard</ButtonLink>
+        </div>
+      ) : (
+        <form onSubmit={onSubmit} noValidate className="rise rise-2 mt-7 space-y-5">
+          <input type="email" autoComplete="username" value={me.email} readOnly hidden />
+          <Field label={forced ? "Temporary password" : "Current password"} htmlFor="current" error={errors.currentPassword?.message}>
+            <PasswordInput id="current" autoComplete="current-password" autoFocus invalid={!!errors.currentPassword} {...register("currentPassword")} />
+          </Field>
+          <Field label="New password" htmlFor="new" error={errors.newPassword?.message}>
+            <PasswordInput id="new" autoComplete="new-password" invalid={!!errors.newPassword} {...register("newPassword")} />
+          </Field>
+          <Field label="Confirm new password" htmlFor="confirm" error={errors.confirm?.message}>
+            <PasswordInput id="confirm" autoComplete="new-password" invalid={!!errors.confirm} {...register("confirm")} />
+          </Field>
+
+          {/* Live checklist: ticks as each rule is met. */}
+          <ul aria-label="Password requirements" className="grid gap-1.5 rounded-lg bg-surface-2 px-3.5 py-3 text-xs sm:grid-cols-2">
+            {RULES.map((r) => {
+              const ok = r.test(pw, confirm);
+              return (
+                <li key={r.label} className={`flex items-center gap-1.5 transition-colors ${ok ? "font-semibold text-[var(--green-fg)]" : "text-muted"}`}>
+                  {ok ? <Check size={13} strokeWidth={3} aria-hidden /> : <Circle size={11} aria-hidden />}
+                  {r.label}
+                  <span className="sr-only">{ok ? " (met)" : " (not met yet)"}</span>
+                </li>
+              );
+            })}
+          </ul>
+
+          <Button type="submit" loading={isSubmitting} className="w-full py-2.5">Save new password</Button>
+          {forced ? (
+            <Button type="button" variant="ghost" className="w-full" onClick={() => logout.mutate()}>Sign out</Button>
+          ) : (
+            <ButtonLink href="/dashboard" variant="ghost" className="w-full">Cancel</ButtonLink>
+          )}
+          {!forced && <p className="text-center text-xs text-muted">Changing your password signs you out on every other device.</p>}
+        </form>
+      )}
+    </AuthShell>
   );
 }

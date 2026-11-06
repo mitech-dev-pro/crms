@@ -116,3 +116,57 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .toast-in { animation: none; }
 }
+
+/* ------------------------------------------------------------------ sign-in screens */
+@theme inline {
+  --font-display: var(--font-fraunces), Georgia, serif;
+}
+
+/* Deep navy with a soft teal glow and a fine dot grid. Same in both themes: it's the brand panel. */
+.auth-panel {
+  background:
+    radial-gradient(60% 50% at 85% 15%, rgb(23 179 181 / 0.22), transparent 70%),
+    radial-gradient(50% 45% at 10% 95%, rgb(58 91 168 / 0.35), transparent 70%),
+    radial-gradient(rgb(255 255 255 / 0.07) 1px, transparent 1px) 0 0 / 22px 22px,
+    linear-gradient(160deg, #1d2a4d 0%, #0f1830 100%);
+}
+
+/* A thin band nodding to kente weaving: teal, gold, green and navy blocks. */
+.kente-stripe {
+  background: repeating-linear-gradient(90deg, #17b3b5 0 28px, #f2b85a 28px 40px, #0f7b5f 40px 64px, #f2b85a 64px 76px, #0d1322 76px 84px);
+}
+
+/* Page-load reveal: each block rises in a little after the one before. */
+@keyframes rise {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: none; }
+}
+.rise { animation: rise 600ms cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+.rise-1 { animation-delay: 80ms; }
+.rise-2 { animation-delay: 160ms; }
+.rise-3 { animation-delay: 240ms; }
+.rise-4 { animation-delay: 320ms; }
+.rise-5 { animation-delay: 400ms; }
+
+/* The approval route ticks through its stages after the panel has appeared. */
+@keyframes dot-in {
+  0% { transform: scale(0.4); background: rgb(255 255 255 / 0.12); color: transparent; }
+  60% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+@keyframes line-in {
+  from { transform: scaleY(0); }
+  to { transform: scaleY(1); }
+}
+@keyframes fade-in {
+  from { opacity: 0.25; }
+  to { opacity: 1; }
+}
+.route-dot { animation: dot-in 420ms ease-out both; animation-delay: calc(700ms + var(--i) * 450ms); }
+.route-line { transform-origin: top; animation: line-in 380ms ease-out both; animation-delay: calc(950ms + var(--i) * 450ms); }
+.route-text { animation: fade-in 420ms ease-out both; animation-delay: calc(700ms + var(--i) * 450ms); }
+.route-badge { animation: fade-in 500ms ease-out both; animation-delay: 2.5s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .rise, .route-dot, .route-line, .route-text, .route-badge { animation: none; }
+}
