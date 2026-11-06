@@ -3,6 +3,7 @@
 import { useState, type ReactNode } from "react";
 import AppHeader from "./AppHeader";
 import AppSidebar from "./AppSidebar";
+import CommandPalette from "./CommandPalette";
 
 /** Sidebar + header around every signed-in page. On phones the sidebar becomes a drawer. */
 export default function AppShell({ children }: { children: ReactNode }) {
@@ -27,6 +28,7 @@ export default function AppShell({ children }: { children: ReactNode }) {
         <AppHeader onMenu={() => setMenuOpen(true)} />
         <main className="mx-auto w-full max-w-7xl flex-1 p-4 md:p-6">{children}</main>
       </div>
+      <CommandPalette />
     </div>
   );
 }

@@ -7,7 +7,7 @@ import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/Button";
 import { Card, CardHeader } from "@/components/ui/Card";
 import { Field, Input } from "@/components/ui/Form";
-import { ErrorState, Spinner } from "@/components/ui/States";
+import { ErrorState, TableSkeleton } from "@/components/ui/States";
 import { useAdminChangeTypes, useCreateChangeType, useUpdateChangeType } from "@/lib/admin-queries";
 
 export default function ChangeTypesTab() {
@@ -16,7 +16,7 @@ export default function ChangeTypesTab() {
   const [adding, setAdding] = useState(false);
   const [editing, setEditing] = useState<string | null>(null);
 
-  if (types.isPending) return <Spinner />;
+  if (types.isPending) return <TableSkeleton rows={6} cols={3} />;
   if (types.isError) return <ErrorState error={types.error} />;
 
   return (

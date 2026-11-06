@@ -6,7 +6,7 @@ import { useState } from "react";
 import ChangeTable from "@/components/changes/ChangeTable";
 import { ButtonLink } from "@/components/ui/Button";
 import { Card, CardHeader, StatCard } from "@/components/ui/Card";
-import { ErrorState, Spinner } from "@/components/ui/States";
+import { DashboardSkeleton, ErrorState, Spinner } from "@/components/ui/States";
 import { formatDate, greeting } from "@/lib/format";
 import { useChanges, useInbox, useMe, useMeta } from "@/lib/queries";
 
@@ -69,7 +69,7 @@ function RoleDashboard({ me }: { me: SessionUser }) {
   const implemented = useChanges({ status: "Implemented", pageSize: 20 }, isChangeManager);
   const upcoming = useChanges({ status: "Scheduled", sort: "planned", pageSize: 5 });
 
-  if (list.isPending) return <Spinner />;
+  if (list.isPending) return <DashboardSkeleton />;
   if (list.isError) return <ErrorState error={list.error} />;
   const c = list.data.counts;
   const inboxItems = inbox.data?.items ?? [];

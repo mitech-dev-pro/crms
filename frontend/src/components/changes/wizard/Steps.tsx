@@ -8,13 +8,14 @@ import { AlertTriangle, Paperclip, Upload, X } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { Controller, useFormContext, useWatch } from "react-hook-form";
 import { Pill } from "@/components/ui/Badges";
+import { Combobox } from "@/components/ui/Combobox";
 import { DatePicker } from "@/components/ui/DatePicker";
-import { Checkbox, Field, Input, OptionCard, Select, Textarea } from "@/components/ui/Form";
+import { TimeWindowPicker } from "@/components/ui/TimeWindowPicker";
+import { Checkbox, Field, Input, OptionCard, Textarea } from "@/components/ui/Form";
 import { fileSize, formatDate } from "@/lib/format";
 import { useFreezes, useRoutePreview } from "@/lib/queries";
 import type { WizardValues } from "./ChangeRequestWizard";
 
-const optionalString = { setValueAs: (v: string) => v || undefined }; // "" → undefined, so optional fields stay optional
 
 function StepTitle({ title, children }: { title: string; children?: ReactNode }) {
   return (
@@ -42,9 +43,21 @@ export function ClassifyStep({ meta }: { meta: MetaResponse }) {
       {errors.typeId && <p className="mt-1 text-xs font-semibold text-danger">{errors.typeId.message}</p>}
       <div className="mt-5 grid gap-4 sm:grid-cols-2">
         <Field label="Department" htmlFor="departmentId" error={errors.departmentId?.message}>
-          <Select id="departmentId" invalid={!!errors.departmentId} {...register("departmentId")}>
-            {meta.departments.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
-          </Select>
+          <Controller
+            name="departmentId"
+            control={control}
+            render={({ field }) => (
+              <Combobox
+                id="departmentId"
+                value={field.value}
+                onChange={(v) => field.onChange(v ?? "")}
+                onBlur={field.onBlur}
+                invalid={!!errors.departmentId}
+                placeholder="Search departments"
+                options={meta.departments.map((d) => ({ value: d.id, label: d.name, hint: d.code }))}
+              />
+            )}
+          />
         </Field>
       </div>
       <div className="mt-5 rounded-lg border border-line p-3">
@@ -225,14 +238,29 @@ export function PlanStep({ meta }: { meta: MetaResponse }) {
             )}
           />
         </Field>
-        <Field label="Change window" htmlFor="window" hint="e.g. 20:00–23:00 or Sat 20:00 – Sun 06:00">
-          <Input id="window" {...register("window")} />
+        <Field label="Change window" htmlFor="window">
+          <Controller
+            name="window"
+            control={control}
+            render={({ field }) => <TimeWindowPicker id="window" value={field.value} onChange={field.onChange} onBlur={field.onBlur} />}
+          />
         </Field>
         <Field label="Implementer" htmlFor="implementerId" error={errors.implementerId?.message}>
-          <Select id="implementerId" {...register("implementerId", optionalString)}>
-            <option value="">Not assigned yet</option>
-            {meta.implementers.map((i) => <option key={i.id} value={i.id}>{i.name}</option>)}
-          </Select>
+          <Controller
+            name="implementerId"
+            control={control}
+            render={({ field }) => (
+              <Combobox
+                id="implementerId"
+                value={field.value}
+                onChange={field.onChange}
+                onBlur={field.onBlur}
+                invalid={!!errors.implementerId}
+                noneLabel="Not assigned yet"
+                options={meta.implementers.map((i) => ({ value: i.id, label: i.name }))}
+              />
+            )}
+          />
         </Field>
       </div>
       <div className="mt-4 space-y-4">

@@ -2,7 +2,7 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { toCsv } from "../src/lib/csv";
 import { prisma } from "../src/lib/db";
-import { buildReport, periodStart, type ReportRow } from "../src/modules/reports/service";
+import { buildReport, periodStart, reportRange, type ReportRow } from "../src/modules/reports/service";
 import { signIn, type Agent } from "./helpers";
 
 let ama: Agent, yaw: Agent, selorm: Agent, kwame: Agent;
@@ -38,6 +38,13 @@ describe("report maths", () => {
     expect(periodStart("quarter", now)?.toISOString().slice(0, 10)).toBe("2026-10-01");
     expect(periodStart("year", now)?.toISOString().slice(0, 10)).toBe("2026-01-01");
     expect(periodStart("all", now)).toBeNull();
+  });
+
+  it("labels custom ranges, open at either end", () => {
+    expect(reportRange({ period: "custom", from: "2026-01-08", to: "2026-03-03" }, now)).toEqual({ key: "custom", label: "8 Jan 2026 – 3 Mar 2026", from: "2026-01-08", to: "2026-03-03" });
+    expect(reportRange({ period: "custom", from: "2026-06-01" }, now).label).toBe("Since 1 Jun 2026");
+    expect(reportRange({ period: "custom", to: "2026-06-30" }, now).label).toBe("Up to 30 Jun 2026");
+    expect(reportRange({ period: "quarter" }, now)).toEqual({ key: "quarter", label: "This quarter", from: "2026-10-01", to: null });
   });
 
   it("computes approval rate, approval time, success rate and stage waits", () => {
@@ -123,6 +130,31 @@ describe("reports", () => {
     const nonDraft = await prisma.change.count({ where: { status: { not: "Draft" } } });
     expect(body.kpis.raised).toBe(nonDraft);
     expect(body.byDepartment[0].count).toBeGreaterThan(0);
+  });
+
+  it("filters to a custom date range, counting the whole last day", async () => {
+    const from = "2026-10-01", to = "2026-10-15";
+    const { body } = await yaw.get("/api/reports").query({ period: "custom", from, to }).expect(200);
+    const expected = await prisma.change.count({
+      where: { status: { not: "Draft" }, createdAt: { gte: new Date(`${from}T00:00:00Z`), lt: new Date("2026-10-16T00:00:00Z") } },
+    });
+    expect(body.kpis.raised).toBe(expected);
+    expect(body.period).toMatchObject({ key: "custom", from, to });
+
+    await yaw.get("/api/reports").query({ period: "custom" }).expect(400); // needs at least one end
+    await yaw.get("/api/reports").query({ period: "custom", from: "2026-10-15", to: "2026-10-01" }).expect(400);
+  });
+});
+
+describe("audit date range", () => {
+  it("keeps only events between the two days, inclusive", async () => {
+    const all = (await selorm.get("/api/audit").query({ pageSize: 100 }).expect(200)).body.items as { at: string }[];
+    const day = all[all.length - 1]!.at.slice(0, 10); // the oldest day on the first page
+    const { body } = await selorm.get("/api/audit").query({ from: day, to: day, pageSize: 100 }).expect(200);
+    expect(body.total).toBeGreaterThan(0);
+    expect(body.items.every((a: { at: string }) => a.at.slice(0, 10) === day)).toBe(true);
+    const none = (await selorm.get("/api/audit").query({ from: "2001-01-01", to: "2001-01-02" }).expect(200)).body;
+    expect(none.total).toBe(0);
   });
 });
 

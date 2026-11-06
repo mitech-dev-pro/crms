@@ -7,8 +7,10 @@ import { RequirePerm } from "@/components/layout/SessionGate";
 import { BarList, MonthlyOutcome } from "@/components/reports/Charts";
 import { buttonClass } from "@/components/ui/Button";
 import { Card, CardHeader, StatCard } from "@/components/ui/Card";
+import { DatePicker } from "@/components/ui/DatePicker";
 import { Select } from "@/components/ui/Form";
-import { ErrorState, Spinner } from "@/components/ui/States";
+import { DashboardSkeleton, ErrorState } from "@/components/ui/States";
+import { ymd } from "@/lib/dates";
 import { exportUrl, useReports } from "@/lib/queries";
 
 export default function ReportsPage() {
@@ -24,9 +26,13 @@ const hours = (h: number) => (h >= 48 ? `${Math.round((h / 24) * 10) / 10} d` : 
 
 function Reports() {
   const [period, setPeriod] = useState<ReportPeriod>("year");
-  const report = useReports(period);
+  // Custom range: starts as this year to date, so there is always something to show.
+  const [from, setFrom] = useState<string | undefined>(() => `${new Date().getFullYear()}-01-01`);
+  const [to, setTo] = useState<string | undefined>(() => ymd(new Date()));
+  const custom = period === "custom";
+  const report = useReports(period, from, to);
 
-  if (report.isPending) return <Spinner />;
+  if (report.isPending) return <DashboardSkeleton />;
   if (report.isError) return <ErrorState error={report.error} />;
   const r = report.data;
 
@@ -34,15 +40,22 @@ function Reports() {
     <div className={`space-y-4 ${report.isPlaceholderData ? "opacity-60" : ""}`}>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-muted">{r.period.label} · all departments · drafts excluded</p>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <div className="w-40">
             <Select aria-label="Period" value={period} onChange={(e) => setPeriod(e.target.value as ReportPeriod)}>
               <option value="quarter">This quarter</option>
               <option value="year">This year</option>
               <option value="all">All time</option>
+              <option value="custom">Custom range…</option>
             </Select>
           </div>
-          <a href={exportUrl("/reports/export.csv", { period })} className={buttonClass("secondary")} download>
+          {custom && (
+            <>
+              <div className="w-44"><DatePicker id="report-from" aria-label="Report from" placeholder="From" value={from} max={to} clearable onChange={setFrom} /></div>
+              <div className="w-44"><DatePicker id="report-to" aria-label="Report to" placeholder="To" value={to} min={from} clearable onChange={setTo} /></div>
+            </>
+          )}
+          <a href={exportUrl("/reports/export.csv", custom ? { period, from, to } : { period })} className={buttonClass("secondary")} download>
             <Download size={15} /> Export CSV
           </a>
         </div>

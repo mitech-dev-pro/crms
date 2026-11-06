@@ -116,7 +116,8 @@ export type WorkflowsResponse = {
 };
 
 export type ReportsResponse = {
-  period: { key: "quarter" | "year" | "all"; label: string; from: string | null };
+  /** from / to: inclusive "YYYY-MM-DD", null when open-ended. */
+  period: { key: "quarter" | "year" | "all" | "custom"; label: string; from: string | null; to: string | null };
   kpis: {
     raised: number;
     approvalRate: number | null; // approved ÷ (approved + rejected), 0–1

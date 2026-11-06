@@ -20,8 +20,16 @@ export const freezeSchema = z
   .refine((f) => f.from <= f.to, { message: "End date must be on or after the start date", path: ["to"] });
 export type FreezeInput = z.infer<typeof freezeSchema>;
 
-export const REPORT_PERIODS = ["quarter", "year", "all"] as const;
+export const REPORT_PERIODS = ["quarter", "year", "all", "custom"] as const;
 export type ReportPeriod = (typeof REPORT_PERIODS)[number];
 
-/** GET /api/reports?period=quarter|year|all */
-export const reportsQuerySchema = z.object({ period: z.enum(REPORT_PERIODS).default("year") });
+/** GET /api/reports?period=quarter|year|all, or period=custom&from=YYYY-MM-DD&to=YYYY-MM-DD (inclusive, either may be left open). */
+export const reportsQuerySchema = z
+  .object({
+    period: z.enum(REPORT_PERIODS).default("year"),
+    from: z.iso.date().optional(),
+    to: z.iso.date().optional(),
+  })
+  .refine((q) => q.period !== "custom" || q.from || q.to, { message: "Choose a start or end date", path: ["from"] })
+  .refine((q) => !q.from || !q.to || q.from <= q.to, { message: "End date must be on or after the start date", path: ["to"] });
+export type ReportsQuery = z.infer<typeof reportsQuerySchema>;

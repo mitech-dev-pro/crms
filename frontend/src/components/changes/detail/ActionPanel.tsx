@@ -86,7 +86,7 @@ function DecisionPanel({ change: c, override }: { change: ChangeDetail; override
 }
 
 function SubmitPanel({ change: c }: { change: ChangeDetail }) {
-  const submit = useSubmitChange(c.ref);
+  const submit = useSubmitChange(c.ref, { success: "Submitted for approval", inlineError: true }); // field errors listed below
   const [attest, setAttest] = useState(false);
   const fields = submit.error instanceof ApiError ? Object.values(submit.error.fields) : [];
   const returned = c.status === "ReturnedForRework";
@@ -121,7 +121,6 @@ function StartPanel({ change: c, onShowTab }: { change: ChangeDetail; onShowTab:
       <div>
         <h3 className="text-sm font-extrabold text-ink">Approved and ready to implement</h3>
         <p className="text-sm text-muted">Starting unlocks the implementation checklist.</p>
-        {start.error && <p className="mt-1 text-xs font-semibold text-danger">{start.error.message}</p>}
       </div>
       <Button loading={start.isPending} onClick={() => start.mutate(undefined, { onSuccess: () => onShowTab("impl") })}>Start implementation</Button>
     </section>

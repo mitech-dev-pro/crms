@@ -24,7 +24,14 @@ export function SessionGate({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (mustChange) router.replace("/change-password");
   }, [mustChange, router]);
-  if (!hydrated || mustChange) return <Spinner />;
+  if (!hydrated || mustChange) {
+    return (
+      <>
+        <title>MiLife ChangeHub</title>
+        <Spinner />
+      </>
+    );
+  }
   if (me.isError && !(me.error instanceof ApiError && me.error.status === 401)) {
     return <div className="p-6"><ErrorState error={me.error} /></div>;
   }

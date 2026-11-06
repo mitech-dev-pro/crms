@@ -44,6 +44,7 @@ export default function ChangePasswordPage() {
 
   return (
     <main className="flex min-h-screen items-center justify-center p-4">
+      <title>Change password · MiLife ChangeHub</title>
       <Card className="w-full max-w-sm p-6 sm:p-8">
         <Logo className="mb-6 h-12" />
         <h1 className="text-xl font-extrabold text-ink">{forced ? "Choose a new password" : "Change password"}</h1>

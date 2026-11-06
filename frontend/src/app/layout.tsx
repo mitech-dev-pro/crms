@@ -7,7 +7,8 @@ const manrope = Manrope({ variable: "--font-manrope", subsets: ["latin"] });
 const jetbrains = JetBrains_Mono({ variable: "--font-jetbrains", subsets: ["latin"], weight: ["400", "500"] });
 
 export const metadata: Metadata = {
-  title: "MiLife ChangeHub",
+  // No title here: signed-in pages set their own with React <title> (AppHeader), and a
+  // title in metadata would come first in <head> and win. The login page sets its own.
   description: "Raise, approve and track change across every MiLife department",
 };
 

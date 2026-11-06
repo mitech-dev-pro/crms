@@ -6,8 +6,9 @@ import { useState } from "react";
 import { Pill } from "@/components/ui/Badges";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { useConfirm } from "@/components/ui/ConfirmDialog";
 import { Select } from "@/components/ui/Form";
-import { ErrorState, Spinner } from "@/components/ui/States";
+import { ErrorState, TableSkeleton } from "@/components/ui/States";
 import { useUpdateWorkflow } from "@/lib/admin-queries";
 import { useWorkflows } from "@/lib/queries";
 
@@ -16,7 +17,7 @@ export default function WorkflowsTab() {
   const [dept, setDept] = useState<string | null>(null); // null = company default
   const [tier, setTier] = useState<RiskTier>("High");
 
-  if (wf.isPending) return <Spinner />;
+  if (wf.isPending) return <TableSkeleton rows={5} cols={3} />;
   if (wf.isError) return <ErrorState error={wf.error} />;
 
   const override = dept ? wf.data.overrides[dept]?.[tier] : undefined;
@@ -64,6 +65,7 @@ export default function WorkflowsTab() {
 
 function RouteEditor({ departmentId, tier, saved, fallback }: { departmentId: string | null; tier: RiskTier; saved?: Role[]; fallback: Role[] }) {
   const update = useUpdateWorkflow();
+  const confirm = useConfirm();
   const usesDefault = departmentId !== null && !saved;
   const [stages, setStages] = useState<Role[]>(saved ?? fallback);
   const [editing, setEditing] = useState(!usesDefault);
@@ -116,7 +118,6 @@ function RouteEditor({ departmentId, tier, saved, fallback }: { departmentId: st
         </div>
       )}
 
-      {update.error && <p className="mt-3 text-xs font-semibold text-danger">{update.error.message}</p>}
       <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-line pt-4">
         <Button
           disabled={!dirty}
@@ -129,16 +130,20 @@ function RouteEditor({ departmentId, tier, saved, fallback }: { departmentId: st
         {departmentId !== null && !usesDefault && (
           <Button
             variant="ghost"
-            onClick={() =>
-              confirm("Reset this department to the company default route for this tier?") &&
-              update.mutate({ departmentId, tier, roles: [] }, { onSuccess: () => { setStages(fallback); setEditing(false); } })
-            }
+            onClick={async () => {
+              const ok = await confirm({
+                title: "Reset to the company default?",
+                message: `This department's custom ${tier}-risk route is removed. New submissions follow the company default route.`,
+                confirmLabel: "Reset route",
+                tone: "danger",
+              });
+              if (ok) update.mutate({ departmentId, tier, roles: [] }, { onSuccess: () => { setStages(fallback); setEditing(false); } });
+            }}
           >
             Reset to default
           </Button>
         )}
         {dirty && <Pill tone="amber">Unsaved changes</Pill>}
-        {update.isSuccess && !dirty && <span className="text-xs font-semibold" style={{ color: "var(--green-fg)" }}>Saved. New submissions use this route.</span>}
       </div>
       <p className="mt-2 text-xs text-muted">Changes already in approval keep the route they were submitted with.</p>
     </div>

@@ -7,15 +7,17 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Copy, Download, Upload } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { Pill } from "@/components/ui/Badges";
 import { Button, buttonClass } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { Combobox } from "@/components/ui/Combobox";
+import { useConfirm } from "@/components/ui/ConfirmDialog";
 import { Field, Input, Select } from "@/components/ui/Form";
 import { Pagination } from "@/components/ui/Pagination";
-import { EmptyState, ErrorState, Spinner } from "@/components/ui/States";
+import { RelativeTime } from "@/components/ui/RelativeTime";
+import { EmptyState, ErrorState, TableSkeleton } from "@/components/ui/States";
 import { useAdminUsers, useImportUsers, useInviteUser, useResetPassword, useUpdateUser } from "@/lib/admin-queries";
-import { formatDateTime } from "@/lib/format";
 import { exportUrl, useMe, useMeta } from "@/lib/queries";
 import { parseCsv } from "./csv";
 
@@ -42,7 +44,7 @@ export default function UsersTab() {
   const users = useAdminUsers({ ...filters, page, pageSize: 15 });
   const update = useUpdateUser();
   const reset = useResetPassword();
-  const actionError = update.error ?? reset.error;
+  const confirm = useConfirm();
   const counts = users.data?.counts;
 
   return (
@@ -54,10 +56,13 @@ export default function UsersTab() {
             <option value="">All roles</option>
             {ROLES.map((r) => <option key={r} value={r}>{ROLE_LABELS[r]}</option>)}
           </Select>
-          <Select aria-label="Department" value={departmentId} onChange={(e) => { setDepartmentId(e.target.value); setPage(1); }}>
-            <option value="">All departments</option>
-            {meta.data?.departments.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
-          </Select>
+          <Combobox
+            aria-label="Department"
+            value={departmentId}
+            noneLabel="All departments"
+            options={(meta.data?.departments ?? []).map((d) => ({ value: d.id, label: d.name, hint: d.code }))}
+            onChange={(v) => { setDepartmentId(v ?? ""); setPage(1); }}
+          />
         </div>
         <div className="flex flex-wrap items-center gap-2 border-b border-line p-3">
           {(["", "Active", "Invited", "Disabled"] as const).map((s) => {
@@ -78,9 +83,8 @@ export default function UsersTab() {
 
         {panel === "invite" && <InviteForm onDone={() => setPanel("none")} />}
         {panel === "import" && <ImportPanel onDone={() => setPanel("none")} />}
-        {actionError && <p role="alert" className="px-4 pt-3 text-xs font-semibold text-danger">{actionError.message}</p>}
 
-        {users.isPending ? <Spinner /> : users.isError ? <div className="p-4"><ErrorState error={users.error} /></div> : !users.data.items.length ? (
+        {users.isPending ? <TableSkeleton rows={8} cols={6} /> : users.isError ? <div className="p-4"><ErrorState error={users.error} /></div> : !users.data.items.length ? (
           <EmptyState title="No users match these filters" />
         ) : (
           <div className={`overflow-x-auto ${users.isPlaceholderData ? "opacity-60" : ""}`}>
@@ -98,12 +102,27 @@ export default function UsersTab() {
               <tbody className="divide-y divide-line">
                 {users.data.items.map((u) => (
                   <UserRow key={u.id} u={u} meRole={me!.role} isMe={u.id === me!.id} departments={meta.data?.departments ?? []}
-                    onChange={(v) => update.mutate({ id: u.id, ...v })}
-                    onReset={() => {
-                      const verb = u.status === "Invited" ? "Activate" : "Reset the password for";
-                      if (confirm(`${verb} ${u.name}? A one-time temporary password will be shown to you once.`)) {
-                        reset.mutate(u.id, { onSuccess: (r) => setTempPassword({ name: u.name, password: r.temporaryPassword }) });
+                    onChange={async (v) => {
+                      if (v.status === "Disabled") {
+                        const ok = await confirm({
+                          title: `Disable ${u.name}?`,
+                          message: "They are signed out straight away and can't sign in until an admin enables them again.",
+                          confirmLabel: "Disable user",
+                          tone: "danger",
+                        });
+                        if (!ok) return;
                       }
+                      update.mutate({ id: u.id, ...v });
+                    }}
+                    onReset={async () => {
+                      const activating = u.status === "Invited";
+                      const ok = await confirm({
+                        title: activating ? `Activate ${u.name}?` : `Reset ${u.name}'s password?`,
+                        message: `A one-time temporary password will be shown to you once. ${activating ? "" : "Their current password stops working and they are signed out. "}They must choose a new password when they sign in.`,
+                        confirmLabel: activating ? "Activate" : "Reset password",
+                        tone: activating ? "default" : "danger",
+                      });
+                      if (ok) reset.mutate(u.id, { onSuccess: (r) => setTempPassword({ name: u.name, password: r.temporaryPassword }) });
                     }}
                   />
                 ))}
@@ -137,18 +156,25 @@ function UserRow({ u, meRole, isMe, departments, onChange, onReset }: {
         </Select>
       </td>
       <td className="w-48 px-4 py-2.5">
-        <Select aria-label={`Department of ${u.name}`} value={u.department.id} disabled={locked} title={lockReason} onChange={(e) => onChange({ departmentId: e.target.value })}>
-          {!departments.some((d) => d.id === u.department.id) && <option value={u.department.id}>{u.department.name}</option>}
-          {departments.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
-        </Select>
+        <Combobox
+          aria-label={`Department of ${u.name}`}
+          value={u.department.id}
+          disabled={locked}
+          title={lockReason}
+          options={[
+            ...(departments.some((d) => d.id === u.department.id) ? [] : [{ value: u.department.id, label: u.department.name }]),
+            ...departments.map((d) => ({ value: d.id, label: d.name })),
+          ]}
+          onChange={(v) => v && v !== u.department.id && onChange({ departmentId: v })}
+        />
       </td>
       <td className="px-4 py-2.5"><Pill tone={STATUS_TONE[u.status]}>{u.status}</Pill></td>
-      <td className="px-4 py-2.5 whitespace-nowrap text-ink-2">{u.lastLoginAt ? formatDateTime(u.lastLoginAt) : "—"}</td>
+      <td className="px-4 py-2.5 whitespace-nowrap text-ink-2">{u.lastLoginAt ? <RelativeTime iso={u.lastLoginAt} /> : "Never"}</td>
       <td className="px-4 py-2.5">
         <div className="flex justify-end gap-2">
           {u.status !== "Invited" && (
             <Button variant={u.status === "Active" ? "danger" : "secondary"} className="px-3 py-1 text-xs" disabled={locked} title={lockReason}
-              onClick={() => (u.status === "Disabled" || confirm(`Disable ${u.name}? They are signed out immediately.`)) && onChange({ status: u.status === "Active" ? "Disabled" : "Active" })}>
+              onClick={() => onChange({ status: u.status === "Active" ? "Disabled" : "Active" })}>
               {u.status === "Active" ? "Disable" : "Enable"}
             </Button>
           )}
@@ -165,16 +191,27 @@ function InviteForm({ onDone }: { onDone: () => void }) {
   const { data: me } = useMe();
   const meta = useMeta();
   const invite = useInviteUser();
-  const { register, handleSubmit, formState: { errors } } = useForm<UserInviteInput>({ resolver: zodResolver(userInviteSchema), defaultValues: { role: "requester" } });
+  const { register, handleSubmit, control, formState: { errors } } = useForm<UserInviteInput>({ resolver: zodResolver(userInviteSchema), defaultValues: { role: "requester" } });
   return (
     <form onSubmit={handleSubmit((v) => invite.mutate(v, { onSuccess: onDone }))} noValidate className="grid gap-3 border-b border-line bg-surface-2 p-4 md:grid-cols-[1fr_1fr_170px_170px_auto] md:items-end">
       <Field label="Name" htmlFor="inv-name" error={errors.name?.message}><Input id="inv-name" invalid={!!errors.name} {...register("name")} /></Field>
       <Field label="Email" htmlFor="inv-email" error={errors.email?.message ?? invite.error?.message}><Input id="inv-email" type="email" invalid={!!errors.email} {...register("email")} /></Field>
       <Field label="Department" htmlFor="inv-dept" error={errors.departmentId?.message}>
-        <Select id="inv-dept" {...register("departmentId")}>
-          <option value="">Choose…</option>
-          {meta.data?.departments.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
-        </Select>
+        <Controller
+          name="departmentId"
+          control={control}
+          render={({ field }) => (
+            <Combobox
+              id="inv-dept"
+              value={field.value}
+              onChange={(v) => field.onChange(v ?? "")}
+              onBlur={field.onBlur}
+              invalid={!!errors.departmentId}
+              placeholder="Search departments"
+              options={(meta.data?.departments ?? []).map((d) => ({ value: d.id, label: d.name, hint: d.code }))}
+            />
+          )}
+        />
       </Field>
       <Field label="Role" htmlFor="inv-role">
         <Select id="inv-role" {...register("role")}>

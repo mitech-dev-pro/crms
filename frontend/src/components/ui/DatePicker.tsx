@@ -1,9 +1,10 @@
 "use client";
 
 import { CalendarDays, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
-import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState, type KeyboardEvent } from "react";
+import { useCallback, useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
 import { createPortal } from "react-dom";
 import { addDays, addMonths, monthGrid, parseDateInput, parseYmd, weekdayMon, ymd } from "@/lib/dates";
+import { useAnchoredPanel, useClickOutside } from "@/lib/use-anchored-panel";
 
 /** A highlighted span of days, e.g. a change freeze. Dates are "YYYY-MM-DD", inclusive. */
 export type DateMarker = { from: string; to: string; label: string };
@@ -11,6 +12,8 @@ export type DateMarker = { from: string; to: string; label: string };
 type Props = {
   /** Matches the <Field htmlFor>: the label focuses the text box and errors are announced. */
   id: string;
+  /** For a picker with no visible label, e.g. a filter. */
+  "aria-label"?: string;
   /** "YYYY-MM-DD", or empty for no date. */
   value?: string | null;
   onChange: (value: string | undefined) => void;
@@ -34,7 +37,6 @@ type View = "days" | "months" | "years";
 const WEEKDAYS = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
 const MONTHS = Array.from({ length: 12 }, (_, i) => new Date(2000, i, 1).toLocaleDateString("en-GB", { month: "short" }));
 const PANEL_WIDTH = 288; // px
-const GAP = 6;
 const hatch = "repeating-linear-gradient(135deg, var(--amber-bg) 0 5px, transparent 5px 10px)";
 
 const longDate = (d: Date) => d.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
@@ -60,7 +62,7 @@ const yearPageStart = (y: number) => y - (((y % 12) + 12) % 12);
  *   )} />
  */
 export function DatePicker({
-  id, value, onChange, onBlur, min, max, markers = [], markerLegend, invalid, disabled, clearable = false, placeholder = "DD/MM/YYYY",
+  id, "aria-label": ariaLabel, value, onChange, onBlur, min, max, markers = [], markerLegend, invalid, disabled, clearable = false, placeholder = "DD/MM/YYYY",
 }: Props) {
   const current = value || undefined;
   const [text, setText] = useState(() => display(current));
@@ -149,25 +151,7 @@ export function DatePicker({
     setView(next);
   }
 
-  // Place the panel under the field (or above it if there's no room), inside the viewport.
-  useLayoutEffect(() => {
-    if (!open) return;
-    const place = () => {
-      const a = anchor.current?.getBoundingClientRect(), p = panel.current;
-      if (!a || !p) return;
-      const h = p.offsetHeight;
-      const below = a.bottom + GAP + h <= window.innerHeight || a.top - GAP - h < 0;
-      p.style.top = `${below ? a.bottom + GAP : a.top - GAP - h}px`;
-      p.style.left = `${Math.max(8, Math.min(a.left, window.innerWidth - PANEL_WIDTH - 8))}px`;
-    };
-    place();
-    window.addEventListener("resize", place);
-    window.addEventListener("scroll", place, true); // capture: any scrolling ancestor
-    return () => {
-      window.removeEventListener("resize", place);
-      window.removeEventListener("scroll", place, true);
-    };
-  }, [open, focusDay, view]);
+  useAnchoredPanel(open, anchor, panel, { width: PANEL_WIDTH, deps: [focusDay, view] });
 
   // Keyboard focus follows the active cell.
   useEffect(() => {
@@ -176,16 +160,7 @@ export function DatePicker({
     panel.current?.querySelector<HTMLButtonElement>('[data-active="true"]')?.focus();
   }, [open, focusDay, view]);
 
-  // Close on a click outside.
-  useEffect(() => {
-    if (!open) return;
-    const onDown = (e: MouseEvent) => {
-      const t = e.target as Node;
-      if (!panel.current?.contains(t) && !anchor.current?.contains(t)) close(false);
-    };
-    document.addEventListener("mousedown", onDown);
-    return () => document.removeEventListener("mousedown", onDown);
-  }, [open, close]);
+  useClickOutside(open, [panel, anchor], useCallback(() => close(false), [close]));
 
   function onInputKey(e: KeyboardEvent<HTMLInputElement>) {
     if (e.key === "Enter") {
@@ -268,6 +243,7 @@ export function DatePicker({
         <input
           ref={input}
           id={id}
+          aria-label={ariaLabel}
           type="text"
           inputMode="text"
           autoComplete="off"
@@ -317,7 +293,6 @@ export function DatePicker({
             role="dialog"
             aria-label="Choose a date"
             onKeyDown={onPanelKey}
-            style={{ width: PANEL_WIDTH }}
             className="fixed z-50 rounded-xl border border-line bg-surface p-3 shadow-xl"
           >
             {/* Header: arrows step by month / year / 12 years; the labels switch views. */}

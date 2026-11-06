@@ -4,13 +4,13 @@ import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import ChangeRequestWizard from "@/components/changes/wizard/ChangeRequestWizard";
 import { RequirePerm } from "@/components/layout/SessionGate";
-import { Spinner } from "@/components/ui/States";
+import { FormSkeleton } from "@/components/ui/States";
 
 // /changes/new            → new request
 // /changes/new?edit=REF   → edit a draft or returned request
 export default function NewChangePage() {
   return (
-    <Suspense fallback={<Spinner />}>
+    <Suspense fallback={<FormSkeleton />}>
       <WithParams />
     </Suspense>
   );

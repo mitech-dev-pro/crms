@@ -9,6 +9,7 @@ import { Controller, useForm, useWatch } from "react-hook-form";
 import { RequirePerm } from "@/components/layout/SessionGate";
 import { Button } from "@/components/ui/Button";
 import { Card, CardHeader } from "@/components/ui/Card";
+import { useConfirm } from "@/components/ui/ConfirmDialog";
 import { DatePicker } from "@/components/ui/DatePicker";
 import { Field, Input } from "@/components/ui/Form";
 import { ErrorState } from "@/components/ui/States";
@@ -129,6 +130,7 @@ function FreezePanel() {
   const { data: me } = useMe();
   const freezes = useFreezes();
   const remove = useDeleteFreeze();
+  const confirm = useConfirm();
   const [adding, setAdding] = useState(false);
   const canManage = !!me && FREEZE_MANAGERS.includes(me.role);
   const [today] = useState(() => ymd(new Date()));
@@ -146,7 +148,15 @@ function FreezePanel() {
             </div>
             {canManage && (
               <button
-                onClick={() => confirm(`Remove the "${f.name}" freeze window?`) && remove.mutate(f.id)}
+                onClick={async () => {
+                  const ok = await confirm({
+                    title: `Remove the "${f.name}" freeze?`,
+                    message: `${formatDate(f.from)} – ${formatDate(f.to)} will no longer add an Executive approval stage to new changes.`,
+                    confirmLabel: "Remove freeze",
+                    tone: "danger",
+                  });
+                  if (ok) remove.mutate(f.id);
+                }}
                 aria-label={`Remove ${f.name}`}
                 className="rounded p-1 text-muted hover:bg-[var(--red-bg)] hover:text-danger"
               >
@@ -157,7 +167,6 @@ function FreezePanel() {
         ))}
         {!upcoming.length && <li className="px-4 py-3 text-sm text-muted">No upcoming freeze windows.</li>}
       </ul>
-      {remove.error && <p className="px-4 pb-2 text-xs font-semibold text-danger">{remove.error.message}</p>}
       {canManage && (
         <div className="border-t border-line p-4">
           {adding ? <FreezeForm onDone={() => setAdding(false)} /> : <Button variant="secondary" className="w-full" onClick={() => setAdding(true)}>Add freeze window</Button>}

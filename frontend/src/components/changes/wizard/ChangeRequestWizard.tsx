@@ -11,9 +11,11 @@ import { useState } from "react";
 import { FormProvider, useForm, type Resolver } from "react-hook-form";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
-import { ErrorState, Forbidden, Spinner } from "@/components/ui/States";
+import { ErrorState, Forbidden, FormSkeleton } from "@/components/ui/States";
 import { useQueryClient } from "@tanstack/react-query";
 import { ApiError, apiUpload } from "@/lib/api";
+import { toast } from "@/lib/toast";
+import { useUnsavedGuard } from "@/lib/use-unsaved-guard";
 import { keys, useChange, useCreateChange, useMe, useMeta, useSubmitChange, useUpdateChange } from "@/lib/queries";
 import { ClassifyStep, DescribeStep, PlanStep, ReviewStep, RiskStep } from "./Steps";
 
@@ -33,7 +35,7 @@ export default function ChangeRequestWizard({ editRef }: { editRef?: string }) {
   const meta = useMeta();
   const existing = useChange(editRef ?? "", !!editRef);
 
-  if (!me || meta.isPending || (editRef && existing.isPending)) return <Spinner />;
+  if (!me || meta.isPending || (editRef && existing.isPending)) return <FormSkeleton />;
   if (meta.isError) return <ErrorState error={meta.error} />;
   if (editRef && existing.isError) return <ErrorState error={existing.error} />;
   if (existing.data && !existing.data.actions.edit) {
@@ -81,16 +83,19 @@ function WizardForm({ me, meta, existing }: { me: SessionUser; meta: MetaRespons
 
   const create = useCreateChange();
   const update = useUpdateChange(editRef ?? "");
-  const submitExisting = useSubmitChange(editRef ?? "");
+  const submitExisting = useSubmitChange(editRef ?? "", { inlineError: true });
   const [uploading, setUploading] = useState(false);
   const busy = create.isPending || update.isPending || submitExisting.isPending || uploading;
   const [serverError, setServerError] = useState<string | null>(null);
   const qc = useQueryClient();
   // Files picked on the Describe step. They're uploaded once the change exists.
   const [files, setFiles] = useState<File[]>([]);
+  // Typed something or picked files, and not saved yet: warn before leaving.
+  const allowLeave = useUnsavedGuard(form.formState.isDirty || files.length > 0, "This request isn't saved yet.");
 
   /** Uploads the picked files to a saved change, then opens it. A failed upload still opens it, with a notice. */
   const uploadThenOpen = async (ref: string) => {
+    allowLeave(); // saved: leaving for the change page is expected
     let failed = false;
     if (files.length) {
       setUploading(true);
@@ -103,7 +108,8 @@ function WizardForm({ me, meta, existing }: { me: SessionUser; meta: MetaRespons
         await qc.invalidateQueries({ queryKey: keys.change(ref) }); // show the new files on the detail page
       }
     }
-    router.push(`/changes/${ref}${failed ? "?upload=failed" : ""}`);
+    if (failed) toast.error("The change was saved, but the files did not upload. Add them again from Attachments on the change page.");
+    router.push(`/changes/${ref}`);
   };
 
   const goTo = (i: number) => {
@@ -134,9 +140,11 @@ function WizardForm({ me, meta, existing }: { me: SessionUser; meta: MetaRespons
         if (editRef) {
           await update.mutateAsync(draftPayload(values as WizardValues));
           await submitExisting.mutateAsync();
+          toast.success(`${editRef} resubmitted for approval`);
           await uploadThenOpen(editRef);
         } else {
           const created = await create.mutateAsync({ ...values, submit: true });
+          toast.success(`${created.ref} submitted for approval`);
           await uploadThenOpen(created.ref);
         }
       } catch (e) {
@@ -155,6 +163,7 @@ function WizardForm({ me, meta, existing }: { me: SessionUser; meta: MetaRespons
     try {
       const payload = draftPayload(form.getValues());
       const saved = editRef ? await update.mutateAsync(payload) : await create.mutateAsync(payload);
+      toast.success(`Draft ${saved.ref} saved`);
       await uploadThenOpen(saved.ref);
     } catch (e) {
       handleServerError(e);

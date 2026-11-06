@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import ChangeDetailView from "@/components/changes/detail/ChangeDetailView";
 import { RequirePerm } from "@/components/layout/SessionGate";
-import { Spinner } from "@/components/ui/States";
+import { DetailSkeleton } from "@/components/ui/States";
 
 // The URL holds the reference, e.g. /changes/CHG-2026-0142.
 // `params` is a Promise in this Next version; reading it inside Suspense keeps
@@ -9,7 +9,7 @@ import { Spinner } from "@/components/ui/States";
 export default function ChangePage({ params }: PageProps<"/changes/[ref]">) {
   return (
     <RequirePerm screen="changes">
-      <Suspense fallback={<Spinner />}>
+      <Suspense fallback={<DetailSkeleton />}>
         <FromParams params={params} />
       </Suspense>
     </RequirePerm>

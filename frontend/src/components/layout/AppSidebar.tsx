@@ -11,7 +11,7 @@ import { useInbox, useLogout, useMe } from "@/lib/queries";
 import Logo from "./Logo";
 
 // Order and labels follow the prototype's NAV. Each item is a screen key from the shared PERMS table.
-const NAV: { screen: Screen; label: string; href: string; icon: typeof LayoutDashboard }[] = [
+export const NAV: { screen: Screen; label: string; href: string; icon: typeof LayoutDashboard }[] = [
   { screen: "dashboard", label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { screen: "changes", label: "Change requests", href: "/changes", icon: FileText },
   { screen: "new", label: "New request", href: "/changes/new", icon: FilePlus2 },

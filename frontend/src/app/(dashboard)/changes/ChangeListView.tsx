@@ -7,9 +7,10 @@ import ChangeTable from "@/components/changes/ChangeTable";
 import { Download } from "lucide-react";
 import { ButtonLink, buttonClass } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { Combobox } from "@/components/ui/Combobox";
 import { Input, Select } from "@/components/ui/Form";
 import { Pagination } from "@/components/ui/Pagination";
-import { ErrorState, Spinner } from "@/components/ui/States";
+import { ErrorState, TableSkeleton } from "@/components/ui/States";
 import { exportUrl, useChanges, useMe, useMeta } from "@/lib/queries";
 
 // Status chips, in the prototype's order.
@@ -101,10 +102,13 @@ export default function ChangeListView() {
       <Card>
         <div className="grid gap-2 border-b border-line p-3 sm:grid-cols-2 lg:grid-cols-5">
           <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search ID or title" aria-label="Search" className="lg:col-span-1" />
-          <Select aria-label="Department" value={query.departmentId ?? ""} onChange={(e) => setParams({ departmentId: e.target.value || undefined })}>
-            <option value="">All departments</option>
-            {meta.data?.departments.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
-          </Select>
+          <Combobox
+            aria-label="Department"
+            value={query.departmentId}
+            noneLabel="All departments"
+            options={(meta.data?.departments ?? []).map((d) => ({ value: d.id, label: d.name, hint: d.code }))}
+            onChange={(v) => setParams({ departmentId: v })}
+          />
           <Select aria-label="Change type" value={query.typeId ?? ""} onChange={(e) => setParams({ typeId: e.target.value || undefined })}>
             <option value="">All types</option>
             {meta.data?.changeTypes.map((t) => <option key={t.id} value={t.id}>{t.label}</option>)}
@@ -121,7 +125,7 @@ export default function ChangeListView() {
           </Select>
         </div>
 
-        {list.isPending ? <Spinner /> : list.isError ? <div className="p-4"><ErrorState error={list.error} /></div> : (
+        {list.isPending ? <TableSkeleton rows={8} cols={6} /> : list.isError ? <div className="p-4"><ErrorState error={list.error} /></div> : (
           <div className={list.isPlaceholderData ? "opacity-60" : ""}>
             <ChangeTable items={list.data.items} empty="No change requests match these filters" />
             <Pagination page={list.data.page} pageSize={list.data.pageSize} total={list.data.total} onPage={(p) => setParams({ page: String(p) })} />

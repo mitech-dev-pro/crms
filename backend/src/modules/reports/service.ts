@@ -1,6 +1,6 @@
 import {
   CHANGE_STATUSES, RISK_TIERS, ROLE_LABELS,
-  type ChangeStatus, type ReportPeriod, type ReportsResponse, type RiskTier, type Role,
+  type ChangeStatus, type ReportPeriod, type ReportsQuery, type ReportsResponse, type RiskTier, type Role,
 } from "@crms/shared";
 import { prisma } from "../../lib/db";
 
@@ -20,10 +20,38 @@ export type ReportRow = {
 
 /** First day of the period: this quarter, this year, or no limit. */
 export function periodStart(period: ReportPeriod, now = new Date()): Date | null {
-  if (period === "all") return null;
+  if (period === "all" || period === "custom") return null;
   const month = period === "quarter" ? Math.floor(now.getUTCMonth() / 3) * 3 : 0;
   return new Date(Date.UTC(now.getUTCFullYear(), month, 1));
 }
+
+/** The reporting window: inclusive days, either end may be open. */
+export type ReportRange = { key: ReportPeriod; label: string; from: string | null; to: string | null };
+
+const dayLabel = (iso: string) => new Date(`${iso}T00:00:00Z`).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
+
+/** Turns ?period (and from/to for a custom range) into dates and a label. */
+export function reportRange(q: Pick<ReportsQuery, "period"> & Partial<Pick<ReportsQuery, "from" | "to">>, now = new Date()): ReportRange {
+  if (q.period === "custom") {
+    const from = q.from ?? null, to = q.to ?? null;
+    const label = from && to ? `${dayLabel(from)} – ${dayLabel(to)}` : from ? `Since ${dayLabel(from)}` : `Up to ${dayLabel(to!)}`;
+    return { key: "custom", label, from, to };
+  }
+  const start = periodStart(q.period, now);
+  const labels = { quarter: "This quarter", year: `${now.getUTCFullYear()} to date`, all: "All time" } as const;
+  return { key: q.period, label: labels[q.period], from: start ? start.toISOString().slice(0, 10) : null, to: null };
+}
+
+/** Prisma filter on createdAt for a range ("to" covers the whole day). */
+const createdIn = (r: ReportRange) =>
+  r.from || r.to
+    ? {
+        createdAt: {
+          ...(r.from && { gte: new Date(`${r.from}T00:00:00Z`) }),
+          ...(r.to && { lt: new Date(new Date(`${r.to}T00:00:00Z`).getTime() + 86_400_000) }),
+        },
+      }
+    : {};
 
 const avg = (xs: number[]) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : null);
 const round = (n: number | null, dp = 1) => (n === null ? null : Math.round(n * 10 ** dp) / 10 ** dp);
@@ -33,8 +61,8 @@ const HOUR = 3_600_000;
  * Turns changes into report figures. Pure (no database) so it can be unit-tested.
  * `rows` are the changes in the period; `recent` covers the last 6 months for the monthly chart.
  */
-export function buildReport(period: ReportPeriod, rows: ReportRow[], recent: ReportRow[], now = new Date()): ReportsResponse {
-  const from = periodStart(period, now);
+export function buildReport(range: ReportRange | ReportPeriod, rows: ReportRow[], recent: ReportRow[], now = new Date()): ReportsResponse {
+  const period = typeof range === "string" ? reportRange({ period: range }, now) : range;
   const approved = rows.filter((r) => APPROVED.includes(r.status));
   const rejected = rows.filter((r) => r.status === "Rejected").length;
   const pirs = rows.flatMap((r) => (r.pir ? [r.pir] : []));
@@ -83,10 +111,8 @@ export function buildReport(period: ReportPeriod, rows: ReportRow[], recent: Rep
     };
   });
 
-  const labels = { quarter: "This quarter", year: `${now.getUTCFullYear()} to date`, all: "All time" } as const;
-
   return {
-    period: { key: period, label: labels[period], from: from ? from.toISOString().slice(0, 10) : null },
+    period,
     kpis: {
       raised: rows.length,
       approvalRate: approved.length + rejected ? round(approved.length / (approved.length + rejected), 3) : null,
@@ -113,15 +139,15 @@ const select = {
 } as const;
 
 /** Company-wide figures. Drafts are private and never counted. */
-export async function getReport(period: ReportPeriod, now = new Date()) {
-  const from = periodStart(period, now);
+export async function getReport(q: ReportsQuery, now = new Date()) {
+  const range = reportRange(q, now);
   const sixMonthsAgo = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 5, 1));
   const [rows, recent] = await Promise.all([
-    prisma.change.findMany({ where: { status: { not: "Draft" }, ...(from && { createdAt: { gte: from } }) }, select }),
+    prisma.change.findMany({ where: { status: { not: "Draft" }, ...createdIn(range) }, select }),
     prisma.change.findMany({
       where: { status: { not: "Draft" }, OR: [{ createdAt: { gte: sixMonthsAgo } }, { pir: { reviewedAt: { gte: sixMonthsAgo } } }] },
       select,
     }),
   ]);
-  return buildReport(period, rows, recent, now);
+  return buildReport(range, rows, recent, now);
 }

@@ -10,8 +10,15 @@ export const auditRouter = Router();
 auditRouter.use(requireAuth, requirePerm("audit"));
 
 /** Filters shared by the list and the CSV export. */
-function whereFor({ q, role, category }: Pick<AuditQuery, "q" | "role" | "category">): Prisma.AuditLogWhereInput {
+function whereFor({ q, role, category, from, to }: Pick<AuditQuery, "q" | "role" | "category" | "from" | "to">): Prisma.AuditLogWhereInput {
   return {
+    ...((from || to) && {
+      at: {
+        ...(from && { gte: new Date(`${from}T00:00:00Z`) }),
+        // "to" is a whole day: everything before the next midnight.
+        ...(to && { lt: new Date(new Date(`${to}T00:00:00Z`).getTime() + 86_400_000) }),
+      },
+    }),
     ...(role && { role }),
     ...(category && { category }),
     ...(q && { OR: [{ action: { contains: q } }, { userName: { contains: q } }, { ref: { contains: q } }] }),
@@ -20,7 +27,7 @@ function whereFor({ q, role, category }: Pick<AuditQuery, "q" | "role" | "catego
 
 const select = { id: true, at: true, userName: true, role: true, action: true, category: true, ref: true, ip: true } as const;
 
-// GET /api/audit?page=1&pageSize=10&q=&role=&category= — newest first.
+// GET /api/audit?page=1&pageSize=10&q=&role=&category=&from=&to= — newest first.
 auditRouter.get("/", async (req, res) => {
   // Express 5's req.query is read-only, so parse it into a new variable.
   const query = auditQuerySchema.parse(req.query);

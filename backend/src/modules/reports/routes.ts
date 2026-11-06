@@ -8,21 +8,20 @@ import { getReport } from "./service";
 export const reportsRouter = Router();
 reportsRouter.use(requireAuth, requirePerm("reports"));
 
-// GET /api/reports?period=quarter|year|all
+// GET /api/reports?period=quarter|year|all, or period=custom&from=&to=
 reportsRouter.get("/", async (req, res) => {
-  res.json(await getReport(reportsQuerySchema.parse(req.query).period));
+  res.json(await getReport(reportsQuerySchema.parse(req.query)));
 });
 
 // GET /api/reports/export.csv?period=… — the same figures as a flat CSV.
 reportsRouter.get("/export.csv", async (req, res) => {
-  const { period } = reportsQuerySchema.parse(req.query);
-  const r = await getReport(period);
+  const r = await getReport(reportsQuerySchema.parse(req.query));
   await writeAudit({ action: `Exported report (CSV): ${r.period.label}`, category: "export", user: req.user!, ip: req.ip });
   const pct = (n: number | null) => (n === null ? "" : `${Math.round(n * 1000) / 10}%`);
 
   sendCsv(res, datedName("report"), [
     ["Section", "Item", "Value"],
-    ["Period", r.period.label, r.period.from ?? "all"],
+    ["Period", r.period.label, `${r.period.from ?? "start"} to ${r.period.to ?? "today"}`],
     ["KPI", "Change requests raised", r.kpis.raised],
     ["KPI", "Approval rate", pct(r.kpis.approvalRate)],
     ["KPI", "Average days to approve", r.kpis.avgApprovalDays ?? ""],

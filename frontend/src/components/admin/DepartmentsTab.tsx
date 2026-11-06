@@ -7,30 +7,33 @@ import { useForm } from "react-hook-form";
 import { Mono, Pill } from "@/components/ui/Badges";
 import { Button } from "@/components/ui/Button";
 import { Card, CardHeader } from "@/components/ui/Card";
-import { Field, Input, Select } from "@/components/ui/Form";
-import { ErrorState, Spinner } from "@/components/ui/States";
+import { Combobox } from "@/components/ui/Combobox";
+import { useConfirm } from "@/components/ui/ConfirmDialog";
+import { Field, Input } from "@/components/ui/Form";
+import { ErrorState, TableSkeleton } from "@/components/ui/States";
 import { useAdminDepartments, useAdminUsers, useCreateDepartment, useUpdateDepartment } from "@/lib/admin-queries";
 
 export default function DepartmentsTab() {
   const depts = useAdminDepartments();
   const people = useAdminUsers({ status: "Active", pageSize: 100 }); // candidates for head / line manager
   const update = useUpdateDepartment();
+  const confirm = useConfirm();
   const [adding, setAdding] = useState(false);
 
-  if (depts.isPending) return <Spinner />;
+  if (depts.isPending) return <TableSkeleton rows={8} cols={6} />;
   if (depts.isError) return <ErrorState error={depts.error} />;
-  const options = people.data?.items ?? [];
+  const people_ = (people.data?.items ?? []).map((p) => ({ value: p.id, label: p.name, hint: `${p.department.name} · ${p.email}` }));
 
   const personSelect = (d: AdminDepartment, field: "headId" | "lineManagerId", current: AdminDepartment["head"]) => (
-    <Select
+    <Combobox
       aria-label={`${field === "headId" ? "Head" : "Line manager"} of ${d.name}`}
-      value={current?.id ?? ""}
-      onChange={(e) => update.mutate({ id: d.id, [field]: e.target.value || null })}
-    >
-      <option value="">— None —</option>
-      {current && !options.some((o) => o.id === current.id) && <option value={current.id}>{current.name}</option>}
-      {options.map((o) => <option key={o.id} value={o.id}>{o.name}</option>)}
-    </Select>
+      value={current?.id}
+      noneLabel="None"
+      placeholder="Search people"
+      // Someone no longer active stays visible as the current choice.
+      options={current && !people_.some((o) => o.value === current.id) ? [{ value: current.id, label: current.name }, ...people_] : people_}
+      onChange={(v) => update.mutate({ id: d.id, [field]: v ?? null })}
+    />
   );
 
   return (
@@ -38,7 +41,6 @@ export default function DepartmentsTab() {
       <Card>
         <CardHeader title="Departments" right={<Button variant="secondary" onClick={() => setAdding((a) => !a)}>{adding ? "Close" : "Add department"}</Button>} />
         {adding && <AddDepartment onDone={() => setAdding(false)} />}
-        {update.error && <p className="px-4 pt-3 text-xs font-semibold text-danger">{update.error.message}</p>}
         <div className="overflow-x-auto">
           <table className="w-full min-w-[820px] text-sm">
             <thead>
@@ -65,7 +67,15 @@ export default function DepartmentsTab() {
                     <Button
                       variant={d.active ? "danger" : "secondary"}
                       className="px-3 py-1 text-xs"
-                      onClick={() => (!d.active || confirm(`Deactivate ${d.name}? It will no longer be offered for new change requests.`)) && update.mutate({ id: d.id, active: !d.active })}
+                      onClick={async () => {
+                        const ok = !d.active || (await confirm({
+                          title: `Deactivate ${d.name}?`,
+                          message: "It will no longer be offered for new change requests. Existing changes and users are kept, and you can reactivate it later.",
+                          confirmLabel: "Deactivate",
+                          tone: "danger",
+                        }));
+                        if (ok) update.mutate({ id: d.id, active: !d.active });
+                      }}
                     >
                       {d.active ? "Deactivate" : "Reactivate"}
                     </Button>

@@ -29,7 +29,14 @@ test("requester raises a change and the line manager approves it", async ({ page
   await page.getByLabel("Planned date").fill("8/12/2026");
   await page.getByLabel("Planned date").press("Tab");
   await expect(page.getByLabel("Planned date")).toHaveValue("Tue, 8 Dec 2026");
-  await page.getByLabel("Implementer").selectOption({ label: "Kojo Frimpong" });
+  // Searchable dropdown: type part of the name, then pick it.
+  await page.getByLabel("Implementer").fill("kojo");
+  await page.getByRole("option", { name: "Kojo Frimpong" }).click();
+  await expect(page.getByLabel("Implementer")).toHaveValue("Kojo Frimpong");
+  // Change window: start and end times; an earlier end runs overnight.
+  await page.getByLabel("Window end time").fill("2am");
+  await page.keyboard.press("Enter");
+  await expect(page.getByText(/Overnight, ends 02:00 the next day · 6 h/)).toBeVisible();
   await page.getByLabel("Rollback plan").fill("Switch the feature flag off.");
   await page.getByRole("button", { name: "Continue" }).click();
 
@@ -59,6 +66,7 @@ test("requester raises a change and the line manager approves it", async ({ page
 
   await page.getByLabel("Decision comment").fill("Looks good. Go ahead.");
   await page.getByRole("button", { name: "Approve", exact: true }).click();
+  await expect(page.getByRole("status").filter({ hasText: "Change approved" })).toBeVisible(); // toast
   await expect(page.getByText("Scheduled").first()).toBeVisible(); // only stage approved + planned date → Scheduled
 
   await page.getByRole("tab", { name: "Approvals" }).click();

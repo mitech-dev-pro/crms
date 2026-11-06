@@ -3,7 +3,7 @@
 import ChangeTable from "@/components/changes/ChangeTable";
 import { RequirePerm } from "@/components/layout/SessionGate";
 import { Card, CardHeader } from "@/components/ui/Card";
-import { ErrorState, Spinner } from "@/components/ui/States";
+import { ErrorState, TableSkeleton } from "@/components/ui/States";
 import { useInbox } from "@/lib/queries";
 
 export default function ApprovalsPage() {
@@ -23,7 +23,7 @@ function Inbox() {
       </p>
       <Card>
         <CardHeader title="Awaiting your decision" right={inbox.data ? `${inbox.data.items.length} items` : undefined} />
-        {inbox.isPending ? <Spinner /> : inbox.isError ? <div className="p-4"><ErrorState error={inbox.error} /></div> : (
+        {inbox.isPending ? <TableSkeleton rows={4} /> : inbox.isError ? <div className="p-4"><ErrorState error={inbox.error} /></div> : (
           <ChangeTable items={inbox.data.items} empty="Nothing is waiting for you" />
         )}
       </Card>

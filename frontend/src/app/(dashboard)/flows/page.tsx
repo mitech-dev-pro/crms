@@ -6,8 +6,8 @@ import { useState } from "react";
 import { RequirePerm } from "@/components/layout/SessionGate";
 import { Pill } from "@/components/ui/Badges";
 import { Card } from "@/components/ui/Card";
-import { Select } from "@/components/ui/Form";
-import { ErrorState, Spinner } from "@/components/ui/States";
+import { Combobox } from "@/components/ui/Combobox";
+import { ErrorState, TableSkeleton } from "@/components/ui/States";
 import { useWorkflows } from "@/lib/queries";
 
 export default function FlowsPage() {
@@ -71,14 +71,17 @@ function Flows() {
             </p>
           </div>
           <div className="w-full sm:w-60">
-            <Select aria-label="Department" value={dept} onChange={(e) => setDept(e.target.value)}>
-              <option value="">All departments (default)</option>
-              {wf.data?.departments.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
-            </Select>
+            <Combobox
+              aria-label="Department"
+              value={dept}
+              noneLabel="All departments (default)"
+              options={(wf.data?.departments ?? []).map((d) => ({ value: d.id, label: d.name, hint: d.code }))}
+              onChange={(v) => setDept(v ?? "")}
+            />
           </div>
         </div>
 
-        {wf.isPending ? <Spinner /> : wf.isError ? <ErrorState error={wf.error} /> : (
+        {wf.isPending ? <TableSkeleton rows={4} cols={3} /> : wf.isError ? <ErrorState error={wf.error} /> : (
           <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             {RISK_TIERS.map((tier) => {
               const custom = dept ? wf.data.overrides[dept]?.[tier] : undefined;

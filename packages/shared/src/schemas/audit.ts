@@ -11,5 +11,8 @@ export const auditQuerySchema = z.object({
   q: z.string().trim().optional(),
   role: z.enum(ROLES).optional(),
   category: z.enum(AUDIT_CATEGORIES).optional(),
+  /** Inclusive calendar days, "YYYY-MM-DD". */
+  from: z.iso.date().optional(),
+  to: z.iso.date().optional(),
 });
 export type AuditQuery = z.infer<typeof auditQuerySchema>;

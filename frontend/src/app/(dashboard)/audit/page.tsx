@@ -8,9 +8,11 @@ import { RequirePerm } from "@/components/layout/SessionGate";
 import { Mono, Pill } from "@/components/ui/Badges";
 import { buttonClass } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { DatePicker } from "@/components/ui/DatePicker";
 import { Input, Select } from "@/components/ui/Form";
 import { Pagination } from "@/components/ui/Pagination";
-import { EmptyState, ErrorState, Spinner } from "@/components/ui/States";
+import { RelativeTime } from "@/components/ui/RelativeTime";
+import { EmptyState, ErrorState, TableSkeleton } from "@/components/ui/States";
 import { formatDateTime } from "@/lib/format";
 import { exportUrl, useAudit } from "@/lib/queries";
 
@@ -35,6 +37,8 @@ function AuditTrail() {
   const [search, setSearch] = useState(""); // q, applied 300ms after typing stops
   const [role, setRole] = useState<Role | "">("");
   const [category, setCategory] = useState<AuditCategory | "">("");
+  const [from, setFrom] = useState<string | undefined>();
+  const [to, setTo] = useState<string | undefined>();
   const [page, setPage] = useState(1);
 
   useEffect(() => {
@@ -45,15 +49,15 @@ function AuditTrail() {
     return () => clearTimeout(t);
   }, [q]);
 
-  const filters = { q: search || undefined, role: role || undefined, category: category || undefined };
+  const filters = { q: search || undefined, role: role || undefined, category: category || undefined, from, to };
   const audit = useAudit({ ...filters, page, pageSize: 15 });
 
   return (
     <div className="space-y-4">
       <p className="text-sm text-muted">Every sign-in, decision, configuration change and export, with who did it, when and from where.</p>
       <Card>
-        <div className="grid gap-2 border-b border-line p-3 sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_180px_180px_auto]">
-          <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search user, action or reference" aria-label="Search" />
+        <div className="grid gap-2 border-b border-line p-3 sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_160px_160px_170px_170px_auto]">
+          <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search user, action or reference" aria-label="Search" className="sm:col-span-2 lg:col-span-1" />
           <Select aria-label="Role" value={role} onChange={(e) => { setRole(e.target.value as Role | ""); setPage(1); }}>
             <option value="">All roles</option>
             {ROLES.map((r) => <option key={r} value={r}>{ROLE_LABELS[r]}</option>)}
@@ -62,13 +66,15 @@ function AuditTrail() {
             <option value="">All categories</option>
             {AUDIT_CATEGORIES.map((c) => <option key={c} value={c}>{CATEGORY[c].label}</option>)}
           </Select>
+          <DatePicker id="audit-from" aria-label="From date" placeholder="From" value={from} max={to} clearable onChange={(v) => { setFrom(v); setPage(1); }} />
+          <DatePicker id="audit-to" aria-label="To date" placeholder="To" value={to} min={from} clearable onChange={(v) => { setTo(v); setPage(1); }} />
           {/* A plain link: the browser downloads the file, sending the session cookie. */}
           <a href={exportUrl("/audit/export.csv", filters)} className={buttonClass("secondary")} download>
             <Download size={15} /> Export CSV
           </a>
         </div>
 
-        {audit.isPending ? <Spinner /> : audit.isError ? <div className="p-4"><ErrorState error={audit.error} /></div> : !audit.data.items.length ? (
+        {audit.isPending ? <TableSkeleton rows={8} /> : audit.isError ? <div className="p-4"><ErrorState error={audit.error} /></div> : !audit.data.items.length ? (
           <EmptyState title="No matching events" />
         ) : (
           <div className={`overflow-x-auto ${audit.isPlaceholderData ? "opacity-60" : ""}`}>
@@ -85,7 +91,11 @@ function AuditTrail() {
               <tbody className="divide-y divide-line">
                 {audit.data.items.map((a) => (
                   <tr key={a.id}>
-                    <td className="px-4 py-2.5 whitespace-nowrap text-ink-2">{formatDateTime(a.at)}</td>
+                    <td className="px-4 py-2.5 whitespace-nowrap">
+                      <RelativeTime iso={a.at} className="font-semibold text-ink-2" />
+                      {/* Auditors need the exact time too, without hovering. */}
+                      <p className="text-xs text-muted">{formatDateTime(a.at)}</p>
+                    </td>
                     <td className="px-4 py-2.5">
                       <p className="font-bold text-ink">{a.userName}</p>
                       {a.role && <p className="text-xs text-muted">{ROLE_LABELS[a.role]}</p>}

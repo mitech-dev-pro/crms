@@ -3,6 +3,7 @@
 import { ATTACHMENT_ACCEPT, MAX_ATTACHMENTS_PER_CHANGE, MAX_FILES_PER_UPLOAD, attachmentProblem, type ChangeDetail } from "@crms/shared";
 import { Download, Paperclip, Trash2, Upload } from "lucide-react";
 import { useRef, useState } from "react";
+import { useConfirm } from "@/components/ui/ConfirmDialog";
 import { fileSize } from "@/lib/format";
 import { attachmentUrl, useRemoveAttachment, useUploadAttachments } from "@/lib/queries";
 
@@ -11,6 +12,7 @@ export default function Attachments({ c }: { c: ChangeDetail }) {
   const upload = useUploadAttachments(c.ref);
   const remove = useRemoveAttachment(c.ref);
   const input = useRef<HTMLInputElement>(null);
+  const confirm = useConfirm();
   const [problem, setProblem] = useState<string | null>(null);
   const room = MAX_ATTACHMENTS_PER_CHANGE - c.attachments.length;
 
@@ -25,7 +27,7 @@ export default function Attachments({ c }: { c: ChangeDetail }) {
     if (!issues.length) upload.mutate(files);
   };
 
-  const error = problem ?? upload.error?.message ?? remove.error?.message;
+  const error = problem; // server failures arrive as toasts
 
   return (
     <div>
@@ -39,7 +41,11 @@ export default function Attachments({ c }: { c: ChangeDetail }) {
               <a href={attachmentUrl(c.ref, a.id)} download aria-label={`Download ${a.fileName}`} className="rounded p-1 text-muted hover:bg-surface-2"><Download size={13} /></a>
               {c.actions.removeAttachment && (
                 <button
-                  onClick={() => confirm(`Remove ${a.fileName}?`) && remove.mutate(a.id)}
+                  onClick={async () => {
+                    if (await confirm({ title: `Remove ${a.fileName}?`, message: "The file is deleted from this change. This can't be undone.", confirmLabel: "Remove file", tone: "danger" })) {
+                      remove.mutate(a.id);
+                    }
+                  }}
                   aria-label={`Remove ${a.fileName}`}
                   className="rounded p-1 text-muted hover:bg-[var(--red-bg)] hover:text-danger"
                 >

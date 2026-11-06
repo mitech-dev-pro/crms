@@ -8,8 +8,8 @@ import { useForm } from "react-hook-form";
 import { Pill } from "@/components/ui/Badges";
 import { Button } from "@/components/ui/Button";
 import { Field, Select, Textarea } from "@/components/ui/Form";
+import { RelativeTime } from "@/components/ui/RelativeTime";
 import { EmptyState } from "@/components/ui/States";
-import { formatDateTime } from "@/lib/format";
 import { useMarkImplemented, useReview, useToggleTask } from "@/lib/queries";
 import { StepPill } from "./ChangeDetailView";
 
@@ -111,7 +111,7 @@ export function ApprovalsTab({ c }: { c: ChangeDetail }) {
             {s.overridden && <Pill tone="amber">Super admin override</Pill>}
           </div>
           <p className="text-xs text-muted">
-            {s.decidedBy ? `${s.decidedBy.name} · ${formatDateTime(s.decidedAt)}` : s.status === "pending" ? "Due within 2 working days" : "—"}
+            {s.decidedBy ? <>{s.decidedBy.name} · <RelativeTime iso={s.decidedAt} /></> : s.status === "pending" ? "Due within 2 working days" : "—"}
           </p>
           {s.comment && <p className="mt-1 rounded-lg bg-surface-2 px-3 py-2 text-sm text-ink-2">“{s.comment}”</p>}
         </li>
@@ -161,7 +161,6 @@ export function ImplementationTab({ c }: { c: ChangeDetail }) {
         ))}
       </ul>
       <p className="mt-3 text-xs text-muted">{hint}</p>
-      {(toggle.error || done.error) && <p className="mt-1 text-xs font-semibold text-danger">{(toggle.error ?? done.error)!.message}</p>}
       {c.actions.markImplemented && (
         <Button className="mt-3" loading={done.isPending} onClick={() => done.mutate()}>Mark as implemented</Button>
       )}
@@ -176,7 +175,7 @@ export function PirTab({ c }: { c: ChangeDetail }) {
         <Pill tone={c.pir.outcome.startsWith("Successful") ? "green" : "red"}>{PIR_OUTCOME_LABELS[c.pir.outcome]}</Pill>
         <p className="whitespace-pre-line text-ink">{c.pir.notes}</p>
         <p className="text-xs text-muted">
-          Reviewed by {c.pir.reviewedBy.name} · {formatDateTime(c.pir.reviewedAt)}
+          Reviewed by {c.pir.reviewedBy.name} · <RelativeTime iso={c.pir.reviewedAt} />
         </p>
       </div>
     );
@@ -218,7 +217,7 @@ export function ActivityTab({ c }: { c: ChangeDetail }) {
             <b className="text-ink">{a.userName}</b> <span className="text-ink-2">{a.action}</span>
             {a.role && <span className="ml-1 text-xs text-muted">· {ROLE_LABELS[a.role]}</span>}
           </span>
-          <span className="text-xs text-muted">{formatDateTime(a.at)}</span>
+          <RelativeTime iso={a.at} className="text-xs text-muted" />
         </li>
       ))}
     </ul>
