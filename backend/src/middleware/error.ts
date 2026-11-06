@@ -19,7 +19,9 @@ export const notFoundHandler: RequestHandler = (req, res) => {
 export const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
   if (err instanceof ZodError) {
     // Map each issue to its field path, e.g. { title: "Title is required" }.
-    const fields = Object.fromEntries(err.issues.map((i) => [i.path.join(".") || "_", i.message]));
+    // If a field breaks several rules, report the first (usually the most basic) one.
+    const fields: Record<string, string> = {};
+    for (const i of err.issues) fields[i.path.join(".") || "_"] ??= i.message;
     res.status(400).json({ error: { code: "VALIDATION_ERROR", message: "Some fields are invalid", fields } });
     return;
   }

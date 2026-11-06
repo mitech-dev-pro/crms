@@ -188,7 +188,9 @@ export async function updateUser(u: Actor, id: string, d: UserUpdateInput) {
       if (!next) throw new AppError(400, "INVALID_REFERENCE", "departmentId: unknown or inactive department");
       dept = next;
     }
-    await tx.user.update({ where: { id }, data: d });
+    // Disabling or changing role ends their current sessions, so the change bites immediately.
+    const revoke = (d.status && d.status !== target.status) || (d.role && d.role !== target.role);
+    await tx.user.update({ where: { id }, data: { ...d, ...(revoke && { sessionVersion: { increment: 1 } }) } });
 
     if (d.role && d.role !== target.role) await audit(tx, u, `Changed role of ${target.name}: ${ROLE_LABELS[target.role]} → ${ROLE_LABELS[d.role]}`, target.code);
     if (d.departmentId && d.departmentId !== target.departmentId) await audit(tx, u, `Moved ${target.name} to ${dept.name}`, target.code);
@@ -200,7 +202,8 @@ export async function updateUser(u: Actor, id: string, d: UserUpdateInput) {
 /**
  * Sets a one-time temporary password and returns it once, for the admin to pass on.
  * Only the bcrypt hash is stored; the password itself is never logged.
- * An invited user becomes Active. (Forcing a change at first sign-in comes with SSO / Phase 7.)
+ * An invited user becomes Active. The user must choose a new password at first sign-in,
+ * and any existing sessions of theirs end.
  */
 export async function resetPassword(u: Actor, id: string) {
   if (id === u.id) throw forbidden("Use your own account settings to change your password");
@@ -211,7 +214,7 @@ export async function resetPassword(u: Actor, id: string) {
     if (target.status === "Disabled") throw new AppError(409, "INVALID_STATE", "Enable the user before resetting their password");
 
     const temporaryPassword = randomBytes(9).toString("base64url"); // 12 random characters
-    await tx.user.update({ where: { id }, data: { passwordHash: await bcrypt.hash(temporaryPassword, 10), status: "Active" } });
+    await tx.user.update({ where: { id }, data: { passwordHash: await bcrypt.hash(temporaryPassword, 10), status: "Active", mustChangePassword: true, sessionVersion: { increment: 1 } } });
     await audit(tx, u, target.status === "Invited" ? `Activated ${target.name} with a temporary password` : `Reset password for ${target.name}`, target.code);
     return { temporaryPassword };
   });

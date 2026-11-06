@@ -12,6 +12,10 @@ import {
 } from "./seed-data";
 
 if (!process.env.DATABASE_URL) throw new Error("DATABASE_URL is not set (see backend/.env.example)");
+// This script deletes every row first. Never let it near production data.
+if (process.env.NODE_ENV === "production") {
+  throw new Error("Refusing to seed: NODE_ENV is production and this script wipes the database (demo data, demo passwords).");
+}
 const prisma = createPrisma(process.env.DATABASE_URL);
 
 const STATUS: Record<string, ChangeStatus> = {

@@ -76,6 +76,11 @@ model User {
   departmentId String
   department   Department @relation("DepartmentMembers", fields: [departmentId], references: [id])
   lastLoginAt  DateTime?
+  /// Bumped on logout, password change/reset, disable and role change. Session tokens
+  /// carry the version they were issued with, so older tokens stop working at once.
+  sessionVersion     Int     @default(0)
+  /// Set when an admin issues a temporary password; the user must choose a new one first.
+  mustChangePassword Boolean @default(false)
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
 

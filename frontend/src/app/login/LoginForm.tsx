@@ -35,7 +35,8 @@ export default function LoginForm() {
   const onSubmit = handleSubmit((values) =>
     login.mutate(values, {
       // Only follow same-site paths, so ?next= can't send someone to another website.
-      onSuccess: () => router.replace(next?.startsWith("/") && !next.startsWith("//") ? next : "/dashboard"),
+      onSuccess: (user) =>
+        router.replace(user.mustChangePassword ? "/change-password" : next?.startsWith("/") && !next.startsWith("//") ? next : "/dashboard"),
     }),
   );
 

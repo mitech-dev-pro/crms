@@ -54,6 +54,11 @@ async function handle<T>(res: Response, path: string): Promise<T> {
       // eslint-disable-next-line @next/next/no-location-assign-relative-destination
       window.location.assign(`/login?next=${next}`);
     }
+    // Signed in with a temporary password: the API allows nothing else until it's changed.
+    if (res.status === 403 && err?.code === "PASSWORD_CHANGE_REQUIRED" && window.location.pathname !== "/change-password") {
+      // eslint-disable-next-line @next/next/no-location-assign-relative-destination
+      window.location.assign("/change-password");
+    }
     throw new ApiError(res.status, err?.code ?? "UNKNOWN", err?.message ?? `Request failed (${res.status})`, err?.fields);
   }
   return data as T;

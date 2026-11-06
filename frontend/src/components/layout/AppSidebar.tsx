@@ -2,7 +2,7 @@
 
 import { ROLE_LABELS, type Screen } from "@crms/shared";
 import {
-  CalendarDays, ClipboardCheck, FilePlus2, FileText, GitBranch, LayoutDashboard, LogOut, PieChart, ScrollText, Settings,
+  CalendarDays, ClipboardCheck, FilePlus2, FileText, GitBranch, KeyRound, LayoutDashboard, LogOut, PieChart, ScrollText, Settings,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -80,12 +80,21 @@ export default function AppSidebar({ onNavigate }: { onNavigate?: () => void }) 
             </p>
           </div>
         </div>
-        <button
-          onClick={() => logout.mutate()}
-          className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg border border-line px-3 py-1.5 text-xs font-bold text-ink-2 hover:bg-surface-2"
-        >
-          <LogOut size={14} /> Sign out
-        </button>
+        <div className="mt-3 flex gap-2">
+          <Link
+            href="/change-password"
+            onClick={onNavigate}
+            className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-line px-2 py-1.5 text-xs font-bold text-ink-2 hover:bg-surface-2"
+          >
+            <KeyRound size={13} /> Password
+          </Link>
+          <button
+            onClick={() => logout.mutate()}
+            className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-line px-2 py-1.5 text-xs font-bold text-ink-2 hover:bg-surface-2"
+          >
+            <LogOut size={13} /> Sign out
+          </button>
+        </div>
       </div>
     </aside>
   );
