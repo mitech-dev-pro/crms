@@ -13,6 +13,6 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  // Everything except the login page, API calls, Next internals and static files.
-  matcher: ["/((?!login|api|_next/static|_next/image|favicon.ico|.*\\.(?:png|jpg|jpeg|svg|ico)$).*)"],
+  // Everything except the signed-out pages (login, forgot/reset password), API calls, Next internals and static files.
+  matcher: ["/((?!login|forgot-password|reset-password|api|_next/static|_next/image|favicon.ico|.*\\.(?:png|jpg|jpeg|svg|ico)$).*)"],
 };

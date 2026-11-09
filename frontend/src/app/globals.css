@@ -17,10 +17,10 @@
   --text: #18213a;
   --text-2: #3b4459;
   --muted: #5b6478;
-  --faint: #8a93a6;
+  --faint: #646d80; /* 4.7:1 on --bg, 5.3:1 on white (WCAG AA) */
   --navy: #1d2a4d;
   --navy-hover: #2a3a66;
-  --teal: #0b7f82;
+  --teal: #0a7477; /* 5:1 on --bg, so teal links and text pass AA */
   --teal-strong: #0b6f72;
   --teal-tint: #e6f7f8;
   --teal-bright: #17b3b5;
@@ -47,7 +47,7 @@
   --text: #e8ecf5;
   --text-2: #c3cbdd;
   --muted: #9aa4bc;
-  --faint: #7c87a2;
+  --faint: #8f9ab3; /* 5:1 on --surface-2 */
   --navy: #3a5ba8;
   --navy-hover: #4a6cbc;
   --teal: #1a9c9f;

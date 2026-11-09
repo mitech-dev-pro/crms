@@ -58,7 +58,11 @@ function DecisionPanel({ change: c, override }: { change: ChangeDetail; override
   return (
     <section className={`rounded-xl border-2 bg-surface p-4 ${override ? "border-[var(--amber-fg)]/60" : "border-teal-bright"}`}>
       <h3 className="text-sm font-extrabold text-ink">
-        {override ? `Break-glass override · ${c.currentStage?.label} stage` : `Your decision is required · ${c.currentStage?.label} review`}
+        {override
+          ? `Break-glass override · ${c.currentStage?.label} stage`
+          : c.actions.standInFor
+            ? `Your decision is required · ${c.currentStage?.label} review, standing in for ${c.actions.standInFor}`
+            : `Your decision is required · ${c.currentStage?.label} review`}
       </h3>
       {override && (
         <p className="mt-1 text-sm" style={{ color: "var(--amber-fg)" }}>

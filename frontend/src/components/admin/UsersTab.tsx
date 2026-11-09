@@ -70,7 +70,7 @@ export default function UsersTab() {
             return (
               <button key={s || "all"} onClick={() => { setStatus(s); setPage(1); }} aria-pressed={status === s}
                 className={`rounded-full border px-3 py-1 text-xs font-bold ${status === s ? "border-navy bg-navy text-white" : "border-line-strong text-ink-2 hover:bg-surface-2"}`}>
-                {s || "All"} {n !== undefined && <span className="opacity-70">{n}</span>}
+                {s || "All"} {n !== undefined && <span className="font-semibold">{n}</span>}
               </button>
             );
           })}

@@ -3,14 +3,16 @@
 import { IMPACT_LABELS, LIKELIHOOD_LABELS, PIR_OUTCOMES, PIR_OUTCOME_LABELS, pirSchema, ROLE_LABELS, type ChangeDetail, type PirInput } from "@crms/shared";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Attachments from "./Attachments";
-import type { ReactNode } from "react";
+import DueBadge from "../DueBadge";
+import { useState, type FormEvent, type ReactNode } from "react";
 import { useForm } from "react-hook-form";
 import { Pill } from "@/components/ui/Badges";
 import { Button } from "@/components/ui/Button";
 import { Field, Select, Textarea } from "@/components/ui/Form";
+import { initials } from "@/lib/format";
 import { RelativeTime } from "@/components/ui/RelativeTime";
 import { EmptyState } from "@/components/ui/States";
-import { useMarkImplemented, useReview, useToggleTask } from "@/lib/queries";
+import { useAddComment, useMarkImplemented, useReview, useToggleTask } from "@/lib/queries";
 import { StepPill } from "./ChangeDetailView";
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
@@ -111,7 +113,16 @@ export function ApprovalsTab({ c }: { c: ChangeDetail }) {
             {s.overridden && <Pill tone="amber">Super admin override</Pill>}
           </div>
           <p className="text-xs text-muted">
-            {s.decidedBy ? <>{s.decidedBy.name} · <RelativeTime iso={s.decidedAt} /></> : s.status === "pending" ? "Due within 2 working days" : "—"}
+            {s.decidedBy ? (
+              <>
+                {s.decidedBy.name}
+                {s.onBehalfOf && <> as stand-in for <b className="font-semibold text-ink-2">{s.onBehalfOf.name}</b></>} · <RelativeTime iso={s.decidedAt} />
+              </>
+            ) : s.status === "pending" ? (
+              <span className="inline-flex items-center gap-2">Decisions are due within 2 working days <DueBadge stage={c.currentStage} /></span>
+            ) : (
+              "—"
+            )}
           </p>
           {s.comment && <p className="mt-1 rounded-lg bg-surface-2 px-3 py-2 text-sm text-ink-2">“{s.comment}”</p>}
         </li>
@@ -221,5 +232,62 @@ export function ActivityTab({ c }: { c: ChangeDetail }) {
         </li>
       ))}
     </ul>
+  );
+}
+
+/** The discussion: anyone who can see the change can post. Participants get an email. */
+export function DiscussionTab({ c }: { c: ChangeDetail }) {
+  const add = useAddComment(c.ref);
+  const [body, setBody] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const post = (e: FormEvent) => {
+    e.preventDefault();
+    if (!body.trim()) return setError("Write a comment first");
+    setError(null);
+    add.mutate(body.trim(), { onSuccess: () => setBody(""), onError: (err) => setError(err.message) });
+  };
+
+  return (
+    <div className="space-y-4">
+      {c.comments.length ? (
+        <ol className="space-y-3">
+          {c.comments.map((m) => (
+            <li key={m.id} className="flex gap-3">
+              <span className="grid size-8 shrink-0 place-items-center rounded-full bg-teal-tint text-[11px] font-extrabold text-teal-strong" aria-hidden>
+                {initials(m.author.name)}
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="text-xs text-muted">
+                  <b className="text-sm font-bold text-ink">{m.author.name}</b> · {ROLE_LABELS[m.author.role]} · <RelativeTime iso={m.createdAt} />
+                </p>
+                <p className="mt-1 rounded-lg rounded-tl-none bg-surface-2 px-3 py-2 text-sm whitespace-pre-line text-ink-2">{m.body}</p>
+              </div>
+            </li>
+          ))}
+        </ol>
+      ) : (
+        <EmptyState title="No comments yet">Ask a question or add context. Everyone involved in this change gets an email.</EmptyState>
+      )}
+
+      {c.actions.comment && (
+        <form onSubmit={post} noValidate className="space-y-2 border-t border-line pt-4">
+          <label htmlFor="comment" className="block text-sm font-bold text-ink">Add a comment</label>
+          <Textarea
+            id="comment"
+            value={body}
+            maxLength={2000}
+            invalid={!!error}
+            aria-describedby={error ? "comment-error" : undefined}
+            placeholder="Ask a question or share an update…"
+            onChange={(e) => setBody(e.target.value)}
+            onKeyDown={(e) => (e.ctrlKey || e.metaKey) && e.key === "Enter" && post(e)}
+          />
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <span className="text-xs text-muted">{error ? <span id="comment-error" className="font-semibold text-danger">{error}</span> : "Ctrl+Enter to post. Comments can't be edited."}</span>
+            <Button type="submit" loading={add.isPending}>Post comment</Button>
+          </div>
+        </form>
+      )}
+    </div>
   );
 }

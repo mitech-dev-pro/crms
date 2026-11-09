@@ -30,18 +30,41 @@ export type WizardValues = Omit<ChangeCreateFormInput, "attest"> & { attest: boo
 const STEP_FIELDS = wizardStepSchemas.map((s) => Object.keys(s.shape)) as (keyof WizardValues)[][];
 
 /** Loads what the form needs (and the existing change when editing), then renders the form. */
-export default function ChangeRequestWizard({ editRef }: { editRef?: string }) {
+export default function ChangeRequestWizard({ editRef, copyFrom }: { editRef?: string; copyFrom?: string }) {
   const { data: me } = useMe();
   const meta = useMeta();
-  const existing = useChange(editRef ?? "", !!editRef);
+  const sourceRef = editRef ?? copyFrom;
+  const existing = useChange(sourceRef ?? "", !!sourceRef);
 
-  if (!me || meta.isPending || (editRef && existing.isPending)) return <FormSkeleton />;
+  if (!me || meta.isPending || (sourceRef && existing.isPending)) return <FormSkeleton />;
   if (meta.isError) return <ErrorState error={meta.error} />;
-  if (editRef && existing.isError) return <ErrorState error={existing.error} />;
-  if (existing.data && !existing.data.actions.edit) {
+  if (sourceRef && existing.isError) return <ErrorState error={existing.error} />;
+  if (editRef && existing.data && !existing.data.actions.edit) {
     return <Forbidden message="This request can no longer be edited. Only the requester can edit, and only while it's a draft or returned for rework." />;
   }
-  return <WizardForm key={editRef ?? "new"} me={me} meta={meta.data} existing={existing.data} />;
+  return (
+    <WizardForm
+      key={editRef ?? (copyFrom ? `copy-${copyFrom}` : "new")}
+      me={me}
+      meta={meta.data}
+      existing={editRef ? existing.data : undefined}
+      template={copyFrom ? existing.data : undefined}
+    />
+  );
+}
+
+/** Defaults for a copy: everything except the date, the attachments and the declaration. */
+function copyDefaults(me: SessionUser, meta: MetaResponse, t: ChangeDetail): WizardValues {
+  const base = defaultsFor(me, meta, t);
+  const active = (id: string, list: { id: string }[]) => (list.some((x) => x.id === id) ? id : undefined);
+  return {
+    ...base,
+    title: t.title.startsWith("Copy of ") ? t.title : `Copy of ${t.title}`.slice(0, 160),
+    plannedDate: undefined,
+    departmentId: active(base.departmentId, meta.departments) ?? me.department.id,
+    typeId: active(base.typeId, meta.changeTypes) ?? meta.changeTypes[0]?.id ?? "",
+    implementerId: base.implementerId && active(base.implementerId, meta.implementers),
+  };
 }
 
 function defaultsFor(me: SessionUser, meta: MetaResponse, c?: ChangeDetail): WizardValues {
@@ -70,14 +93,14 @@ function draftPayload(v: WizardValues) {
     Pick<ChangeCreateInput, "typeId" | "departmentId">;
 }
 
-function WizardForm({ me, meta, existing }: { me: SessionUser; meta: MetaResponse; existing?: ChangeDetail }) {
+function WizardForm({ me, meta, existing, template }: { me: SessionUser; meta: MetaResponse; existing?: ChangeDetail; template?: ChangeDetail }) {
   const router = useRouter();
   const editRef = existing?.ref;
   const [step, setStep] = useState(0);
   const form = useForm<WizardValues, unknown, ChangeCreateInput>({
     // The resolver validates against the same schema the API uses.
     resolver: zodResolver(changeCreateSchema) as unknown as Resolver<WizardValues, unknown, ChangeCreateInput>,
-    defaultValues: defaultsFor(me, meta, existing),
+    defaultValues: template ? copyDefaults(me, meta, template) : defaultsFor(me, meta, existing),
     mode: "onTouched",
   });
 
@@ -174,6 +197,12 @@ function WizardForm({ me, meta, existing }: { me: SessionUser; meta: MetaRespons
     <FormProvider {...form}>
       <form onSubmit={onSubmit} noValidate className="space-y-4">
         {editRef && <p className="text-sm text-muted">Editing <span className="font-mono">{editRef}</span></p>}
+        {template && (
+          <p className="rounded-lg border border-line bg-surface px-3 py-2 text-sm text-ink-2">
+            Copied from <span className="font-mono">{template.ref}</span>. Set a new planned date and check every step before you submit.
+            Attachments aren&apos;t copied.
+          </p>
+        )}
 
         <ol className="flex flex-wrap gap-2" aria-label="Steps">
           {STEPS.map((label, i) => {

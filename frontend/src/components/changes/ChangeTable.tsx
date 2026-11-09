@@ -3,13 +3,15 @@ import Link from "next/link";
 import { formatDate } from "@/lib/format";
 import { Mono, RiskBadge, StatusBadge } from "../ui/Badges";
 import { EmptyState } from "../ui/States";
+import DueBadge from "./DueBadge";
 
 /**
  * Change list as a table when there's room, stacked rows when there isn't. Rows link to the detail page.
  * "Room" is the width of the surrounding card (a container query, @container), not the screen,
  * so it also fits half-width cards such as the dashboard's.
  */
-export default function ChangeTable({ items, empty = "No change requests" }: { items: ChangeListItem[]; empty?: string }) {
+/** showDue: add when each waiting stage's decision is due (My approvals). */
+export default function ChangeTable({ items, empty = "No change requests", showDue = false }: { items: ChangeListItem[]; empty?: string; showDue?: boolean }) {
   if (!items.length) return <EmptyState title={empty} />;
 
   return (
@@ -41,8 +43,9 @@ export default function ChangeTable({ items, empty = "No change requests" }: { i
                 <Link href={`/changes/${c.ref}`} className="block truncate font-bold text-ink group-hover:text-teal-strong">
                   {c.title}
                 </Link>
-                <p className="truncate text-xs text-muted">
-                  {c.department.name} · {c.currentStage ? `Awaiting ${c.currentStage.label}` : c.type.label}
+                <p className="flex items-center gap-2 truncate text-xs text-muted">
+                  <span className="truncate">{c.department.name} · {c.currentStage ? `Awaiting ${c.currentStage.label}` : c.type.label}</span>
+                  {showDue && <DueBadge stage={c.currentStage} />}
                 </p>
               </td>
               <td className="px-4 py-3 align-top">
@@ -69,6 +72,7 @@ export default function ChangeTable({ items, empty = "No change requests" }: { i
               <p className="truncate text-xs text-muted">
                 {c.department.name} · {c.currentStage ? `Awaiting ${c.currentStage.label}` : formatDate(c.plannedDate)}
               </p>
+              {showDue && <div className="mt-1"><DueBadge stage={c.currentStage} /></div>}
             </Link>
           </li>
         ))}

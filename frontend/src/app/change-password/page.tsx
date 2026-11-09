@@ -3,11 +3,12 @@
 import { changePasswordFormSchema, type ChangePasswordFormInput, type SessionUser } from "@crms/shared";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
-import { Check, CheckCircle2, Circle } from "lucide-react";
+import { CheckCircle2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import AuthShell from "@/components/auth/AuthShell";
+import PasswordChecklist from "@/components/auth/PasswordChecklist";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { Field } from "@/components/ui/Form";
 import { PasswordInput } from "@/components/ui/PasswordInput";
@@ -15,14 +16,6 @@ import { Spinner } from "@/components/ui/States";
 import { api, ApiError } from "@/lib/api";
 import { keys, useLogout, useMe } from "@/lib/queries";
 import { useHydrated } from "@/lib/use-hydrated";
-
-/** The same rules as the shared passwordSchema, shown live as a checklist. */
-const RULES: { label: string; test: (pw: string, confirm: string) => boolean }[] = [
-  { label: "At least 10 characters", test: (pw) => pw.length >= 10 },
-  { label: "Contains a letter", test: (pw) => /[A-Za-z]/.test(pw) },
-  { label: "Contains a number", test: (pw) => /\d/.test(pw) },
-  { label: "Both new passwords match", test: (pw, c) => pw.length > 0 && pw === c },
-];
 
 /** Change your password. Also where users land after an admin issues a temporary password. */
 export default function ChangePasswordPage() {
@@ -86,19 +79,7 @@ export default function ChangePasswordPage() {
             <PasswordInput id="confirm" autoComplete="new-password" invalid={!!errors.confirm} {...register("confirm")} />
           </Field>
 
-          {/* Live checklist: ticks as each rule is met. */}
-          <ul aria-label="Password requirements" className="grid gap-1.5 rounded-lg bg-surface-2 px-3.5 py-3 text-xs sm:grid-cols-2">
-            {RULES.map((r) => {
-              const ok = r.test(pw, confirm);
-              return (
-                <li key={r.label} className={`flex items-center gap-1.5 transition-colors ${ok ? "font-semibold text-[var(--green-fg)]" : "text-muted"}`}>
-                  {ok ? <Check size={13} strokeWidth={3} aria-hidden /> : <Circle size={11} aria-hidden />}
-                  {r.label}
-                  <span className="sr-only">{ok ? " (met)" : " (not met yet)"}</span>
-                </li>
-              );
-            })}
-          </ul>
+          <PasswordChecklist password={pw} confirm={confirm} />
 
           <Button type="submit" loading={isSubmitting} className="w-full py-2.5">Save new password</Button>
           {forced ? (

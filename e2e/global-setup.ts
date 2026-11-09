@@ -12,4 +12,5 @@ export default function globalSetup() {
   execSync("npx prisma migrate deploy", { cwd: backendDir, env, stdio: "inherit" });
   execSync("npx tsx prisma/seed.ts", { cwd: backendDir, env, stdio: "inherit" });
   rmSync(path.join(backendDir, ".e2e-uploads"), { recursive: true, force: true });
+  rmSync(path.join(backendDir, ".e2e-mail"), { recursive: true, force: true }); // emails from the previous run
 }

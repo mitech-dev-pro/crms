@@ -45,6 +45,11 @@ Browser ──HTTPS──► reverse proxy (IIS / nginx)
 | `TRUST_PROXY` | `loopback` if Next is on the same server. Add your reverse proxy's IP if it forwards from another machine (e.g. `loopback, 10.0.0.5`), so the audit trail records real client addresses. |
 | `UPLOAD_DIR` | Attachment folder, default `uploads` (inside `backend/`). Use an absolute path on a backed-up disk if you prefer. |
 | `LOGIN_MAX_FAILURES` / `LOGIN_MAX_PER_IP` | Login rate limits per 15 min (defaults 10 / 100). If many staff share one public IP behind NAT, raise `LOGIN_MAX_PER_IP`. |
+| `RESET_MAX_PER_IP` | Forgot/reset password requests per address per 15 min (default 10). |
+| `APP_URL` | The public site address used in email links, e.g. `https://changehub.milifeghana.com` (defaults to `CORS_ORIGIN`). |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS` | Your mail server, e.g. Microsoft 365: `smtp.office365.com`, port `587`, `SMTP_SECURE=false`, with a mailbox allowed to send. **Leave `SMTP_HOST` empty and no email is sent**: messages are written as `.eml` files to `MAIL_OUTBOX_DIR` instead. |
+| `MAIL_FROM` | Sender shown on emails, default `MiLife ChangeHub <changehub@milifeghana.com>`. The SMTP account must be allowed to send as this address. |
+| `REMINDERS_ENABLED` / `REMINDER_INTERVAL_MINUTES` | Reminders for late approvals (on by default, checked every 30 min). If you ever run several API instances, turn them on for one only. |
 
 ### Frontend
 
@@ -126,5 +131,6 @@ Take a database backup before upgrading.
 
 - **Single API instance:** login rate-limit counters are in memory. Running several API servers needs a shared store (e.g. Redis) for them.
 - **Attachments on local disk**, without virus scanning. For larger deployments, move them to object storage and add scanning.
-- **No email or SMS notifications.** People see what needs them in the app (the bell and My approvals).
+- **Email only, no SMS.** Emails go out when an approval is needed, on decisions, stand-ins, comments, reminders, escalations and password resets. There are no per-person email preferences yet.
+- **Working days skip weekends only.** Ghana's public holidays aren't counted yet when due dates are worked out.
 - **Sign-in is email + password.** Single sign-on (e.g. Microsoft Entra ID) and MFA are not built yet.

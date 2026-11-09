@@ -3,6 +3,7 @@
 import { loginSchema, type LoginInput } from "@crms/shared";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AlertCircle, ArrowRight, ShieldCheck } from "lucide-react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/Button";
@@ -116,11 +117,10 @@ export default function LoginForm() {
 
       <div className="rise rise-3 mt-6 space-y-4 text-sm">
         <p className="text-muted">
-          <span className="font-semibold text-ink-2">
+          <Link href="/forgot-password" className="font-semibold text-teal hover:underline">
             Forgot your password?
-          </span>{" "}
-          Ask your System Administrator. They can issue a one-time temporary
-          password.
+          </Link>{" "}
+          We&apos;ll email you a link to choose a new one.
         </p>
         <p className="flex items-center gap-2 border-t border-line pt-4 text-xs text-muted">
           <ShieldCheck size={15} className="shrink-0 text-teal" aria-hidden />

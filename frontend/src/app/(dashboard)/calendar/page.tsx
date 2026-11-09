@@ -63,10 +63,15 @@ function CalendarView() {
         {cal.isError ? <div className="p-4"><ErrorState error={cal.error} /></div> : (
           <div className="overflow-x-auto">
             <div className="grid min-w-[700px] grid-cols-7" role="grid" aria-label={title}>
-              {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((d) => (
-                <div key={d} role="columnheader" className="border-b border-line px-2 py-2 text-xs font-bold tracking-wide text-muted uppercase">{d}</div>
-              ))}
-              {days.map((d) => {
+              {/* role="row" with display: contents keeps the CSS grid while giving screen readers rows. */}
+              <div role="row" className="contents">
+                {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((d) => (
+                  <div key={d} role="columnheader" className="border-b border-line px-2 py-2 text-xs font-bold tracking-wide text-muted uppercase">{d}</div>
+                ))}
+              </div>
+              {Array.from({ length: days.length / 7 }, (_, w) => days.slice(w * 7, w * 7 + 7)).map((week) => (
+              <div role="row" className="contents" key={ymd(week[0]!)}>
+              {week.map((d) => {
                 const key = ymd(d);
                 const inMonth = d.getMonth() === month;
                 const freeze = freezeOn(key);
@@ -75,13 +80,15 @@ function CalendarView() {
                   <div
                     key={key}
                     role="gridcell"
-                    aria-label={`${formatDate(key)}${freeze ? `, ${freeze.name} freeze` : ""}, ${items.length} changes`}
                     className={`min-h-24 border-r border-b border-line p-1.5 last:border-r-0 ${inMonth ? "" : "bg-surface-2"}`}
                     style={freeze ? { backgroundImage: hatch } : undefined}
                     title={freeze ? `${freeze.name} (${formatDate(freeze.from)} – ${formatDate(freeze.to)})` : undefined}
                   >
                     <span className={`inline-flex size-6 items-center justify-center rounded-full text-xs font-bold ${key === today ? "bg-navy text-white" : inMonth ? "text-ink" : "text-faint"}`}>
-                      {d.getDate()}
+                      <span aria-hidden>{d.getDate()}</span>
+                      <span className="sr-only">
+                        {formatDate(key)}{freeze ? `, ${freeze.name} freeze` : ""}, {items.length ? `${items.length} change${items.length === 1 ? "" : "s"}` : "no changes"}
+                      </span>
                     </span>
                     <ul className="mt-1 space-y-1">
                       {items.slice(0, 3).map((c) => (
@@ -101,6 +108,8 @@ function CalendarView() {
                   </div>
                 );
               })}
+              </div>
+              ))}
             </div>
           </div>
         )}

@@ -7,6 +7,7 @@ import RolesTab from "@/components/admin/RolesTab";
 import UsersTab from "@/components/admin/UsersTab";
 import WorkflowsTab from "@/components/admin/WorkflowsTab";
 import { RequirePerm } from "@/components/layout/SessionGate";
+import StandInsPanel from "@/components/standins/StandInsPanel";
 
 // Tabs in the prototype's order.
 const TABS = [
@@ -15,6 +16,7 @@ const TABS = [
   ["roles", "Roles & permissions"],
   ["workflows", "Approval workflows"],
   ["users", "Users & access"],
+  ["standins", "Stand-ins"],
 ] as const;
 type Tab = (typeof TABS)[number][0];
 
@@ -42,6 +44,7 @@ export default function AdminPage() {
           {tab === "roles" && <RolesTab />}
           {tab === "workflows" && <WorkflowsTab />}
           {tab === "users" && <UsersTab />}
+          {tab === "standins" && <StandInsPanel scope="all" />}
         </div>
       </div>
     </RequirePerm>

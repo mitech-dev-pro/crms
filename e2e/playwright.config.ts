@@ -32,6 +32,9 @@ export default defineConfig({
         DATABASE_URL: testDatabaseUrl(),
         CORS_ORIGIN: `http://localhost:${WEB_PORT}`,
         UPLOAD_DIR: ".e2e-uploads",
+        MAIL_OUTBOX_DIR: ".e2e-mail", // emails are written here, never sent
+        APP_URL: `http://localhost:${WEB_PORT}`,
+        RESET_MAX_PER_IP: "1000",
         LOGIN_MAX_PER_IP: "1000", // every test signs in; don't trip the per-address limit
       },
       reuseExistingServer: false,

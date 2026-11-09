@@ -42,13 +42,13 @@ export default function AppHeader({ onMenu }: { onMenu: () => void }) {
       <button
         type="button"
         onClick={openCommandPalette}
-        aria-label={me?.permissions.includes("changes") ? "Search change requests (Ctrl+K)" : "Go to a page (Ctrl+K)"}
         aria-keyshortcuts="Control+K Meta+K"
-        className="flex items-center gap-2 rounded-lg border border-line-strong bg-surface-2 p-2 text-sm text-faint hover:border-teal-bright sm:w-64 sm:py-2 sm:pr-2 sm:pl-3"
+        className="flex items-center gap-2 rounded-lg border border-line-strong bg-surface-2 p-2 text-sm text-muted hover:border-teal-bright sm:w-64 sm:py-2 sm:pr-2 sm:pl-3"
       >
-        <Search size={15} className="shrink-0" />
-        <span className="hidden flex-1 truncate text-left whitespace-nowrap sm:block">{me?.permissions.includes("changes") ? "Search change ID or title" : "Go to a page"}</span>
-        <kbd className="hidden rounded border border-line bg-surface px-1.5 font-mono text-[11px] text-muted sm:block">Ctrl K</kbd>
+        <Search size={15} className="shrink-0" aria-hidden />
+        {/* The visible text is the button's name; on phones it's kept for screen readers only. */}
+        <span className="sr-only flex-1 truncate text-left whitespace-nowrap sm:not-sr-only">{me?.permissions.includes("changes") ? "Search change ID or title" : "Go to a page"}</span>
+        <kbd aria-hidden className="hidden rounded border border-line bg-surface px-1.5 font-mono text-[11px] text-muted sm:block">Ctrl K</kbd>
       </button>
       <NotificationBell />
       <ThemeToggle />

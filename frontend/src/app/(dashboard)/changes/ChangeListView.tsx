@@ -93,7 +93,7 @@ export default function ChangeListView() {
               className={`rounded-full border px-3 py-1 text-xs font-bold ${active ? "border-navy bg-navy text-white" : "border-line-strong bg-surface text-ink-2 hover:bg-surface-2"}`}
             >
               {s === "All" ? "All" : CHANGE_STATUS_LABELS[s]}
-              {n !== undefined && <span className="ml-1.5 opacity-70">{n}</span>}
+              {n !== undefined && <span className="ml-1.5 font-semibold">{n}</span>}
             </button>
           );
         })}

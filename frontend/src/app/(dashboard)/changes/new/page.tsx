@@ -8,6 +8,7 @@ import { FormSkeleton } from "@/components/ui/States";
 
 // /changes/new            → new request
 // /changes/new?edit=REF   → edit a draft or returned request
+// /changes/new?copy=REF   → a new request pre-filled from an existing one
 export default function NewChangePage() {
   return (
     <Suspense fallback={<FormSkeleton />}>
@@ -17,11 +18,13 @@ export default function NewChangePage() {
 }
 
 function WithParams() {
-  const editRef = useSearchParams().get("edit") ?? undefined;
+  const params = useSearchParams();
+  const editRef = params.get("edit") ?? undefined;
+  const copyFrom = editRef ? undefined : params.get("copy") ?? undefined;
   // Editing goes through the "changes" screen (requesters own their drafts); creating needs "new".
   return (
     <RequirePerm screen={editRef ? "changes" : "new"}>
-      <ChangeRequestWizard editRef={editRef} />
+      <ChangeRequestWizard editRef={editRef} copyFrom={copyFrom} />
     </RequirePerm>
   );
 }

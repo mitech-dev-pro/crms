@@ -5,7 +5,7 @@
 import type {
   AuditListResponse, AuditQuery, CalendarResponse, ChangeDetail, ChangeDraftInput, ChangeListQuery, ChangeListResponse,
   ChangeUpdateInput, DecisionInput, FreezeDto, FreezeInput, InboxResponse, LoginInput, MetaResponse, PirInput,
-  ReportPeriod, ReportsResponse, RoutePreview, SessionUser, WorkflowsResponse,
+  ReportPeriod, ReportsResponse, RoutePreview, Role, SessionUser, StandInDto, StandInInput, WorkflowsResponse,
 } from "@crms/shared";
 import { useMutation, useQuery, useQueryClient, keepPreviousData } from "@tanstack/react-query";
 import { api, apiUpload } from "./api";
@@ -181,6 +181,12 @@ export const useRemoveAttachment = (ref: string) =>
     errorPrefix: "Could not remove the file",
   });
 
+export const useAddComment = (ref: string) =>
+  useChangeMutation((body: string) => api<ChangeDetail>(`/changes/${ref}/comments`, { method: "POST", body: { body } }), {
+    success: "Comment posted",
+    inlineError: true, // shown under the comment box
+  });
+
 /** Download link for an attachment (the browser sends the session cookie). */
 export const attachmentUrl = (ref: string, id: string) => `/api/changes/${ref}/attachments/${id}`;
 
@@ -214,10 +220,41 @@ export function useNotifications(me: SessionUser | undefined) {
   });
 
   const items: Notice[] = [
-    ...(inbox.data?.items ?? []).map((c) => ({ ref: c.ref, title: c.title, reason: `Awaiting your decision · ${c.currentStage?.label ?? ""} stage` })),
+    ...(inbox.data?.items ?? []).map((c) => {
+      const late = c.currentStage?.dueAt && new Date(c.currentStage.dueAt).getTime() < inbox.dataUpdatedAt; // "now" = when the inbox was fetched
+      return { ref: c.ref, title: c.title, reason: `${late ? "Overdue · " : ""}Awaiting your decision · ${c.currentStage?.label ?? ""} stage` };
+    }),
     ...(returned.data?.items ?? []).map((c) => ({ ref: c.ref, title: c.title, reason: "Returned to you for rework" })),
     ...(toStart.data?.items ?? []).map((c) => ({ ref: c.ref, title: c.title, reason: `Ready to implement · planned ${c.plannedDate ?? "—"}` })),
     ...(toReview.data?.items ?? []).map((c) => ({ ref: c.ref, title: c.title, reason: "Implemented · post-implementation review due" })),
   ];
   return { items, loading: inbox.isLoading || returned.isLoading };
 }
+
+// ------------------------------------------------------------------ stand-ins
+
+/** "mine": cover I've arranged or am giving. "all": everyone's (admins and the Change Manager). */
+export const useStandIns = (scope: "mine" | "all" = "mine") =>
+  useQuery({ queryKey: ["stand-ins", scope], queryFn: () => api<{ items: StandInDto[] }>("/stand-ins", { query: scope === "all" ? { scope } : {} }) });
+
+export type StandInCandidate = { id: string; name: string; role: Role; department: string };
+export const useStandInCandidates = () =>
+  useQuery({ queryKey: ["stand-ins", "candidates"], queryFn: () => api<{ items: StandInCandidate[] }>("/stand-ins/candidates"), staleTime: 5 * 60_000 });
+
+/** Stand-ins change who can decide what, so refresh the inbox and changes too. */
+function useStandInMutation<V, R>(fn: (v: V) => Promise<R>, meta: MutationFeedback) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: fn,
+    meta,
+    onSuccess: () => {
+      for (const key of [["stand-ins"], keys.inbox, keys.changes, ["audit"]]) qc.invalidateQueries({ queryKey: key });
+    },
+  });
+}
+export const useCreateStandIn = () =>
+  useStandInMutation((v: StandInInput) => api<StandInDto>("/stand-ins", { method: "POST", body: v }), {
+    success: (d: StandInDto) => `${d.to.name} will stand in for ${d.from.name}`,
+    inlineError: true, // shown in the form
+  });
+export const useEndStandIn = () => useStandInMutation((id: string) => api<void>(`/stand-ins/${id}`, { method: "DELETE" }), { success: "Stand-in ended" });

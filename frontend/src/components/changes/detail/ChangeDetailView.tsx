@@ -3,14 +3,17 @@
 import type { ChangeDetail, ChangeStatus } from "@crms/shared";
 import { Check } from "lucide-react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { Mono, Pill, RiskBadge, StatusBadge } from "@/components/ui/Badges";
 import { Card, CardHeader, Facts } from "@/components/ui/Card";
 import { DetailSkeleton, ErrorState } from "@/components/ui/States";
 import { formatDate } from "@/lib/format";
-import { useChange } from "@/lib/queries";
+import { useChange, useMe } from "@/lib/queries";
+import { ButtonLink } from "@/components/ui/Button";
+import { Copy } from "lucide-react";
 import ActionPanel from "./ActionPanel";
-import { ActivityTab, ApprovalsTab, ImplementationTab, OverviewTab, PirTab, RiskTab } from "./Tabs";
+import { ActivityTab, ApprovalsTab, DiscussionTab, ImplementationTab, OverviewTab, PirTab, RiskTab } from "./Tabs";
 
 const TABS = [
   ["overview", "Overview"],
@@ -18,13 +21,17 @@ const TABS = [
   ["approvals", "Approvals"],
   ["impl", "Implementation"],
   ["pir", "Post-review"],
+  ["discussion", "Discussion"],
   ["activity", "Activity"],
 ] as const;
 type Tab = (typeof TABS)[number][0];
 
 export default function ChangeDetailView({ changeRef }: { changeRef: string }) {
   const { data: c, isPending, isError, error } = useChange(changeRef);
-  const [tab, setTab] = useState<Tab>("overview");
+  const { data: me } = useMe();
+  // ?tab=discussion (links in comment emails) opens that tab.
+  const asked = useSearchParams().get("tab");
+  const [tab, setTab] = useState<Tab>(() => (TABS.some(([k]) => k === asked) ? (asked as Tab) : "overview"));
   if (isPending) return <DetailSkeleton />;
   if (isError) return <ErrorState error={error} />;
 
@@ -39,7 +46,14 @@ export default function ChangeDetailView({ changeRef }: { changeRef: string }) {
           <span className="text-xs font-semibold text-ink-2">{c.type.label}</span>
           <span className="text-xs font-semibold text-muted">{c.tier} route</span>
         </div>
-        <h2 className="mt-1 text-2xl font-extrabold text-ink">{c.title}</h2>
+        <div className="mt-1 flex flex-wrap items-start justify-between gap-3">
+          <h2 className="text-2xl font-extrabold text-ink">{c.title}</h2>
+          {me?.permissions.includes("new") && (
+            <ButtonLink href={`/changes/new?copy=${c.ref}`} variant="secondary" className="px-3 py-1.5 text-xs">
+              <Copy size={14} aria-hidden /> Copy as new request
+            </ButtonLink>
+          )}
+        </div>
       </div>
 
       <LifecycleBar status={c.status} />
@@ -57,6 +71,9 @@ export default function ChangeDetailView({ changeRef }: { changeRef: string }) {
                 className={`border-b-2 px-2.5 py-3 text-sm font-bold whitespace-nowrap ${tab === key ? "border-teal text-teal-strong" : "border-transparent text-ink-2 hover:text-ink"}`}
               >
                 {label}
+                {key === "discussion" && c.comments.length > 0 && (
+                  <span className="ml-1.5 rounded-full bg-teal-tint px-1.5 text-[11px] text-teal-strong">{c.comments.length}</span>
+                )}
               </button>
             ))}
           </div>
@@ -66,6 +83,7 @@ export default function ChangeDetailView({ changeRef }: { changeRef: string }) {
             {tab === "approvals" && <ApprovalsTab c={c} />}
             {tab === "impl" && <ImplementationTab c={c} />}
             {tab === "pir" && <PirTab c={c} />}
+            {tab === "discussion" && <DiscussionTab c={c} />}
             {tab === "activity" && <ActivityTab c={c} />}
           </div>
         </Card>
