@@ -31,3 +31,15 @@ export const loginLimiters = [
     handler: (_req, res) => res.status(429).json(tooMany("Too many sign-in attempts from this network. Try again later.")),
   }),
 ];
+
+/** Forgot / reset password: a few tries per address, so links can't be used to flood inboxes. */
+export const resetLimiters = [
+  rateLimit({
+    windowMs: 15 * 60_000,
+    limit: env.RESET_MAX_PER_IP,
+    standardHeaders: "draft-8",
+    legacyHeaders: false,
+    keyGenerator: (req) => `${req.path}|${ipKeyGenerator(req.ip ?? "")}`,
+    handler: (_req, res) => res.status(429).json(tooMany("Too many password reset attempts. Try again in 15 minutes.")),
+  }),
+];

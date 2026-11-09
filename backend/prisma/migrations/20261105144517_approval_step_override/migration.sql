@@ -1,2 +1,2 @@
 -- AlterTable
-ALTER TABLE `approvalstep` ADD COLUMN `overridden` BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE `ApprovalStep` ADD COLUMN `overridden` BOOLEAN NOT NULL DEFAULT false;

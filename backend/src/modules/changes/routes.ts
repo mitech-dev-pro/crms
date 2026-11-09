@@ -1,5 +1,5 @@
 import {
-  MAX_ATTACHMENT_BYTES, MAX_FILES_PER_UPLOAD, changeCreateSchema, changeDraftSchema, changeListQuerySchema, changeUpdateSchema, decisionSchema,
+  MAX_ATTACHMENT_BYTES, MAX_FILES_PER_UPLOAD, changeCreateSchema, commentSchema, changeDraftSchema, changeListQuerySchema, changeUpdateSchema, decisionSchema,
   pirSchema, routePreviewQuerySchema, submitSchema, taskUpdateSchema,
 } from "@crms/shared";
 import { Router, type Request } from "express";
@@ -73,6 +73,11 @@ changesRouter.post("/:ref/implemented", requirePerm("changes"), async (req, res)
 
 changesRouter.post("/:ref/pir", requirePerm("changes"), async (req, res) => {
   res.json(await changes.reviewChange(actor(req), ref(req), pirSchema.parse(req.body)));
+});
+
+// POST /api/changes/:ref/comments { body } — the discussion on a change.
+changesRouter.post("/:ref/comments", requirePerm("changes"), async (req, res) => {
+  res.status(201).json(await changes.addComment(actor(req), ref(req), commentSchema.parse(req.body)));
 });
 
 // Attachments ----------------------------------------------------------------

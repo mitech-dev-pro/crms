@@ -15,11 +15,23 @@ export type ChangeFacts = {
   tasks: { done: boolean }[];
 };
 
-export type Actor = { id: string; role: Role };
+/** standInFor: approvers this user is covering for today (their role, not the user's own). */
+export type Actor = { id: string; role: Role; standInFor?: { userId: string; name: string; role: Role }[] };
 
 export type DecisionKind = "approve" | "reject" | "return";
 
-export const pendingStep = (steps: StepFacts[]) => steps.find((s) => s.status === "pending");
+export const pendingStep = <T extends StepFacts>(steps: T[]): T | undefined => steps.find((s) => s.status === "pending");
+
+/**
+ * The approver this user may cover for at the current stage, if any: someone holding the
+ * stage's role who named them as stand-in. Never the change's requester, so segregation of
+ * duties can't be side-stepped by asking a friend to cover.
+ */
+export function standInCover(c: Pick<ChangeFacts, "status" | "requesterId" | "steps">, u: Actor) {
+  const pending = pendingStep(c.steps);
+  if (c.status !== "PendingApproval" || !pending || pending.role === u.role) return undefined;
+  return u.standInFor?.find((s) => s.role === pending.role && s.userId !== c.requesterId);
+}
 
 const editable: ChangeStatus[] = ["Draft", "ReturnedForRework"];
 const startable: ChangeStatus[] = ["Scheduled", "Approved"];
@@ -35,7 +47,9 @@ export const isImplementerOf = (c: Pick<ChangeFacts, "implementerId">, u: Actor)
 export function allowedActions(c: ChangeFacts, u: Actor) {
   const pending = pendingStep(c.steps);
   const isRequester = c.requesterId === u.id;
-  const atMyStage = c.status === "PendingApproval" && pending?.role === u.role;
+  const ownStage = c.status === "PendingApproval" && pending?.role === u.role;
+  const cover = standInCover(c, u);
+  const atMyStage = ownStage || !!cover;
   const isImplementer = isImplementerOf(c, u);
   const allTasksDone = c.tasks.length > 0 && c.tasks.every((t) => t.done);
   // The requester holds the role of the stage they are waiting at, so segregation
@@ -48,7 +62,7 @@ export function allowedActions(c: ChangeFacts, u: Actor) {
     /** Approve, reject or return: only the role at the current stage, and never the requester. */
     decide: atMyStage && !isRequester,
     /** True when it is your stage but you raised the change (segregation of duties). */
-    sodBlocked: atMyStage && isRequester,
+    sodBlocked: ownStage && isRequester,
     /**
      * Break-glass: a super admin may decide a stage the requester is blocked from,
      * with a mandatory reason. Never on a change they raised themselves.
@@ -63,6 +77,8 @@ export function allowedActions(c: ChangeFacts, u: Actor) {
     attach: isRequester && [...editable, "PendingApproval"].includes(c.status),
     /** …but only remove files while the request is still theirs to edit. */
     removeAttachment: isRequester && editable.includes(c.status),
+    comment: true, // the caller has already checked the user may see the change
+    standInFor: !ownStage && cover && !isRequester ? cover.name : null,
   };
 }
 export type AllowedActions = ReturnType<typeof allowedActions>;

@@ -36,7 +36,9 @@ async function main() {
   console.log("Clearing tables…");
   // Order matters: children before parents. Deleting a change cascades to its steps, tasks, files and PIR.
   await prisma.auditLog.deleteMany();
-  await prisma.change.deleteMany();
+  await prisma.change.deleteMany(); // also its comments
+  await prisma.delegation.deleteMany();
+  await prisma.passwordResetToken.deleteMany();
   await prisma.workflowStage.deleteMany();
   await prisma.freezeWindow.deleteMany();
   await prisma.changeType.deleteMany();
@@ -99,6 +101,7 @@ async function main() {
   console.log("Changes…");
   for (const c of CHANGES) {
     const decided = c.steps.filter((st) => st.at);
+    const submittedAt = c.status === "Draft" ? null : decided[0] ? ts(decided[0].at!) : day(c.created);
     await prisma.change.create({
       data: {
         ref: c.ref, title: c.title, summary: c.summary, reason: c.reason,
@@ -110,12 +113,14 @@ async function main() {
         requesterId: uid(c.requester),
         implementerId: c.implementer ? uid(c.implementer) : null,
         createdAt: day(c.created),
-        submittedAt: c.status === "Draft" ? null : decided[0] ? ts(decided[0].at!) : day(c.created),
+        submittedAt,
         steps: {
           create: c.steps.map((st, order) => ({
             order, role: st.role, status: st.status, comment: st.comment,
             decidedAt: st.at ? ts(st.at) : null,
             decidedById: st.at ? uid(personaFor(st.role)) : null,
+            // A waiting stage started when the stage before it was decided (or at submission).
+            pendingSince: st.status === "pending" ? (order > 0 && c.steps[order - 1]!.at ? ts(c.steps[order - 1]!.at!) : submittedAt) : null,
           })),
         },
         tasks: {

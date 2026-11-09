@@ -13,4 +13,5 @@ export function setup() {
   execSync("npx prisma migrate deploy", { env, stdio: "inherit" }); // creates the database if it is missing
   execSync("npx tsx prisma/seed.ts", { env, stdio: "inherit" });
   rmSync(".test-uploads", { recursive: true, force: true }); // uploaded files from the previous run
+  rmSync(".test-mail", { recursive: true, force: true }); // emails written by the previous run
 }

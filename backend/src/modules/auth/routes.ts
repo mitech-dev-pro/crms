@@ -1,11 +1,12 @@
-import { changePasswordSchema, loginSchema } from "@crms/shared";
+import { changePasswordSchema, forgotPasswordSchema, loginSchema, resetPasswordSchema } from "@crms/shared";
 import { Router, type Response } from "express";
 import { prisma } from "../../lib/db";
 import { SESSION_COOKIE, sessionCookieOptions, signSession, verifySession } from "../../lib/session";
 import { requireAuth } from "../../middleware/auth";
-import { loginLimiters } from "../../middleware/rate-limit";
+import { inBackground } from "../../lib/mail";
+import { loginLimiters, resetLimiters } from "../../middleware/rate-limit";
 import { writeAudit } from "../../services/audit";
-import { changePassword, getSessionUser, login, revokeSessions } from "./service";
+import { changePassword, getSessionUser, login, requestPasswordReset, resetPassword, revokeSessions } from "./service";
 
 export const authRouter = Router();
 
@@ -33,6 +34,21 @@ authRouter.post("/logout", async (req, res) => {
     }
   }
   res.clearCookie(SESSION_COOKIE, { ...sessionCookieOptions, maxAge: undefined });
+  res.status(204).end();
+});
+
+// POST /api/auth/forgot-password { email } → 202, always the same answer (rate-limited).
+// The work runs after responding, so the timing doesn't reveal which emails have accounts.
+authRouter.post("/forgot-password", ...resetLimiters, async (req, res) => {
+  const { email } = forgotPasswordSchema.parse(req.body);
+  inBackground(requestPasswordReset(email, req.ip), "password reset request");
+  res.status(202).json({ message: "If that email belongs to an active account, a reset link is on its way." });
+});
+
+// POST /api/auth/reset-password { token, newPassword } → 204. Sign in afterwards with the new password.
+authRouter.post("/reset-password", ...resetLimiters, async (req, res) => {
+  const { token, newPassword } = resetPasswordSchema.parse(req.body);
+  await resetPassword(token, newPassword, req.ip);
   res.status(204).end();
 });
 

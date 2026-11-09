@@ -117,3 +117,9 @@ export const decisionSchema = z.discriminatedUnion("kind", [
   }),
 ]);
 export type DecisionInput = z.infer<typeof decisionSchema>;
+
+/** POST /api/changes/:ref/comments */
+export const commentSchema = z.object({
+  body: z.string({ error: "Write a comment first" }).trim().min(1, "Write a comment first").max(2000, "Keep comments under 2,000 characters"),
+});
+export type CommentInput = z.infer<typeof commentSchema>;

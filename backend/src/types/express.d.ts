@@ -10,6 +10,8 @@ declare global {
         email: string;
         role: Role;
         departmentId: string;
+        /** Approvers this user is standing in for today (see services/standins.ts). */
+        standInFor: { userId: string; name: string; role: Role }[];
       };
     }
   }

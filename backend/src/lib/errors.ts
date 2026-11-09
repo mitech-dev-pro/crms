@@ -9,6 +9,8 @@ export class AppError extends Error {
     public readonly status: number,
     public readonly code: string,
     message: string,
+    /** Optional per-field messages, shown next to form fields (same as validation errors). */
+    public readonly fields?: Record<string, string>,
   ) {
     super(message);
     this.name = "AppError";

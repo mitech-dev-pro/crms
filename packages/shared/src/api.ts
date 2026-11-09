@@ -8,7 +8,8 @@ export type ApiErrorBody = { error: { code: string; message: string; fields?: Re
 
 type Ref = { id: string; name: string };
 
-export type CurrentStage = { role: Role; label: string; index: number; total: number } | null;
+/** pendingSince/dueAt: ISO timestamps; due 2 working days after the stage started waiting. */
+export type CurrentStage = { role: Role; label: string; index: number; total: number; pendingSince: string | null; dueAt: string | null } | null;
 
 export type ChangeListItem = {
   id: string;
@@ -48,6 +49,10 @@ export type ChangeActions = {
   review: boolean;
   attach: boolean;
   removeAttachment: boolean;
+  /** Anyone who can see the change can join its discussion. */
+  comment: boolean;
+  /** Set when you can decide only as a stand-in: the name of the approver you're covering for. */
+  standInFor: string | null;
 };
 
 export type ApprovalStepDto = {
@@ -60,6 +65,23 @@ export type ApprovalStepDto = {
   decidedAt: string | null;
   comment: string | null;
   overridden: boolean;
+  /** When a stand-in decided: the approver they were covering for. */
+  onBehalfOf: Ref | null;
+};
+
+export type CommentDto = { id: string; author: Ref & { role: Role }; body: string; createdAt: string };
+
+/** A stand-in arrangement. Dates are inclusive "YYYY-MM-DD". */
+export type StandInDto = {
+  id: string;
+  from: Ref & { role: Role };
+  to: Ref & { role: Role };
+  startsOn: string;
+  endsOn: string;
+  reason: string | null;
+  createdBy: Ref;
+  /** "upcoming" | "active" | "ended" (past its end date or revoked). */
+  state: "upcoming" | "active" | "ended";
 };
 
 export type ActivityItem = { id: string; at: string; userName: string; role: Role | null; action: string; category: string };
@@ -85,6 +107,7 @@ export type ChangeDetail = Omit<ChangeListItem, "requester"> & {
   pir: { outcome: PirOutcome; notes: string; reviewedBy: Ref; reviewedAt: string } | null;
   actions: ChangeActions;
   activity: ActivityItem[];
+  comments: CommentDto[];
 };
 
 export type InboxResponse = { items: ChangeListItem[] };

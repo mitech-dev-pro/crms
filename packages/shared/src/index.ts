@@ -8,3 +8,4 @@ export * from "./schemas/planning";
 export * from "./schemas/admin";
 export * from "./attachments";
 export type * from "./api";
+export * from "./working-days";

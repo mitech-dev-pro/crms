@@ -6,7 +6,7 @@ export default defineConfig({
     include: ["test/**/*.test.ts"],
     globalSetup: "./test/global-setup.ts",
     // Every test file and the app under test talk to the test database.
-    env: { DATABASE_URL: testDatabaseUrl(), NODE_ENV: "test", UPLOAD_DIR: ".test-uploads" },
+    env: { DATABASE_URL: testDatabaseUrl(), NODE_ENV: "test", UPLOAD_DIR: ".test-uploads", MAIL_OUTBOX_DIR: ".test-mail", APP_URL: "http://localhost:3000" },
     // Files share one database, so run them one at a time.
     fileParallelism: false,
     testTimeout: 20_000,

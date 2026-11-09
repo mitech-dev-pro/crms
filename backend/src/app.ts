@@ -13,6 +13,7 @@ import { healthRouter } from "./modules/health/routes";
 import { metaRouter } from "./modules/meta/routes";
 import { planningRouter } from "./modules/planning/routes";
 import { reportsRouter } from "./modules/reports/routes";
+import { standInsRouter } from "./modules/standins/routes";
 
 /**
  * Builds the Express app without starting it, so tests can import it
@@ -38,6 +39,7 @@ export function createApp() {
   app.use("/api/meta", metaRouter);
   app.use("/api/audit", auditRouter);
   app.use("/api/changes", changesRouter);
+  app.use("/api/stand-ins", standInsRouter);
   app.use("/api/approvals", approvalsRouter);
   app.use("/api/reports", reportsRouter);
   app.use("/api/admin", adminRouter);

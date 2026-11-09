@@ -26,3 +26,6 @@ Thumbs.db
 backend/.e2e-uploads/
 e2e/test-results/
 e2e/playwright-report/
+backend/.mail-outbox/
+backend/.test-mail/
+backend/.e2e-mail/

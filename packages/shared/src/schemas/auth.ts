@@ -17,6 +17,17 @@ export const passwordSchema = z
   .regex(/\d/, "Include at least one number");
 
 /** POST /api/auth/change-password */
+/** POST /api/auth/forgot-password */
+export const forgotPasswordSchema = z.object({ email: z.string().trim().toLowerCase().pipe(z.email("Enter a valid email address")) });
+export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
+
+/** POST /api/auth/reset-password: the token from the emailed link, and the new password. */
+export const resetPasswordSchema = z.object({ token: z.string().min(20, "This reset link is incomplete"), newPassword: passwordSchema });
+export const resetPasswordFormSchema = z
+  .object({ newPassword: passwordSchema, confirm: z.string() })
+  .refine((v) => v.newPassword === v.confirm, { message: "The passwords don't match", path: ["confirm"] });
+export type ResetPasswordFormInput = z.infer<typeof resetPasswordFormSchema>;
+
 export const changePasswordSchema = z.object({
   currentPassword: z.string().min(1, "Enter your current password"),
   newPassword: passwordSchema,

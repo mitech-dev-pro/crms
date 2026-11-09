@@ -75,6 +75,19 @@ export const userImportSchema = z.object({
 export type UserImportInput = z.input<typeof userImportSchema>;
 
 /** The template the Users screen offers for download. */
+/** POST /api/stand-ins: who covers for whom, and when (inclusive days). */
+export const standInSchema = z
+  .object({
+    /** Leave out to set up cover for yourself. Admins and the Change Manager may arrange it for others. */
+    fromUserId: z.string().min(1).optional(),
+    toUserId: z.string({ error: "Choose who will stand in" }).min(1, "Choose who will stand in"),
+    startsOn: z.iso.date({ error: "Choose a start date" }),
+    endsOn: z.iso.date({ error: "Choose an end date" }),
+    reason: z.string().trim().max(300).optional(),
+  })
+  .refine((v) => v.startsOn <= v.endsOn, { message: "The end date must be on or after the start date", path: ["endsOn"] });
+export type StandInInput = z.infer<typeof standInSchema>;
+
 export const USER_IMPORT_TEMPLATE = "name,email,department,role\nAma Owusu,ama.owusu@milifeghana.com,Claims,Requester\n";
 
 // ------------------------------------------------------------------ workflows

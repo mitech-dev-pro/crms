@@ -1,7 +1,7 @@
 import {
   CHANGE_STATUSES, CHANGE_STATUS_LABELS, MAX_ATTACHMENTS_PER_CHANGE, ROLE_LABELS, attachmentProblem, calcRisk, changeCreateSchema, overrideReasonSchema, tierFor,
   type ChangeDetail, type ChangeDraftInput, type ChangeListQuery, type ChangeStatus, type ChangeUpdateInput,
-  type DecisionInput, type Level, type PirInput, type Role,
+  type CommentInput, type DecisionInput, type Level, type PirInput, type Role,
 } from "@crms/shared";
 import { Prisma } from "../../generated/prisma/client";
 import { prisma } from "../../lib/db";
@@ -10,10 +10,11 @@ import { writeAudit } from "../../services/audit";
 import { isoDate, routeFor } from "../../services/routing";
 import { deleteUpload, readUpload, saveUpload } from "../../lib/uploads";
 import { detailInclude, listInclude, toDetail, toListItem } from "./dto";
-import { allowedActions, applyDecision, buildSteps, isImplementerOf, pendingStep } from "./rules";
+import { notifyComment, notifyDecision, notifyStageReached } from "../../services/notify";
+import { allowedActions, applyDecision, buildSteps, isImplementerOf, pendingStep, standInCover } from "./rules";
 
 type Tx = Prisma.TransactionClient;
-export type Actor = { id: string; name: string; role: Role; ip?: string };
+export type Actor = { id: string; name: string; role: Role; ip?: string; standInFor?: { userId: string; name: string; role: Role }[] };
 
 /** 409: the request is fine, but the change is in the wrong state for it. */
 const conflict = (message: string) => new AppError(409, "INVALID_STATE", message);
@@ -108,18 +109,23 @@ export async function getChange(u: Actor, ref: string, db: Tx | typeof prisma = 
   return detail;
 }
 
-/** Changes waiting at this user's stage that they did not raise. */
+/**
+ * Changes waiting at this user's stage that they did not raise, plus stages they can decide
+ * as a stand-in today (never for the change's own requester).
+ */
 export async function inbox(u: Actor) {
+  const covering = u.standInFor ?? [];
+  const roles = [...new Set([u.role, ...covering.map((s) => s.role)])];
   const rows = await prisma.change.findMany({
     where: {
       status: "PendingApproval",
       requesterId: { not: u.id },
-      steps: { some: { status: "pending", role: u.role } },
+      steps: { some: { status: "pending", role: { in: roles } } },
     },
     orderBy: [{ plannedDate: "asc" }, { ref: "asc" }],
     include: listInclude,
   });
-  return rows.map(toListItem);
+  return rows.filter((c) => pendingStep(c.steps)?.role === u.role || standInCover(c, u)).map(toListItem);
 }
 
 export async function routePreview(q: { departmentId: string; impact: Level; likelihood: Level; emergency: boolean; plannedDate?: string }) {
@@ -198,6 +204,7 @@ export async function createChange(u: Actor, d: ChangeDraftInput, submit: boolea
       return ref;
     }),
   );
+  if (submit) notifyStageReached(ref);
   return getChange(u, ref);
 }
 
@@ -249,7 +256,8 @@ async function submitInTx(tx: Tx, u: Actor, ref: string) {
 
   // A resubmission starts a fresh route. The earlier decisions stay in the audit trail.
   await tx.approvalStep.deleteMany({ where: { changeId: c.id } });
-  await tx.approvalStep.createMany({ data: buildSteps(route).map((s) => ({ ...s, changeId: c.id })) });
+  const now = new Date();
+  await tx.approvalStep.createMany({ data: buildSteps(route).map((s) => ({ ...s, changeId: c.id, pendingSince: s.order === 0 ? now : null })) });
   await tx.change.update({ where: { id: c.id }, data: { status: "PendingApproval", tier, submittedAt: new Date() } });
 
   const action = c.status === "ReturnedForRework" ? "Resubmitted change request" : "Submitted change request";
@@ -258,6 +266,7 @@ async function submitInTx(tx: Tx, u: Actor, ref: string) {
 
 export async function submitChange(u: Actor, ref: string) {
   await prisma.$transaction((tx) => submitInTx(tx, u, ref));
+  notifyStageReached(ref);
   return getChange(u, ref);
 }
 
@@ -275,6 +284,8 @@ export async function decideChange(u: Actor, ref: string, input: DecisionInput) 
       throw forbidden(`This change is waiting at the ${ROLE_LABELS[pendingStep(c.steps)!.role]} stage`);
     }
     if (viaOverride) overrideReasonSchema.parse({ comment: input.comment }); // 400 if no reason
+    // Deciding someone else's stage as their stand-in (not your own role's stage).
+    const cover = !viaOverride ? standInCover(c, u) : undefined;
 
     const { current, updates, status } = applyDecision(c, input.kind);
     const now = new Date();
@@ -284,11 +295,12 @@ export async function decideChange(u: Actor, ref: string, input: DecisionInput) 
         // the same moment can't both decide it.
         const res = await tx.approvalStep.updateMany({
           where: { id: current.id, status: "pending" },
-          data: { status: upd.status, decidedById: u.id, decidedAt: now, comment: input.comment || null, overridden: viaOverride },
+          data: { status: upd.status, decidedById: u.id, decidedAt: now, comment: input.comment || null, overridden: viaOverride, onBehalfOfId: cover?.userId ?? null },
         });
         if (res.count !== 1) throw conflict("This stage was just decided by someone else. Reload and try again.");
       } else {
-        await tx.approvalStep.update({ where: { id: upd.id }, data: { status: upd.status } });
+        // The next stage starts waiting now (for reminders); skipped stages just change status.
+        await tx.approvalStep.update({ where: { id: upd.id }, data: { status: upd.status, ...(upd.status === "pending" && { pendingSince: now }) } });
       }
     }
     await tx.change.update({ where: { id: c.id }, data: { status } });
@@ -296,11 +308,14 @@ export async function decideChange(u: Actor, ref: string, input: DecisionInput) 
     const verb = { approve: "Approved", reject: "Rejected", return: "Returned for rework" }[input.kind];
     // Overrides get their own wording so they stand out when the audit trail is reviewed.
     await writeAudit({
-      action: `${verb}${viaOverride ? " (override)" : ""} at ${ROLE_LABELS[current.role]} stage`,
+      action: `${verb}${viaOverride ? " (override)" : ""} at ${ROLE_LABELS[current.role]} stage${cover ? ` (stand-in for ${cover.name})` : ""}`,
       category: "decision", user: u, ref, ip: u.ip,
-      meta: viaOverride ? { override: true, reason: input.comment } : input.comment ? { comment: input.comment } : undefined,
+      meta: viaOverride
+        ? { override: true, reason: input.comment }
+        : { ...(input.comment && { comment: input.comment }), ...(cover && { onBehalfOf: cover.userId }) },
     }, tx);
   });
+  notifyDecision(ref, input.kind, u.name, input.comment);
   return getChange(u, ref);
 }
 
@@ -356,6 +371,20 @@ export async function reviewChange(u: Actor, ref: string, pir: PirInput) {
     await tx.change.update({ where: { id: c.id }, data: { status: "Closed" } });
     await writeAudit({ action: "Completed post-implementation review & closed", category: "change", user: u, ref, ip: u.ip, meta: { outcome: pir.outcome } }, tx);
   });
+  return getChange(u, ref);
+}
+
+// ------------------------------------------------------------------ discussion
+
+/** Anyone who can see the change can comment. Comments can't be edited, like the audit trail. */
+export async function addComment(u: Actor, ref: string, input: CommentInput) {
+  const c = await prisma.change.findFirst({ where: { AND: [{ ref }, visibleTo(u)] }, select: { id: true } });
+  if (!c) throw notFound("Change request");
+  await prisma.$transaction(async (tx) => {
+    await tx.comment.create({ data: { changeId: c.id, authorId: u.id, body: input.body } });
+    await writeAudit({ action: "Commented", category: "change", user: u, ref, ip: u.ip, meta: { length: input.body.length } }, tx);
+  });
+  notifyComment(ref, u.id, u.name, input.body);
   return getChange(u, ref);
 }
 

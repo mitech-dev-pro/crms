@@ -3,6 +3,7 @@ import type { RequestHandler } from "express";
 import { prisma } from "../lib/db";
 import { AppError, forbidden, unauthenticated } from "../lib/errors";
 import { SESSION_COOKIE, sessionCookieOptions, verifySession } from "../lib/session";
+import { standInsFor } from "../services/standins";
 
 // While a temporary password is in use, only these calls are allowed: the user
 // can see who they are and choose a new password, nothing else.
@@ -32,7 +33,7 @@ export const requireAuth: RequestHandler = async (req, res, next) => {
   }
 
   const { status: _s, sessionVersion: _v, mustChangePassword: _m, ...authUser } = user;
-  req.user = authUser;
+  req.user = { ...authUser, standInFor: await standInsFor(user.id) };
   next();
 };
 

@@ -2,7 +2,7 @@
 // sensitive) out of responses, and adds computed fields the UI needs.
 // Return types come from @crms/shared, so the frontend's types always match.
 import {
-  ROLE_LABELS, calcRisk, type ChangeDetail, type ChangeListItem, type CurrentStage, type Level,
+  DECISION_DUE_DAYS, ROLE_LABELS, addWorkingDays, calcRisk, type ChangeDetail, type ChangeListItem, type CurrentStage, type Level,
 } from "@crms/shared";
 import type { Prisma } from "../../generated/prisma/client";
 import { isoDate } from "../../services/routing";
@@ -18,7 +18,7 @@ export const listInclude = {
   department: { select: { id: true, name: true } },
   requester: person,
   implementer: person,
-  steps: { orderBy: { order: "asc" }, select: { id: true, order: true, role: true, status: true } },
+  steps: { orderBy: { order: "asc" }, select: { id: true, order: true, role: true, status: true, pendingSince: true } },
 } satisfies Prisma.ChangeInclude;
 
 /** Relations loaded for the detail view. */
@@ -27,10 +27,11 @@ export const detailInclude = {
   department: { select: { id: true, name: true } },
   requester: { select: { id: true, name: true, role: true } }, // role: needed for the override rule
   implementer: person,
-  steps: { orderBy: { order: "asc" }, include: { decidedBy: person } },
+  steps: { orderBy: { order: "asc" }, include: { decidedBy: person, onBehalfOf: person } },
   tasks: { orderBy: { order: "asc" }, include: { doneBy: person } },
   attachments: { orderBy: { uploadedAt: "asc" } },
   pir: { include: { reviewedBy: person } },
+  comments: { orderBy: { createdAt: "asc" }, include: { author: { select: { id: true, name: true, role: true } } } },
 } satisfies Prisma.ChangeInclude;
 
 type ListRow = Prisma.ChangeGetPayload<{ include: typeof listInclude }>;
@@ -38,7 +39,12 @@ type DetailRow = Prisma.ChangeGetPayload<{ include: typeof detailInclude }>;
 
 function stageInfo(steps: ListRow["steps"]): CurrentStage {
   const p = pendingStep(steps);
-  return p ? { role: p.role, label: ROLE_LABELS[p.role], index: p.order + 1, total: steps.length } : null;
+  if (!p) return null;
+  const since = p.pendingSince;
+  return {
+    role: p.role, label: ROLE_LABELS[p.role], index: p.order + 1, total: steps.length,
+    pendingSince: isoOrNull(since), dueAt: since ? addWorkingDays(since, DECISION_DUE_DAYS).toISOString() : null,
+  };
 }
 
 export function toListItem(c: ListRow | DetailRow): ChangeListItem {
@@ -66,8 +72,9 @@ export function toDetail(c: DetailRow, user: Actor): Omit<ChangeDetail, "activit
     updatedAt: iso(c.updatedAt), submittedAt: isoOrNull(c.submittedAt),
     steps: c.steps.map((s) => ({
       id: s.id, order: s.order, role: s.role, roleLabel: ROLE_LABELS[s.role], status: s.status,
-      decidedBy: s.decidedBy, decidedAt: isoOrNull(s.decidedAt), comment: s.comment, overridden: s.overridden,
+      decidedBy: s.decidedBy, decidedAt: isoOrNull(s.decidedAt), comment: s.comment, overridden: s.overridden, onBehalfOf: s.onBehalfOf,
     })),
+    comments: c.comments.map((m) => ({ id: m.id, author: m.author, body: m.body, createdAt: iso(m.createdAt) })),
     tasks: c.tasks.map((t) => ({ id: t.id, order: t.order, label: t.label, done: t.done, doneAt: isoOrNull(t.doneAt), doneBy: t.doneBy })),
     attachments: c.attachments.map((a) => ({ id: a.id, fileName: a.fileName, sizeBytes: a.sizeBytes, uploadedAt: iso(a.uploadedAt) })),
     pir: c.pir && { outcome: c.pir.outcome, notes: c.pir.notes, reviewedBy: c.pir.reviewedBy, reviewedAt: iso(c.pir.reviewedAt) },

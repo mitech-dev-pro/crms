@@ -84,14 +84,20 @@ model User {
   createdAt          DateTime   @default(now())
   updatedAt          DateTime   @updatedAt
 
-  headOf        Department[]               @relation("DepartmentHead")
-  lineManagerOf Department[]               @relation("DepartmentLineManager")
-  requested     Change[]                   @relation("ChangeRequester")
-  implementing  Change[]                   @relation("ChangeImplementer")
-  decisions     ApprovalStep[]
-  tasksDone     ChecklistTask[]
-  reviews       PostImplementationReview[]
-  auditEntries  AuditLog[]
+  headOf           Department[]               @relation("DepartmentHead")
+  lineManagerOf    Department[]               @relation("DepartmentLineManager")
+  requested        Change[]                   @relation("ChangeRequester")
+  implementing     Change[]                   @relation("ChangeImplementer")
+  decisions        ApprovalStep[]             @relation("StepDecidedBy")
+  decidedFor       ApprovalStep[]             @relation("StepOnBehalfOf")
+  resetTokens      PasswordResetToken[]
+  standInsGiven    Delegation[]               @relation("DelegationFrom")
+  standInsReceived Delegation[]               @relation("DelegationTo")
+  standInsCreated  Delegation[]               @relation("DelegationCreatedBy")
+  comments         Comment[]
+  tasksDone        ChecklistTask[]
+  reviews          PostImplementationReview[]
+  auditEntries     AuditLog[]
 
   @@index([status]) // admin filters and status counts
 }
@@ -140,6 +146,7 @@ model FreezeWindow {
 }
 
 model Change {
+  comments       Comment[]
   id             String       @id @default(cuid())
   ref            String       @unique // CHG-2026-0144
   title          String
@@ -185,21 +192,29 @@ model Change {
 /// The route is copied onto the change at submit time, so later workflow
 /// edits never affect changes already in flight.
 model ApprovalStep {
-  id          String     @id @default(cuid())
-  changeId    String
-  change      Change     @relation(fields: [changeId], references: [id], onDelete: Cascade)
-  order       Int
-  role        Role
-  status      StepStatus @default(waiting)
-  decidedById String?
-  decidedBy   User?      @relation(fields: [decidedById], references: [id], onDelete: SetNull)
-  decidedAt   DateTime?
-  comment     String?    @db.Text
+  id           String     @id @default(cuid())
+  changeId     String
+  change       Change     @relation(fields: [changeId], references: [id], onDelete: Cascade)
+  order        Int
+  role         Role
+  status       StepStatus @default(waiting)
+  decidedById  String?
+  decidedBy    User?      @relation("StepDecidedBy", fields: [decidedById], references: [id], onDelete: SetNull)
+  decidedAt    DateTime?
+  comment      String?    @db.Text
   /// True when a super admin decided this stage as a break-glass override.
-  overridden  Boolean    @default(false)
+  overridden   Boolean    @default(false)
+  /// When a stand-in decided it: the approver they were covering for.
+  onBehalfOfId String?
+  onBehalfOf   User?      @relation("StepOnBehalfOf", fields: [onBehalfOfId], references: [id], onDelete: SetNull)
+  /// When this stage started waiting for a decision (drives reminders and escalation).
+  pendingSince DateTime?
+  remindedAt   DateTime?
+  escalatedAt  DateTime?
 
   @@unique([changeId, order])
   @@index([role, status])
+  @@index([status, pendingSince]) // the reminder job's query
 }
 
 model ChecklistTask {
@@ -256,4 +271,52 @@ model AuditLog {
   @@index([at])
   @@index([category, at]) // audit filter by category, newest first
   @@index([role, at])
+}
+
+/// A one-time link for "Forgot password". Only a hash of the token is stored, so a database
+/// leak can't be used to reset passwords.
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+}
+
+/// A stand-in: while `fromUser` is away (inclusive dates), `toUser` may decide approval
+/// stages for `fromUser`'s role on their behalf.
+model Delegation {
+  id          String    @id @default(cuid())
+  fromUserId  String
+  fromUser    User      @relation("DelegationFrom", fields: [fromUserId], references: [id], onDelete: Cascade)
+  toUserId    String
+  toUser      User      @relation("DelegationTo", fields: [toUserId], references: [id], onDelete: Cascade)
+  startsOn    DateTime  @db.Date
+  endsOn      DateTime  @db.Date
+  reason      String?   @db.VarChar(300)
+  createdById String
+  createdBy   User      @relation("DelegationCreatedBy", fields: [createdById], references: [id])
+  createdAt   DateTime  @default(now())
+  /// Ended early. Kept (not deleted) so past decisions still show who covered.
+  revokedAt   DateTime?
+
+  @@index([toUserId, startsOn, endsOn])
+  @@index([fromUserId])
+}
+
+/// The discussion on a change.
+model Comment {
+  id        String   @id @default(cuid())
+  changeId  String
+  change    Change   @relation(fields: [changeId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id])
+  body      String   @db.Text
+  createdAt DateTime @default(now())
+
+  @@index([changeId, createdAt])
 }
