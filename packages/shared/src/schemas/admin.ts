@@ -75,7 +75,7 @@ export const userImportSchema = z.object({
 export type UserImportInput = z.input<typeof userImportSchema>;
 
 /** The template the Users screen offers for download. */
-export const USER_IMPORT_TEMPLATE = "name,email,department,role\nAma Owusu,ama.owusu@milife.com.gh,Claims,Requester\n";
+export const USER_IMPORT_TEMPLATE = "name,email,department,role\nAma Owusu,ama.owusu@milifeghana.com,Claims,Requester\n";
 
 // ------------------------------------------------------------------ workflows
 

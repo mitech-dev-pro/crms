@@ -493,7 +493,7 @@ Each phase ends in something you can run. Agents: **finish a phase, show it work
 ### Phase 3: Auth and permissions
 - Login, logout and me. JWT cookie. `auth` + `requirePerm` middleware. `PERMS` map lives in `shared`. Audit on sign-in.
 - **Done when:** logging in as each seeded role returns the right user, and a forbidden route returns 403.
-- ✅ **Done (2026-11-05).** Demo login: any seeded email (e.g. `yaw.owusu@milife.com.gh`), password `demo-password`.
+- ✅ **Done (2026-11-05).** Demo login: any seeded email (e.g. `yaw.owusu@milifeghana.com`), password `demo-password`.
   - **Session:** HS256 JWT made with `jose`, stored in the `crms_session` cookie (httpOnly, SameSite=Lax, Secure in prod; lasts `SESSION_HOURS`, default 8). The token holds only the user id. `requireAuth` re-reads the user from the database on every request, so a disabled user or a role change takes effect immediately. New env vars: `JWT_SECRET` (min 32 chars; a random one is in local `.env`) and `SESSION_HOURS`.
   - **Routes:** `POST /api/auth/login`, `POST /api/auth/logout`, `GET /api/auth/me` (returns `SessionUser` with `permissions`), `GET /api/meta` (departments, types, implementers, freezes), `GET /api/audit` (paginated, filter by `q`/`role`/`category`; `audit` permission).
   - **Login hardening:** one generic message for wrong password, unknown email, invited or disabled user. bcrypt runs against a dummy hash for unknown emails, so response timing doesn't reveal which emails exist. Every failed attempt is audited with the real reason in `meta`.
@@ -532,13 +532,13 @@ Each phase ends in something you can run. Agents: **finish a phase, show it work
     - Refs are `CHG-<year>-NNNN`, retried on a unique-index collision.
   - **Deferred to Phase 6:** CSV export and attachment upload (`multer`).
   - **Resolved (2026-11-05): who approves when the requester holds the only stage role?** The project owner chose both options below. Tests: 36 passing.
-    - **Normal path: a deputy.** Any second user with the same role approves. A seeded **Deputy Change Manager** (`deputy.change.manager@milife.com.gh`, IT) covers the Change Manager case.
+    - **Normal path: a deputy.** Any second user with the same role approves. A seeded **Deputy Change Manager** (`deputy.change.manager@milifeghana.com`, IT) covers the Change Manager case.
     - **Break-glass: the super admin.**
       - **When:** only when the requester holds the pending stage's role (`actions.override`), and never on the super admin's own change.
       - **Reason required:** a comment is mandatory, even to approve.
       - **Recorded:** the step gets `overridden = true` (migration `approval_step_override`), and the audit action is `"<Verb> (override) at <Stage> stage"` with `meta.reason`.
       - **Anything else:** any other super admin decision attempt returns 403.
-      - Seeded **Super Admin** (`super.admin@milife.com.gh`, IT). Both new users have placeholder names and were appended last, so existing `USR-` codes are unchanged.
+      - Seeded **Super Admin** (`super.admin@milifeghana.com`, IT). Both new users have placeholder names and were appended last, so existing `USR-` codes are unchanged.
     - **Phase 7:** notify the Change Manager and Risk & Compliance whenever an override is used.
 
 ### Phase 5: Frontend wired to the API

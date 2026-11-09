@@ -2,7 +2,7 @@
 // Creates only reference data and one Super Admin; everything else is done in the app
 // (Administration). Safe to re-run: existing rows are left alone.
 //
-//   npm run db:bootstrap -w @crms/backend -- --email it.admin@milife.com.gh --name "IT Admin"
+//   npm run db:bootstrap -w @crms/backend -- --email it.admin@milifeghana.com --name "IT Admin"
 //   options: --dept-code IT --dept-name "IT"
 import "dotenv/config";
 import { DEFAULT_ROUTES, RISK_TIERS } from "@crms/shared";
@@ -21,7 +21,7 @@ const { values: args } = parseArgs({
   },
 });
 if (!args.email || !args.name) {
-  console.error('Usage: npm run db:bootstrap -w @crms/backend -- --email you@milife.com.gh --name "Your Name" [--dept-code IT --dept-name IT]');
+  console.error('Usage: npm run db:bootstrap -w @crms/backend -- --email you@milifeghana.com --name "Your Name" [--dept-code IT --dept-name IT]');
   process.exit(1);
 }
 if (!process.env.DATABASE_URL) throw new Error("DATABASE_URL is not set");

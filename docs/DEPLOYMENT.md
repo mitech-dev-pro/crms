@@ -41,7 +41,7 @@ Browser ──HTTPS──► reverse proxy (IIS / nginx)
 | `DATABASE_URL` | `mysql://USER:PASSWORD@db-host:3306/changehub` (URL-encode special characters in the password) |
 | `JWT_SECRET` | A long random string: `node -e "console.log(require('crypto').randomBytes(48).toString('base64url'))"`. **Changing it signs everyone out.** |
 | `SESSION_HOURS` | `8` (how long a sign-in lasts) |
-| `CORS_ORIGIN` | The public site address, e.g. `https://changehub.milife.com.gh` |
+| `CORS_ORIGIN` | The public site address, e.g. `https://changehub.milifeghana.com` |
 | `TRUST_PROXY` | `loopback` if Next is on the same server. Add your reverse proxy's IP if it forwards from another machine (e.g. `loopback, 10.0.0.5`), so the audit trail records real client addresses. |
 | `UPLOAD_DIR` | Attachment folder, default `uploads` (inside `backend/`). Use an absolute path on a backed-up disk if you prefer. |
 | `LOGIN_MAX_FAILURES` / `LOGIN_MAX_PER_IP` | Login rate limits per 15 min (defaults 10 / 100). If many staff share one public IP behind NAT, raise `LOGIN_MAX_PER_IP`. |
@@ -59,7 +59,7 @@ git clone <repo> changehub && cd changehub
 npm ci                                   # installs all workspaces from the lockfile
 npm run db:generate -w @crms/backend     # generates the Prisma client (not committed)
 npm run db:deploy -w @crms/backend       # creates/updates the tables (never use db:migrate or db:seed in production)
-npm run db:bootstrap -w @crms/backend -- --email it.admin@milife.com.gh --name "IT Admin"
+npm run db:bootstrap -w @crms/backend -- --email it.admin@milifeghana.com --name "IT Admin"
 ```
 
 `db:bootstrap` creates only reference data: the change types, the default approval routes, one department (`IT`) and **one Super Admin**. It prints the Super Admin's temporary password **once**, and they must change it at first sign-in. Running it again is harmless. Then sign in and use **Administration** to add departments, users (or a CSV import), and any department-specific routes.

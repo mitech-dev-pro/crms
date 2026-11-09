@@ -4,7 +4,7 @@ import { expect, test } from "@playwright/test";
 test("signed-out visitors are sent to the login page, then back", async ({ page }) => {
   await page.goto("/reports");
   await expect(page).toHaveURL(/\/login\?next=%2Freports/);
-  await page.getByLabel("Email").fill("yaw.owusu@milife.com.gh");
+  await page.getByLabel("Email").fill("yaw.owusu@milifeghana.com");
   await page.getByLabel("Password", { exact: true }).fill("demo-password");
   await page.getByRole("button", { name: "Sign in", exact: true }).click();
   await expect(page).toHaveURL(/\/reports$/);
@@ -13,7 +13,7 @@ test("signed-out visitors are sent to the login page, then back", async ({ page 
 
 test("a wrong password gets one generic message", async ({ page }) => {
   await page.goto("/login");
-  await page.getByLabel("Email").fill("yaw.owusu@milife.com.gh");
+  await page.getByLabel("Email").fill("yaw.owusu@milifeghana.com");
   await page.getByLabel("Password", { exact: true }).fill("not-the-password");
   await page.getByRole("button", { name: "Sign in", exact: true }).click();
   // Scope to the form: Next also renders an (empty) route-announcer alert for screen readers.
@@ -22,7 +22,7 @@ test("a wrong password gets one generic message", async ({ page }) => {
 
 test("roles only see their screens, and get a 403 page elsewhere", async ({ page }) => {
   await page.goto("/login");
-  await page.getByLabel("Email").fill("ama.mensah@milife.com.gh");
+  await page.getByLabel("Email").fill("ama.mensah@milifeghana.com");
   await page.getByLabel("Password", { exact: true }).fill("demo-password");
   await page.getByRole("button", { name: "Sign in", exact: true }).click();
   await expect(page).toHaveURL(/\/dashboard/);

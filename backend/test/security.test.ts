@@ -17,7 +17,7 @@ const sessionCookie = (res: request.Response) => (res.headers["set-cookie"] as u
 
 /** Invite a user and activate them with a temporary password. */
 async function makeUser(name: string, role = "requester") {
-  const email = `${name.toLowerCase().replace(/ /g, ".")}@milife.com.gh`;
+  const email = `${name.toLowerCase().replace(/ /g, ".")}@milifeghana.com`;
   const u = (await selorm.post("/api/admin/users").send({ name, email, departmentId: deptId, role }).expect(201)).body;
   const { temporaryPassword } = (await selorm.post(`/api/admin/users/${u.id}/reset-password`).expect(200)).body;
   return { id: u.id as string, email, temporaryPassword: temporaryPassword as string };
@@ -25,7 +25,7 @@ async function makeUser(name: string, role = "requester") {
 
 describe("session revocation", () => {
   it("logout kills the token everywhere, including a copied one", async () => {
-    const res = await request(app).post("/api/auth/login").send({ email: "nana.agyeman@milife.com.gh", password: "demo-password" }).expect(200);
+    const res = await request(app).post("/api/auth/login").send({ email: "nana.agyeman@milifeghana.com", password: "demo-password" }).expect(200);
     const stolen = sessionCookie(res);
     await request(app).get("/api/auth/me").set("Cookie", stolen).expect(200);
 
@@ -34,9 +34,9 @@ describe("session revocation", () => {
   });
 
   it("a revoked token can't sign the user out of their new session", async () => {
-    const first = sessionCookie(await request(app).post("/api/auth/login").send({ email: "fiifi.sam@milife.com.gh", password: "demo-password" }).expect(200));
+    const first = sessionCookie(await request(app).post("/api/auth/login").send({ email: "fiifi.sam@milifeghana.com", password: "demo-password" }).expect(200));
     await request(app).post("/api/auth/logout").set("Cookie", first).expect(204);
-    const second = sessionCookie(await request(app).post("/api/auth/login").send({ email: "fiifi.sam@milife.com.gh", password: "demo-password" }).expect(200));
+    const second = sessionCookie(await request(app).post("/api/auth/login").send({ email: "fiifi.sam@milifeghana.com", password: "demo-password" }).expect(200));
     await request(app).post("/api/auth/logout").set("Cookie", first).expect(204); // old token: no effect
     await request(app).get("/api/auth/me").set("Cookie", second).expect(200);
   });
@@ -86,14 +86,14 @@ describe("temporary passwords", () => {
 
 describe("login rate limiting", () => {
   it("allows 10 failures per account and address, then answers 429", async () => {
-    const attempt = () => request(app).post("/api/auth/login").send({ email: "kofi.boakye@milife.com.gh", password: "wrong" });
+    const attempt = () => request(app).post("/api/auth/login").send({ email: "kofi.boakye@milifeghana.com", password: "wrong" });
     for (let i = 0; i < 10; i++) await attempt().expect(401);
     const limited = await attempt().expect(429);
     expect(limited.body.error.code).toBe("RATE_LIMITED");
     expect(limited.headers["retry-after"]).toBeDefined();
 
     // Other accounts from the same address are unaffected.
-    await request(app).post("/api/auth/login").send({ email: "efua.asante@milife.com.gh", password: "demo-password" }).expect(200);
+    await request(app).post("/api/auth/login").send({ email: "efua.asante@milifeghana.com", password: "demo-password" }).expect(200);
   });
 });
 

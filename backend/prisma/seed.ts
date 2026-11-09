@@ -62,7 +62,7 @@ async function main() {
     data: people.map((p, i) => ({
       code: "USR-" + String(201 + i).padStart(4, "0"),
       name: p.name,
-      email: p.name.toLowerCase().replace(/ /g, ".") + "@milife.com.gh",
+      email: p.name.toLowerCase().replace(/ /g, ".") + "@milifeghana.com",
       title: p.title,
       role: p.role,
       status: p.status,

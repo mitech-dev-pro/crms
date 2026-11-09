@@ -52,16 +52,16 @@ describe("change types", () => {
 
 describe("users", () => {
   it("invite → can't sign in → reset password → signs in with the temporary password", async () => {
-    const u = (await selorm.post("/api/admin/users").send({ name: "Test Invitee", email: "Test.Invitee@milife.com.gh", departmentId: testDept.id, role: "requester" }).expect(201)).body;
-    expect(u).toMatchObject({ email: "test.invitee@milife.com.gh", status: "Invited" });
+    const u = (await selorm.post("/api/admin/users").send({ name: "Test Invitee", email: "Test.Invitee@milifeghana.com", departmentId: testDept.id, role: "requester" }).expect(201)).body;
+    expect(u).toMatchObject({ email: "test.invitee@milifeghana.com", status: "Invited" });
     expect(u.code).toMatch(/^USR-\d{4}$/);
 
-    await login("test.invitee@milife.com.gh", "anything").expect(401);
+    await login("test.invitee@milifeghana.com", "anything").expect(401);
     const res = await selorm.post(`/api/admin/users/${u.id}/reset-password`).expect(200).expect("cache-control", "no-store");
     const { temporaryPassword } = res.body;
     expect(temporaryPassword).toHaveLength(12);
 
-    await login("test.invitee@milife.com.gh", temporaryPassword).expect(200);
+    await login("test.invitee@milifeghana.com", temporaryPassword).expect(200);
     const after = (await selorm.get("/api/admin/users").query({ q: "Test Invitee" }).expect(200)).body.items[0];
     expect(after.status).toBe("Active");
 
@@ -73,10 +73,10 @@ describe("users", () => {
   });
 
   it("disabling a user ends their session immediately", async () => {
-    const u = (await selorm.post("/api/admin/users").send({ name: "Short Lived", email: "short.lived@milife.com.gh", departmentId: testDept.id, role: "requester" }).expect(201)).body;
+    const u = (await selorm.post("/api/admin/users").send({ name: "Short Lived", email: "short.lived@milifeghana.com", departmentId: testDept.id, role: "requester" }).expect(201)).body;
     const { temporaryPassword } = (await selorm.post(`/api/admin/users/${u.id}/reset-password`).expect(200)).body;
     const session = request.agent(app);
-    await session.post("/api/auth/login").send({ email: "short.lived@milife.com.gh", password: temporaryPassword }).expect(200);
+    await session.post("/api/auth/login").send({ email: "short.lived@milifeghana.com", password: temporaryPassword }).expect(200);
     await session.get("/api/auth/me").expect(200);
 
     await selorm.patch(`/api/admin/users/${u.id}`).send({ status: "Disabled" }).expect(200);
@@ -89,11 +89,11 @@ describe("users", () => {
     await selorm.patch(`/api/admin/users/${me.id}`).send({ role: "requester" }).expect(403);
     await selorm.patch(`/api/admin/users/${me.id}`).send({ status: "Disabled" }).expect(403);
 
-    const u = (await selorm.post("/api/admin/users").send({ name: "Role Target", email: "role.target@milife.com.gh", departmentId: testDept.id, role: "requester" }).expect(201)).body;
+    const u = (await selorm.post("/api/admin/users").send({ name: "Role Target", email: "role.target@milifeghana.com", departmentId: testDept.id, role: "requester" }).expect(201)).body;
     await selorm.patch(`/api/admin/users/${u.id}`).send({ role: "lineManager" }).expect(200);
     const promote = await selorm.patch(`/api/admin/users/${u.id}`).send({ role: "admin" }).expect(403);
     expect(promote.body.error.message).toMatch(/super admin/);
-    await selorm.post("/api/admin/users").send({ name: "Sneaky Admin", email: "sneaky@milife.com.gh", departmentId: testDept.id, role: "superAdmin" }).expect(403);
+    await selorm.post("/api/admin/users").send({ name: "Sneaky Admin", email: "sneaky@milifeghana.com", departmentId: testDept.id, role: "superAdmin" }).expect(403);
 
     await superAdmin.patch(`/api/admin/users/${u.id}`).send({ role: "admin" }).expect(200);
     await selorm.patch(`/api/admin/users/${u.id}`).send({ status: "Disabled" }).expect(403); // now an admin account
@@ -105,11 +105,11 @@ describe("users", () => {
 
   it("imports from CSV rows: a dry run reports problems, then only valid rows are created", async () => {
     const rows = [
-      { name: "Import Good", email: "import.good@milife.com.gh", department: "TST", role: "Requester" },
-      { name: "Import Dup", email: "ama.mensah@milife.com.gh", department: "Claims", role: "requester" },
-      { name: "Import Bad", email: "import.bad@milife.com.gh", department: "Nowhere", role: "Wizard" },
-      { name: "Import Admin", email: "import.admin@milife.com.gh", department: "IT", role: "System Admin" },
-      { name: "Import Twice", email: "import.good@milife.com.gh", department: "IT", role: "Implementer" },
+      { name: "Import Good", email: "import.good@milifeghana.com", department: "TST", role: "Requester" },
+      { name: "Import Dup", email: "ama.mensah@milifeghana.com", department: "Claims", role: "requester" },
+      { name: "Import Bad", email: "import.bad@milifeghana.com", department: "Nowhere", role: "Wizard" },
+      { name: "Import Admin", email: "import.admin@milifeghana.com", department: "IT", role: "System Admin" },
+      { name: "Import Twice", email: "import.good@milifeghana.com", department: "IT", role: "Implementer" },
     ];
     const dry = (await selorm.post("/api/admin/users/import").send({ rows, dryRun: true }).expect(200)).body;
     expect(dry.created).toBe(0);
@@ -119,11 +119,11 @@ describe("users", () => {
     expect(dry.results[3].errors).toContain("Only a super admin can create admin accounts");
     expect(dry.results[4].errors).toContain("Duplicate email in this file");
     expect(dry.results[0].row).toBe(2); // spreadsheet row numbers (row 1 is the header)
-    expect(await prisma.user.count({ where: { email: "import.good@milife.com.gh" } })).toBe(0);
+    expect(await prisma.user.count({ where: { email: "import.good@milifeghana.com" } })).toBe(0);
 
     const real = (await selorm.post("/api/admin/users/import").send({ rows, dryRun: false }).expect(200)).body;
     expect(real.created).toBe(1);
-    expect(await prisma.user.findUnique({ where: { email: "import.good@milife.com.gh" }, select: { status: true } })).toEqual({ status: "Invited" });
+    expect(await prisma.user.findUnique({ where: { email: "import.good@milifeghana.com" }, select: { status: true } })).toEqual({ status: "Invited" });
   });
 
   it("filters, counts and exports users", async () => {
